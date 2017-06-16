@@ -3,12 +3,13 @@
 import argparse
 import json
 import os
-import six
 import subprocess
-import sys
 
 valid_problem_types = ('batch', 'interactive', 'communication', 'output-only', 'two-phase')
 valid_verdicts = ('model_solution', 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error')
+necessary_files = ('checker/testlib.h', 'validator/testlib.h', 'gen/testlib.h', 'gen/data', 'checker/checker.cpp', 'grader/cpp/grader.cpp', 'grader/pas/grader.pas', 'grader/java/grader.java')
+
+string_types = (str, unicode)
 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
@@ -80,19 +81,19 @@ def get_list_of_files(directory):
 def verify_problem():
     problem = load_data('problem.json', ['name', 'title', 'type', 'time_limit', 'memory_limit'])
     if problem is None:
-        return {}
+        return problem
 
     git_origin_name = subprocess.check_output('git remote get-url origin | rev | cut -d/ -f1 | rev | cut -d. -f1', shell=True).strip()
 
-    if not isinstance(problem['name'], six.string_types):
+    if not isinstance(problem['name'], string_types):
         error('name is not a string')
     elif problem['name'] != git_origin_name:
         warning('problem name and git project name are not the same')
 
-    if not isinstance(problem['title'], six.string_types):
+    if not isinstance(problem['title'], string_types):
         error('title is not a string')
 
-    if not isinstance(problem['type'], six.string_types) or problem['type'] not in valid_problem_types:
+    if not isinstance(problem['type'], string_types) or problem['type'] not in valid_problem_types:
         error('type should be one of {}'.format('/'.join(valid_problem_types)))
 
     if not isinstance(problem['time_limit'], float) or problem['time_limit'] < 0.5:
@@ -108,7 +109,7 @@ def verify_problem():
 def verify_subtasks():
     subtasks = load_data('subtasks.json', ['samples'])
     if subtasks is None:
-        return {}
+        return subtasks
 
     indexes = set()
     score_sum = 0
@@ -140,7 +141,7 @@ def verify_subtasks():
             error('validators is not an array in subtask {}'.format(name))
         else:
             for index, validator in enumerate(data['validators']):
-                if not isinstance(validator, six.string_types):
+                if not isinstance(validator, string_types):
                     error('validator #{} is not a string in subtask {}'.format(index, name))
                 elif validator not in validators:
                     error('{} does not exists'.format(validator))
@@ -160,14 +161,14 @@ def verify_subtasks():
 
 
 def verify_verdict(verdict, key_name):
-    if not isinstance(verdict, six.string_types) or verdict not in valid_verdicts:
+    if not isinstance(verdict, string_types) or verdict not in valid_verdicts:
         error('{} verdict should be one of {}'.format(key_name, '/'.join(valid_verdicts)))
 
 
 def verify_solutions(subtasks):
     solutions = load_data('solutions.json')
-    if solutions is None:
-        return {}
+    if solutions is None or subtasks is None:
+        return solutions
 
     solution_files = set(get_list_of_files('solution/'))
 
@@ -201,6 +202,12 @@ def verify_solutions(subtasks):
         error('{} is not represented'.format(solution))
 
 
+def verify_existence(files):
+    for file in files:
+        if not os.path.isfile(file):
+            error(file)
+
+
 def verify():
     global namespace
     namespace = 'problem.json'
@@ -211,6 +218,9 @@ def verify():
 
     namespace = 'solutions.json'
     verify_solutions(subtasks)
+
+    namespace = 'not found'
+    verify_existence(necessary_files)
 
     for error in errors:
         print error
