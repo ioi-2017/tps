@@ -1,10 +1,11 @@
 #!/usr/bin/python2.7
 
+import argparse
 import json
 import os
 import six
 import subprocess
-
+import sys
 
 valid_problem_types = ('batch', 'interactive', 'communication', 'output-only', 'two-phase')
 valid_verdicts = ('model_solution', 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error')
@@ -31,10 +32,17 @@ def warning(description):
     warnings.append(YELLOW + 'WARNING: {} - {}'.format(namespace, description) + ENDC)
 
 
-def check_keys(data, required_keys, json_name):
+def check_keys(data, required_keys, json_name=None):
+    key_not_found = False
     for key in required_keys:
         if key not in data:
-            error('{} is required in {}'.format(key, json_name))
+            if json_name:
+                error('{} is required in {}'.format(key, json_name))
+            else:
+                error('{} is required'.format(key, json_name))
+            key_not_found = True
+    if key_not_found:
+        raise KeyError
 
 
 def error_on_duplicate_keys(ordered_pairs):
@@ -48,9 +56,20 @@ def error_on_duplicate_keys(ordered_pairs):
 
 
 def load_data(json_file, required_keys=()):
-    with open(json_file, 'r') as f:
-        data = json.load(f, object_pairs_hook=error_on_duplicate_keys)
-    check_keys(data, required_keys, json_file)
+    try:
+        with open(json_file, 'r') as f:
+            try:
+                data = json.load(f, object_pairs_hook=error_on_duplicate_keys)
+            except ValueError:
+                error('invalid json')
+                return None
+    except IOError:
+        error('file does not exists')
+        return None
+    try:
+        check_keys(data, required_keys)
+    except KeyError:
+        return None
     return data
 
 
@@ -60,6 +79,8 @@ def get_list_of_files(directory):
 
 def verify_problem():
     problem = load_data('problem.json', ['name', 'title', 'type', 'time_limit', 'memory_limit'])
+    if problem is None:
+        return {}
 
     git_origin_name = subprocess.check_output('git remote get-url origin | rev | cut -d/ -f1 | rev | cut -d. -f1', shell=True).strip()
 
@@ -86,6 +107,8 @@ def verify_problem():
 
 def verify_subtasks():
     subtasks = load_data('subtasks.json', ['samples'])
+    if subtasks is None:
+        return {}
 
     indexes = set()
     score_sum = 0
@@ -98,7 +121,10 @@ def verify_subtasks():
             error('invalid data in {}'.format(name))
             continue
 
-        check_keys(data, ['index', 'score', 'validators'], name)
+        try:
+            check_keys(data, ['index', 'score', 'validators'], name)
+        except KeyError:
+            continue
 
         indexes.add(data['index'])
 
@@ -140,6 +166,8 @@ def verify_verdict(verdict, key_name):
 
 def verify_solutions(subtasks):
     solutions = load_data('solutions.json')
+    if solutions is None:
+        return {}
 
     solution_files = set(get_list_of_files('solution/'))
 
@@ -151,7 +179,11 @@ def verify_solutions(subtasks):
 
         data = solutions[solution]
 
-        check_keys(data, ['verdict'], solution)
+        try:
+            check_keys(data, ['verdict'], solution)
+        except KeyError:
+            continue
+
         verify_verdict(data['verdict'], solution)
 
         if 'except' in data:
@@ -169,7 +201,8 @@ def verify_solutions(subtasks):
         error('{} is not represented'.format(solution))
 
 
-if __name__ == '__main__':
+def verify():
+    global namespace
     namespace = 'problem.json'
     verify_problem()
 
@@ -190,3 +223,17 @@ if __name__ == '__main__':
 
     for warning in warnings:
         print warning
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog='manage.py', formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('action', help='gen    - generating test cases\n'
+                                       'verify - verifing problem utilites\n')
+
+    args = parser.parse_args()
+    if args.action == 'verify':
+        verify()
+    elif args.action == 'gen':
+        pass
+    else:
+        parser.print_help()
