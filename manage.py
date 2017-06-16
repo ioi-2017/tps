@@ -188,9 +188,16 @@ def verify_solutions(subtasks):
 
 
 def parse_data():
-
+    subtasks = load_data('subtasks.json')
+    with open('gen/data', 'r') as f:
+        for line in f.readlines():
+            if line[0] == '[':
+                subtask = line.translate(None, '[]').strip()
+            subtasks
+    pass
 
 def generate_input(solution):
+
     pass
 
 
