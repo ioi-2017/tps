@@ -136,11 +136,20 @@ def verify_subtasks():
 def verify_verdict(verdict, key_name):
     if not isinstance(verdict, six.string_types) or verdict not in valid_verdicts:
         error('{} verdict should be one of {}'.format(key_name, '/'.join(valid_verdicts)))
+        return False
+    return True
+
+
+def get_model_solution(solutions):
+    for solution, data in enumerate(solutions):
+        if isinstance(data, dict) and 'verdict' in data:
+            if data['verdict'] == valid_verdicts[0]:
+                return solution
 
 
 def verify_solutions(subtasks):
     solutions = load_data('solutions.json')
-
+    model_solution = None
     solution_files = set(get_list_of_files('solution/'))
 
     for solution in solutions:
@@ -152,7 +161,11 @@ def verify_solutions(subtasks):
         data = solutions[solution]
 
         check_keys(data, ['verdict'], solution)
-        verify_verdict(data['verdict'], solution)
+        verified = verify_verdict(data['verdict'], solution)
+        if verified and data['verdict'] == valid_verdicts[0]:  # model_solution always has index 0
+            if model_solution is not None:
+                error('there is more than one model solutions')
+            model_solution = solution
 
         if 'except' in data:
             exceptions = data['except']
@@ -165,8 +178,39 @@ def verify_solutions(subtasks):
                     else:
                         verify_verdict(exceptions[subtask_verdict], '{}.except.{}'.format(solution, subtask_verdict))
 
+    if model_solution is None:
+        warning('there is no model solution')
+
     for solution in solution_files:
         error('{} is not represented'.format(solution))
+
+    return solutions
+
+
+def parse_data():
+
+
+def generate_input(solution):
+    pass
+
+
+def generate_output(solution):
+    pass
+
+
+def generate(input=True, output=True, solution=None):
+    subtasks = verify_subtasks()
+    solutions = verify_solutions(subtasks)
+    if solution is None:
+        solution = get_model_solution(solutions)
+    if solution is None:
+        error('there is no model solution or specified solution')
+        return
+
+    if input is True:
+        generate_input(solution)
+    if output is True:
+        generate_output(solution)
 
 
 if __name__ == '__main__':
@@ -177,7 +221,7 @@ if __name__ == '__main__':
     subtasks = verify_subtasks()
 
     namespace = 'solutions.json'
-    verify_solutions(subtasks)
+    solutions = verify_solutions(subtasks)
 
     for error in errors:
         print error
