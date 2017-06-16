@@ -1,13 +1,15 @@
 #!/usr/bin/python2.7
 
+import argparse
 import json
 import os
-import six
 import subprocess
-
 
 valid_problem_types = ('batch', 'interactive', 'communication', 'output-only', 'two-phase')
 valid_verdicts = ('model_solution', 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error')
+necessary_files = ('checker/testlib.h', 'validator/testlib.h', 'gen/testlib.h', 'gen/data', 'checker/checker.cpp', 'grader/cpp/grader.cpp', 'grader/pas/grader.pas', 'grader/java/grader.java')
+
+string_types = (str, unicode)
 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
@@ -31,10 +33,17 @@ def warning(description):
     warnings.append(YELLOW + 'WARNING: {} - {}'.format(namespace, description) + ENDC)
 
 
-def check_keys(data, required_keys, json_name):
+def check_keys(data, required_keys, json_name=None):
+    key_not_found = False
     for key in required_keys:
         if key not in data:
-            error('{} is required in {}'.format(key, json_name))
+            if json_name:
+                error('{} is required in {}'.format(key, json_name))
+            else:
+                error('{} is required'.format(key, json_name))
+            key_not_found = True
+    if key_not_found:
+        raise KeyError
 
 
 def error_on_duplicate_keys(ordered_pairs):
@@ -48,9 +57,20 @@ def error_on_duplicate_keys(ordered_pairs):
 
 
 def load_data(json_file, required_keys=()):
-    with open(json_file, 'r') as f:
-        data = json.load(f, object_pairs_hook=error_on_duplicate_keys)
-    check_keys(data, required_keys, json_file)
+    try:
+        with open(json_file, 'r') as f:
+            try:
+                data = json.load(f, object_pairs_hook=error_on_duplicate_keys)
+            except ValueError:
+                error('invalid json')
+                return None
+    except IOError:
+        error('file does not exists')
+        return None
+    try:
+        check_keys(data, required_keys)
+    except KeyError:
+        return None
     return data
 
 
@@ -60,18 +80,20 @@ def get_list_of_files(directory):
 
 def verify_problem():
     problem = load_data('problem.json', ['name', 'title', 'type', 'time_limit', 'memory_limit'])
+    if problem is None:
+        return problem
 
     git_origin_name = subprocess.check_output('git remote get-url origin | rev | cut -d/ -f1 | rev | cut -d. -f1', shell=True).strip()
 
-    if not isinstance(problem['name'], six.string_types):
+    if not isinstance(problem['name'], string_types):
         error('name is not a string')
     elif problem['name'] != git_origin_name:
         warning('problem name and git project name are not the same')
 
-    if not isinstance(problem['title'], six.string_types):
+    if not isinstance(problem['title'], string_types):
         error('title is not a string')
 
-    if not isinstance(problem['type'], six.string_types) or problem['type'] not in valid_problem_types:
+    if not isinstance(problem['type'], string_types) or problem['type'] not in valid_problem_types:
         error('type should be one of {}'.format('/'.join(valid_problem_types)))
 
     if not isinstance(problem['time_limit'], float) or problem['time_limit'] < 0.5:
@@ -86,6 +108,8 @@ def verify_problem():
 
 def verify_subtasks():
     subtasks = load_data('subtasks.json', ['samples'])
+    if subtasks is None:
+        return subtasks
 
     indexes = set()
     score_sum = 0
@@ -98,7 +122,10 @@ def verify_subtasks():
             error('invalid data in {}'.format(name))
             continue
 
-        check_keys(data, ['index', 'score', 'validators'], name)
+        try:
+            check_keys(data, ['index', 'score', 'validators'], name)
+        except KeyError:
+            continue
 
         indexes.add(data['index'])
 
@@ -114,7 +141,7 @@ def verify_subtasks():
             error('validators is not an array in subtask {}'.format(name))
         else:
             for index, validator in enumerate(data['validators']):
-                if not isinstance(validator, six.string_types):
+                if not isinstance(validator, string_types):
                     error('validator #{} is not a string in subtask {}'.format(index, name))
                 elif validator not in validators:
                     error('{} does not exists'.format(validator))
@@ -134,7 +161,7 @@ def verify_subtasks():
 
 
 def verify_verdict(verdict, key_name):
-    if not isinstance(verdict, six.string_types) or verdict not in valid_verdicts:
+    if not isinstance(verdict, string_types) or verdict not in valid_verdicts:
         error('{} verdict should be one of {}'.format(key_name, '/'.join(valid_verdicts)))
         return False
     return True
@@ -149,6 +176,9 @@ def get_model_solution(solutions):
 
 def verify_solutions(subtasks):
     solutions = load_data('solutions.json')
+    if solutions is None or subtasks is None:
+        return solutions
+
     model_solution = None
     solution_files = set(get_list_of_files('solution/'))
 
@@ -160,6 +190,12 @@ def verify_solutions(subtasks):
 
         data = solutions[solution]
 
+        try:
+            check_keys(data, ['verdict'], solution)
+        except KeyError:
+            continue
+
+        verify_verdict(data['verdict'], solution)
         check_keys(data, ['verdict'], solution)
         verified = verify_verdict(data['verdict'], solution)
         if verified and data['verdict'] == valid_verdicts[0]:  # model_solution always has index 0
@@ -220,7 +256,14 @@ def generate(input=True, output=True, solution=None):
         generate_output(solution)
 
 
-if __name__ == '__main__':
+def verify_existence(files):
+    for file in files:
+        if not os.path.isfile(file):
+            error(file)
+
+
+def verify():
+    global namespace
     namespace = 'problem.json'
     verify_problem()
 
@@ -229,6 +272,9 @@ if __name__ == '__main__':
 
     namespace = 'solutions.json'
     solutions = verify_solutions(subtasks)
+
+    namespace = 'not found'
+    verify_existence(necessary_files)
 
     for error in errors:
         print error
@@ -241,3 +287,17 @@ if __name__ == '__main__':
 
     for warning in warnings:
         print warning
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog='manage.py', formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('action', help='gen    - generating test cases\n'
+                                       'verify - verifing problem utilites\n')
+
+    args = parser.parse_args()
+    if args.action == 'verify':
+        verify()
+    elif args.action == 'gen':
+        pass
+    else:
+        parser.print_help()
