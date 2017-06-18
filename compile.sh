@@ -6,17 +6,17 @@ solution=$1
 filename=`basename $solution`
 
 mkdir -p $sandbox
-
-echo -ne $filename
 cp $solution $sandbox/
+cp ../grader/`extension $filename`/* $sandbox/
+cd $sandbox
 
 if [ "`extension $filename`" == "cpp" ]; then
-    grader=../grader/cpp/grader.cpp
-    g++ -std=gnu++14 -Wall -Wextra -Wshadow -O2 $grader $solution -o $sandbox/{$filename%.cpp}.exe
+    g++ -std=gnu++14 -Wall -Wextra -Wshadow -O2 grader.cpp $filename -o ${filename%.cpp}.exe
 
     cat > run.sh << EOF
-    #!/bin/bash
-    ${sandbox}/${filename%.cpp}.exe
+#!/bin/bash
+sandbox=\`dirname \$0\`
+\$sandbox/${filename%.cpp}.exe 2> /dev/null
 EOF
 fi
 
@@ -27,3 +27,5 @@ fi
 if [ "`extension $filename`" == "java" ]; then
     echo "not supported yet"
 fi
+
+chmod +x $sandbox/run.sh

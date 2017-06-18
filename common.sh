@@ -28,7 +28,7 @@ function protect {
 		echo -ne "$FAIL"
 		$verbose && echo && cat $error && exit 1
 	fi
-	$stacked && rm $error && echo
+	$stacked || echo
 }
 
 function extension {
@@ -37,6 +37,9 @@ function extension {
 
 function clean_sources {
     for file in `ls $sandbox`; do
-        [ "`extension $file`" == "exe" ] || [ "$file" == "tmperror" ] || rm $sandbox/$file
+        [ "`extension $file`" == "exe" ] || \
+        [ "`extension $file`" == "sh" ] || \
+        [ "$file" == "tmperror" ] || \
+        rm $sandbox/$file
     done
 }

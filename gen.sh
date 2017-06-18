@@ -5,60 +5,60 @@ source common.sh
 sol=$1
 data=data
 validator=../validator/validator.cpp
-
-function gen {
-	target=$1; shift
-	./gen $@ > $target
-}
-
-function sol {
-	./sol < $1 > $2
-}
+manuals=manual/
 
 mkdir -p $sandbox
 
 echo -n "gencode"
-cp * $sandbox/
-protect "compile" 20 make -C $sandbox all
-echo
+cp Makefile *.cpp $sandbox/
+protect --verbose "compile" 20 make -C $sandbox all
 
 if [ -e $validator ]; then
 	echo -n "validator"
     cp ../validator/* $sandbox/
-	protect "compile" 20 make -C $sandbox validator.exe
-	echo
+	protect --verbose "compile" 20 make -C $sandbox validator.exe
 fi
 
 echo -n "solution"
-protect "compile" 20 $compile $sol -o sol
-echo
+protect --verbose "compile" 20 ./compile.sh $sol
 
 echo
-exit
+
+
+function generate {
+	target=$1; shift
+	generator=$1; shift
+	if [ "$generator" == "manual" ]; then
+	    cat $manuals/$@ > $target
+	else
+	    $sandbox/$generator.exe $@ > $target
+	fi
+}
+
+function solve {
+	$sandbox/run.sh < $1 > $2
+}
+
+function validate {
+    $sandbox/validator.exe < $1
+}
 
 mkdir -p $tests
-case=1
-for sample in $samples; do
-	echo -n "sample $case"
 
-	cp $sample $tests/$case.in
-	protect "sol" 25 sol $tests/$case.in $tests/$case.out
-	[ -e validator ] && protect "val" 35 ./validator < $tests/$case.in
-	echo
-
-	case=`expr $case + 1`
-done
-
+subtask=-1
+index=1
 while read line; do
 	[ "$line" == "" ] && continue
-	echo -n "test $case"
+	if [[ $line == [* ]]; then
+	    echo $line; subtask=`expr $subtask + 1`; index=1; continue
+	fi
 
-	protect "gen" 15 gen $tests/$case.in $line
-	protect "sol" 25 sol $tests/$case.in $tests/$case.out
-	[ -e validator ] && protect "val" 35 ./validator < $tests/$case.in
-	echo
+	test=$subtask-`printf "%02d" $index`
+	echo -n "test $test"
 
-	case=`expr $case + 1`
+	protect --stack "gen" 15 generate $tests/$test.in $line
+	[ -e $validator ] && protect --stack "val" 25 validate $tests/$test.in
+	protect "sol" 35 solve $tests/$test.in $tests/$test.out
+
+	index=`expr $index + 1`
 done < data
-
-rm -f sol gen validator log
