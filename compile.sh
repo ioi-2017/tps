@@ -11,7 +11,7 @@ cp ../grader/`extension $filename`/* $sandbox/
 cd $sandbox
 
 if [ "`extension $filename`" == "cpp" ]; then
-    g++ -std=gnu++14 -Wall -Wextra -Wshadow -O2 grader.cpp $filename -o ${filename%.cpp}.exe
+    g++ -std=gnu++1y -Wall -Wextra -Wshadow -O2 grader.cpp $filename -o ${filename%.cpp}.exe
 
     cat > run.sh << EOF
 #!/bin/bash
