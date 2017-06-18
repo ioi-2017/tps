@@ -6,7 +6,8 @@ import os
 import subprocess
 
 valid_problem_types = ('batch', 'interactive', 'communication', 'output-only', 'two-phase')
-valid_verdicts = ('model_solution', 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error')
+model_solution_verdict = 'model_solution'
+valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error')
 necessary_files = ('checker/testlib.h', 'validator/testlib.h', 'gen/testlib.h', 'gen/data', 'checker/checker.cpp', 'grader/cpp/grader.cpp', 'grader/pas/grader.pas', 'grader/java/grader.java')
 
 string_types = (str, unicode)
@@ -170,7 +171,7 @@ def verify_verdict(verdict, key_name):
 def get_model_solution(solutions):
     for solution, data in enumerate(solutions):
         if isinstance(data, dict) and 'verdict' in data:
-            if data['verdict'] == valid_verdicts[0]:
+            if data['verdict'] == model_solution_verdict:
                 return solution
 
 
@@ -195,10 +196,8 @@ def verify_solutions(subtasks):
         except KeyError:
             continue
 
-        verify_verdict(data['verdict'], solution)
-        check_keys(data, ['verdict'], solution)
         verified = verify_verdict(data['verdict'], solution)
-        if verified and data['verdict'] == valid_verdicts[0]:  # model_solution always has index 0
+        if verified and data['verdict'] == model_solution_verdict:
             if model_solution is not None:
                 error('there is more than one model solutions')
             model_solution = solution
@@ -215,45 +214,12 @@ def verify_solutions(subtasks):
                         verify_verdict(exceptions[subtask_verdict], '{}.except.{}'.format(solution, subtask_verdict))
 
     if model_solution is None:
-        warning('there is no model solution')
+        error('there is no model solution')
 
     for solution in solution_files:
         error('{} is not represented'.format(solution))
 
     return solutions
-
-
-def parse_data():
-    subtasks = load_data('subtasks.json')
-    with open('gen/data', 'r') as f:
-        for line in f.readlines():
-            if line[0] == '[':
-                subtask = line.translate(None, '[]').strip()
-            subtasks
-    pass
-
-def generate_input(solution):
-
-    pass
-
-
-def generate_output(solution):
-    pass
-
-
-def generate(input=True, output=True, solution=None):
-    subtasks = verify_subtasks()
-    solutions = verify_solutions(subtasks)
-    if solution is None:
-        solution = get_model_solution(solutions)
-    if solution is None:
-        error('there is no model solution or specified solution')
-        return
-
-    if input is True:
-        generate_input(solution)
-    if output is True:
-        generate_output(solution)
 
 
 def verify_existence(files):
