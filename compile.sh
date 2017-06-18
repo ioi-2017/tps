@@ -19,7 +19,7 @@ if [ "`extension $filename`" == "cpp" ]; then
 
     cat > run.sh << EOF
     #!/bin/bash
-    $sandbox/{$filename%.cpp}.exe
+    ${sandbox}/${filename%.cpp}.exe
 EOF
 fi
 
