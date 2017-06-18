@@ -28,4 +28,4 @@ if [ "`extension $filename`" == "java" ]; then
     echo "not supported yet"
 fi
 
-chmod +x $sandbox/run.sh
+chmod +x run.sh

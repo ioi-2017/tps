@@ -10,7 +10,7 @@ manuals=manual/
 mkdir -p $sandbox
 
 echo -n "gencode"
-cp Makefile *.cpp $sandbox/
+cp Makefile *.cpp *.h $sandbox/
 protect --verbose "compile" 20 make -C $sandbox all
 
 if [ -e $validator ]; then
