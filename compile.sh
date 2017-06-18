@@ -20,7 +20,7 @@ if [ "`extension $filename`" == "cpp" ]; then
     cat > run.sh << EOF
     #!/bin/bash
     $sandbox/{$filename%.cpp}.exe
-    EOF
+EOF
 fi
 
 if [ "`extension $filename`" == "pas" ]; then
