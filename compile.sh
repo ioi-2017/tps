@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source common.sh
+set -e
 
 solution=$1
 filename=`basename $solution`
