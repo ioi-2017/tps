@@ -8,7 +8,12 @@ import subprocess
 valid_problem_types = ('batch', 'interactive', 'communication', 'output-only', 'two-phase')
 model_solution_verdict = 'model_solution'
 valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error')
-necessary_files = ('checker/testlib.h', 'validator/testlib.h', 'gen/testlib.h', 'gen/data', 'checker/checker.cpp', 'grader/cpp/grader.cpp', 'grader/pas/grader.pas', 'grader/java/grader.java')
+necessary_files = (
+    'checker/testlib.h', 'checker/Makefile', 'checker/checker.cpp',
+    'validator/testlib.h', 'validator/Makefile',
+    'gen/testlib.h', 'gen/Makefile', 'gen/data',
+    'grader/cpp/grader.cpp', 'grader/pas/grader.pas', 'grader/java/grader.java',
+)
 
 string_types = (str, unicode)
 
@@ -76,7 +81,7 @@ def load_data(json_file, required_keys=()):
 
 
 def get_list_of_files(directory):
-    return list(set(os.listdir(directory)) - {'testlib.h'})
+    return list(set(os.listdir(directory)) - {'testlib.h', 'Makefile'})
 
 
 def verify_problem():
@@ -237,7 +242,7 @@ def verify():
     subtasks = verify_subtasks()
 
     namespace = 'solutions.json'
-    solutions = verify_solutions(subtasks)
+    verify_solutions(subtasks)
 
     namespace = 'not found'
     verify_existence(necessary_files)
