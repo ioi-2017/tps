@@ -2,9 +2,6 @@
 
 source common.sh
 
-compile_cpp=
-compile_pas=fpc -O2
-
 solution=$1
 filename=`basename $solution`
 
