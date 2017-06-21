@@ -1,7 +1,11 @@
 #!/bin/bash
 
-tests=../tests
-sandbox=../sandbox
+# Enter the problem name here
+problem_name=
+#TODO extract problem_name from problem.json
+
+tests=${base}/tests
+sandbox=${base}/sandbox
 
 reset='\033[00m'
 green='\033[01;32m'
@@ -36,10 +40,10 @@ function extension {
 }
 
 function clean_sources {
-    for file in `ls $sandbox`; do
-        [ "`extension $file`" == "exe" ] || \
-        [ "`extension $file`" == "sh" ] || \
-        [ "$file" == "tmperror" ] || \
-        rm $sandbox/$file
+    ls -1 ${sandbox} | while read file; do
+        [ "`extension ${file}`" == "exe" ] || \
+        [ "`extension ${file}`" == "sh" ] || \
+        [ "${file}" == "tmperror" ] || \
+        rm ${sandbox}/${file}
     done
 }
