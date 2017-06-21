@@ -1,7 +1,7 @@
-sandbox/
-tests/
+/sandbox/
+/tests/
 
-.idea/
+/.idea/
 
 # C++.gitignore
 
@@ -35,7 +35,6 @@ tests/
 
 # Executables
 *.exe
-*.out
 *.app
 
 # Java.gitignore

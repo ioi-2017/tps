@@ -36,7 +36,8 @@ function protect {
 }
 
 function extension {
-    echo $1 | rev | cut -d. -f1 | rev
+    file=$1
+    echo "${file##*.}"
 }
 
 function clean_sources {
