@@ -8,15 +8,15 @@ analysis_url=${tps_url}/${problem_name}/${commit}/analysis
 
 echo ${analysis_url}
 
-if which xdg-open; then
+if which -s xdg-open; then
     xdg-open ${analysis_url}
-elif which gnome-open; then
+elif which -s gnome-open; then
     gnome-open ${analysis_url}
-elif which open; then
+elif which -s open; then
     open ${analysis_url}
-elif which start; then
+elif which -s start; then
     start ${analysis_url}
-elif which cygstart; then
+elif which -s cygstart; then
     cygstart ${analysis_url}
 else
     python -mwebbrowser ${analysis_url}
