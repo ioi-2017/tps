@@ -1,9 +1,9 @@
 #!/bin/bash
 
+set -e
+
 source "${internals}/util.sh"
 source "${internals}/tps_variables.sh"
-
-set -e
 
 check_variable tps_url
 
