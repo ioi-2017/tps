@@ -28,6 +28,10 @@ def navigate_json(data, path):
     return data
 
 
+def navigate_json_file(file, path):
+    return navigate_json(load_json(file), path)
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         usage()
@@ -35,7 +39,7 @@ if __name__ == '__main__':
     json_file = sys.argv[1]
     json_path = sys.argv[2]
 
-    result = navigate_json(load_json(json_file), json_path)
+    result = navigate_json_file(json_file, json_path)
 
     if isinstance(result, dict):
         for key in result.keys():
