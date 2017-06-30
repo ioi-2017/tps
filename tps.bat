@@ -1,1 +1,1 @@
-@sh tps.sh %*
+@bash tps.sh %*
