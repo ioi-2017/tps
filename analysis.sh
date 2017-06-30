@@ -15,6 +15,9 @@ repo_name=$(basename -s .git ${repo_url})
 
 analysis_url=${tps_url}/${repo_name}/${commit}/analysis
 
+# problem_name=$(json_extract.sh ${base_dir}/problem.json name)
+#
+# analysis_url=${tps_url}/${problem_name}/${commit}/analysis
 
 echo ${analysis_url}
 
