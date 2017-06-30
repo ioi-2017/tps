@@ -1,9 +1,10 @@
+#!python
 import sys
 import json
 
 
 def usage():
-    print('Usage: python extract.py <json-file> <json-path>')
+    print('Usage: python json_extract.py <json-file> <json-path>')
     exit(1)
 
 
