@@ -74,7 +74,7 @@ fi
 source "${tps_init_file}"
 
 if [ -f "${scripts_dir}/${command}.sh" ]; then
-	sh "${scripts_dir}/${command}.sh" "$@"
+	bash "${scripts_dir}/${command}.sh" "$@"
 elif [ -f "${scripts_dir}/${command}.py" ]; then
 	python "${scripts_dir}/${command}.py" "$@"
 elif [ -f "${scripts_dir}/${command}.exe" ]; then
