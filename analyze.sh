@@ -1,23 +1,29 @@
 #!/bin/bash
 
-tps_url="https://tps.ioi2017.org/gitted/problem"
+source "${internals}/util.sh"
+source "${internals}/tps_variables.sh"
+
+set -e
+
+check_variable tps_url
 
 commit=$(git log --pretty=format:'%H' -n 1)
 
-analysis_url=${tps_url}/${problem_name}/${commit}/analysis
+analysis_url="${tps_url}/problem/${problem_name}/${commit}/analysis"
 
-echo ${analysis_url}
+echo "Openning address: '${analysis_url}'"
 
-if which -s xdg-open; then
-    xdg-open ${analysis_url}
-elif which -s gnome-open; then
-    gnome-open ${analysis_url}
-elif which -s open; then
-    open ${analysis_url}
-elif which -s start; then
-    start ${analysis_url}
-elif which -s cygstart; then
-    cygstart ${analysis_url}
-else
-    python -mwebbrowser ${analysis_url}
-fi
+function try_open {
+	if which "$1" >/dev/null 2>&1 ; then
+		"$@"
+		exit
+	fi
+}
+
+try_open "xdg-open" "${analysis_url}"
+try_open "gnome-open" "${analysis_url}"
+try_open "open" "${analysis_url}"
+try_open "start" "${analysis_url}"
+try_open "cygstart" "${analysis_url}"
+python -mwebbrowser "${analysis_url}"
+
