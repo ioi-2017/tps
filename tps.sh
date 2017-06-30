@@ -11,7 +11,9 @@ version=1.0
 
 set -e
 
-alias errcho='>&2 echo'
+function errcho {
+	>&2 echo "$@"
+}
 
 function usage {
 	errcho "TPS version ${version}"
