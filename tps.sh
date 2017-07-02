@@ -42,7 +42,7 @@ function __tps_list_commands__ {
 
 function __tps_unify_elements__ {
 	_sort=$(which -a "sort" | grep -iv "windows" | head -1)
-	if [ -z "${sort}" ] ; then
+	if [ -z "${_sort}" ] ; then
 		_sort="cat"
 	fi
 	_uniq="uniq"
