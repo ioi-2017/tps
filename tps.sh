@@ -32,12 +32,12 @@ done
 
 
 
-__scripts__="scripts"
-__scripts_dir__="${base_dir}/${__scripts__}"
+__tps_scripts__="scripts"
+__tps_scripts_dir__="${base_dir}/${__tps_scripts__}"
 
 
 function __tps_list_commands__ {
-	ls -a -1 "${__scripts_dir__}" 2>/dev/null | grep -E ".\\.(sh|py|exe)$" | while read f; do echo ${f%.*} ; done
+	ls -a -1 "${__tps_scripts_dir__}" 2>/dev/null | grep -E ".\\.(sh|py|exe)$" | while read f; do echo ${f%.*} ; done
 }
 
 function __tps_unify_elements__ {
@@ -45,15 +45,7 @@ function __tps_unify_elements__ {
 	if [ -z "${_sort}" ] ; then
 		_sort="cat"
 	fi
-	_uniq="uniq"
-#	if which "uniq" >/dev/null 2>&1 ; then
-#		_uniq="uniq"
-#	elif which "unique" >/dev/null 2>&1 ; then
-#		_uniq="unique"
-#	else
-#		_uniq="cat"
-#	fi
-	${_sort} | ${_uniq}
+	${_sort} | uniq
 }
 
 function __tps_help__ {
@@ -63,10 +55,10 @@ function __tps_help__ {
 	echo ""
 	if [ -z "${base_dir+x}" ]; then
 		echo "Currently not in a TPS repository ('${__tps_target_file__}' not found in any of the parent directories)."
-	elif [ ! -d "${__scripts_dir__}" ] ; then
-		echo "Directory '${__scripts__}' is not available."
+	elif [ ! -d "${__tps_scripts_dir__}" ] ; then
+		echo "Directory '${__tps_scripts__}' is not available."
 	elif [ -z "$(__tps_list_commands__)" ] ; then
-		echo "No commands available in '${__scripts__}'."
+		echo "No commands available in '${__tps_scripts__}'."
 	else
 		echo "Available commands:"
 		__tps_list_commands__ | __tps_unify_elements__
@@ -80,7 +72,7 @@ __tps_command__="$1"; shift
 
 
 if [ "${__tps_command__}" == "--bash-completion" ] ; then
-	if [ ! -z "${base_dir+x}" -a -d "${__scripts_dir__}" ]; then
+	if [ ! -z "${base_dir+x}" -a -d "${__tps_scripts_dir__}" ]; then
 		__tps_list_commands__
 	fi
 	exit 0
@@ -96,12 +88,12 @@ export base_dir
 
 
 
-if [ ! -d "${__scripts_dir__}" ] ; then
-	errcho "Error: Directory '${__scripts__}' not found."
+if [ ! -d "${__tps_scripts_dir__}" ] ; then
+	errcho "Error: Directory '${__tps_scripts__}' not found."
 	exit 2
 fi
 
-__tps_init__="${__scripts__}/internal/tps_init.sh"
+__tps_init__="${__tps_scripts__}/internal/tps_init.sh"
 __tps_init_file__="${base_dir}/${__tps_init__}"
 
 if [ ! -f "${__tps_init_file__}" ] ; then
@@ -111,14 +103,14 @@ fi
 
 source "${__tps_init_file__}"
 
-if [ -f "${__scripts_dir__}/${__tps_command__}.sh" ]; then
-	bash "${__scripts_dir__}/${__tps_command__}.sh" "$@"
-elif [ -f "${__scripts_dir__}/${__tps_command__}.py" ]; then
-	python "${__scripts_dir__}/${__tps_command__}.py" "$@"
-elif [ -f "${__scripts_dir__}/${__tps_command__}.exe" ]; then
-	"${__scripts_dir__}/${__tps_command__}.exe" "$@"
+if [ -f "${__tps_scripts_dir__}/${__tps_command__}.sh" ]; then
+	bash "${__tps_scripts_dir__}/${__tps_command__}.sh" "$@"
+elif [ -f "${__tps_scripts_dir__}/${__tps_command__}.py" ]; then
+	python "${__tps_scripts_dir__}/${__tps_command__}.py" "$@"
+elif [ -f "${__tps_scripts_dir__}/${__tps_command__}.exe" ]; then
+	"${__tps_scripts_dir__}/${__tps_command__}.exe" "$@"
 else
-	errcho "Error: command '${__tps_command__}' not found in '${__scripts__}'".
+	errcho "Error: command '${__tps_command__}' not found in '${__tps_scripts__}'".
 	errcho "Searched for '${__tps_command__}.sh', '${__tps_command__}.py', '${__tps_command__}.exe'."
 	exit 2
 fi
