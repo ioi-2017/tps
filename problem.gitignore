@@ -28,6 +28,9 @@
 # Executables
 *.exe
 *.app
+*.out
+# Except public directory
+!/public/**/*.out
 
 # Java.gitignore
 

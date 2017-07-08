@@ -1,21 +1,17 @@
-#!python
 import sys
-import json
+
+from util import load_json
 
 
 def usage():
-    print('Usage: python json_extract.py <json-file> <json-path>')
-    exit(1)
-
-
-def load_json(file_path):
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-    return data
+    sys.stderr.write('Usage: python json_extract.py <json-file> <json-path>\n')
+    exit(2)
 
 
 def navigate_json(data, path):
     for part in path.split('/'):
+        if part == '.':
+            continue
         try:
             if isinstance(data, dict):
                 data = data[part]
@@ -24,8 +20,8 @@ def navigate_json(data, path):
             else:
                 raise KeyError
         except (KeyError, IndexError):
-            print('requested key %s not found in %s' % (path, json_file))
-            exit(2)
+            sys.stderr.write("Requested key '%s' not found in '%s'\n" % (path, json_file))
+            exit(4)
     return data
 
 
@@ -46,7 +42,7 @@ if __name__ == '__main__':
         for key in result.keys():
             print(key)
     elif isinstance(result, list):
-        for key in range(len(result)):
-            print(key)
+        for item in result:
+            print(item)
     else:
         print(result)

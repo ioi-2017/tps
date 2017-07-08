@@ -1,0 +1,17 @@
+public cpp/compile_cpp.sh
+public cpp/PROBLEM_NAME_PLACE_HOLDER.cpp
+grader cpp/PROBLEM_NAME_PLACE_HOLDER.h
+grader cpp/grader.cpp
+
+public pas/compile_pas.sh
+public pas/PROBLEM_NAME_PLACE_HOLDER.pas
+grader pas/grader.pas
+
+public java/compile_java.sh
+public java/PROBLEM_NAME_PLACE_HOLDER.java
+grader java/grader.java
+
+public examples/01.in
+public examples/01.out
+public examples/02.in
+public examples/02.out

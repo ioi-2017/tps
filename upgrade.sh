@@ -2,11 +2,12 @@
 
 problem_dir=$1
 
-set -x
+set -ex
 
-mkdir -p $problem_dir/scripts
+mkdir -p "${problem_dir}/scripts"
 
-cp manage.py $problem_dir/
+"rm ${problem_dir}/
+cp verify.py $problem_dir/scripts
 cp common.sh $problem_dir/scripts/
 cp compile.sh $problem_dir/
 cp gen.sh $problem_dir/gen/
@@ -24,4 +25,4 @@ clean:
 %.exe: %.cpp testlib.h
 	g++ -std=gnu++1y -Wall -Wextra -Wshadow -O2 $< -o \$@
 EOF
-done
+done"

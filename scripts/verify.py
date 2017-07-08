@@ -1,9 +1,10 @@
 #!/usr/bin/python2.7
 
-import argparse
 import json
 import os
 import subprocess
+
+BASE_DIR = os.environ.get('base_dir')
 
 valid_problem_types = ('batch', 'interactive', 'communication', 'output-only', 'two-phase')
 model_solution_verdict = 'model_solution'
@@ -81,11 +82,11 @@ def load_data(json_file, required_keys=()):
 
 
 def get_list_of_files(directory):
-    return list(set(os.listdir(directory)) - {'testlib.h', 'Makefile'})
+    return [file for file in set(os.listdir(directory)) - {'testlib.h', 'Makefile'} if not file.endswith('.exe')]
 
 
 def verify_problem():
-    problem = load_data('problem.json', ['name', 'title', 'type', 'time_limit', 'memory_limit'])
+    problem = load_data(os.path.join(BASE_DIR, 'problem.json'), ['name', 'title', 'type', 'time_limit', 'memory_limit'])
     if problem is None:
         return problem
 
@@ -113,15 +114,32 @@ def verify_problem():
 
 
 def verify_subtasks():
-    subtasks = load_data('subtasks.json', ['samples'])
-    if subtasks is None:
-        return subtasks
+    subtasks_data = load_data(os.path.join(BASE_DIR, 'subtasks.json'), ['global_validators', 'subtasks'])
+    if subtasks_data is None:
+        return None
+
+    validators = get_list_of_files(os.path.join(BASE_DIR, 'validator/'))
+    used_validators = set()
+
+    if not isinstance(subtasks_data['global_validators'], list):
+        error('global validators is not an array')
+    else:
+        for index, validator in enumerate(subtasks_data['global_validators']):
+            if not isinstance(validator, string_types):
+                error('global validator #{} is not a string'.format(index))
+            elif validator not in validators:
+                error('{} does not exists'.format(validator))
+            else:
+                used_validators.add(validator)
+
+    subtasks = subtasks_data['subtasks']
+    try:
+        check_keys(subtasks, ['samples'])
+    except KeyError:
+        return None
 
     indexes = set()
     score_sum = 0
-
-    validators = get_list_of_files('validator/')
-    used_validators = set()
 
     for name, data in subtasks.iteritems():
         if not isinstance(data, dict):
@@ -181,12 +199,12 @@ def get_model_solution(solutions):
 
 
 def verify_solutions(subtasks):
-    solutions = load_data('solutions.json')
+    solutions = load_data(os.path.join(BASE_DIR, 'solutions.json'))
     if solutions is None or subtasks is None:
         return solutions
 
     model_solution = None
-    solution_files = set(get_list_of_files('solution/'))
+    solution_files = set(get_list_of_files(os.path.join(BASE_DIR, 'solution/')))
 
     for solution in solutions:
         if solution not in solution_files:
@@ -261,14 +279,4 @@ def verify():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='manage.py', formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('action', help='gen    - generating test cases\n'
-                                       'verify - verifing problem utilites\n')
-
-    args = parser.parse_args()
-    if args.action == 'verify':
         verify()
-    elif args.action == 'gen':
-        pass
-    else:
-        parser.print_help()
