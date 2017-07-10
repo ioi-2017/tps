@@ -52,7 +52,7 @@ function is_windows {
     if [ -z "${OS+x}" ]; then
         return 1
     fi
-    echo "${OS}" | grep -i "windows" > /dev/null 2>&1
+    echo "${OS}" | grep -iq "windows"
 }
 
 function is_web {
