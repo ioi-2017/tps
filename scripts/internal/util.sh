@@ -74,6 +74,7 @@ term_color_green="\033[32m"
 term_color_red="\033[31m"
 term_color_yellow="\033[033m"
 term_color_purple="\033[35m"
+term_color_blue="\033[34m"
 term_color_gray="\033[02;37m"
 
 function linux_cecho {
@@ -140,6 +141,7 @@ function echo_verdict {
     case "${verdict}" in
         Correct) color=green ;;
         Wrong*|Runtime*) color=red ;;
+        Time*) color=blue ;;
         *) color=purple ;;
     esac
 
@@ -156,6 +158,33 @@ function job_ret {
         cat "${ret_file}"
     else
         echo "${skip_status}"
+    fi
+}
+
+function check_float {
+    echo "$1" | grep -Eq '^[0-9]+\.?[0-9]*$'
+}
+
+function job_tlog_file {
+    job="$1"
+    echo "${logs_dir}/${job}.tlog"
+}
+
+function job_tlog {
+    job="$1"; shift
+    key="$1"
+    tlog_file="$(job_tlog_file "${job}")"
+    if [ -f "${tlog_file}" ]; then
+        ret=0
+        line="$(grep "^${key} " "${tlog_file}")" || ret=$?
+        if [ ${ret} -ne 0 ]; then
+            errcho "tlog file '${tlog_file}' does not contain key '${key}'"
+            exit 1
+        fi
+        echo "${line}" | cut -d' ' -f2-
+    else
+        errcho "tlog file '${tlog_file}' is not created"
+        exit 1
     fi
 }
 
@@ -182,7 +211,7 @@ function job_status {
     fi
 }
 
-function guarded {
+function guard {
     job="$1"; shift
     outlog="${logs_dir}/${job}.out"
     errlog="${logs_dir}/${job}.err"
@@ -198,14 +227,14 @@ function guarded {
     return ${ret}
 }
 
-function safe_guard {
-    guarded "$@" || true
+function insensitive {
+    "$@" || true
 }
 
 function boxed_guard {
     job="$1"
 
-    safe_guard "$@"
+    insensitive guard "$@"
     echo_status "$(job_status "${job}")"
 }
 

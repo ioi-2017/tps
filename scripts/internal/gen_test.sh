@@ -56,7 +56,7 @@ echo -n "gen"
 gen_job="${test_name}.gen"
 
 if ! "${skip_gen}"; then
-    safe_guard "${gen_job}" gen_input
+    insensitive guard "${gen_job}" gen_input
     ret=$(job_ret "${gen_job}")
 
     if [ ${ret} -ne 0 ]; then
@@ -73,7 +73,7 @@ echo -n "sol"
 sol_job="${test_name}.sol"
 
 if ! "${skip_sol}" && ! is_in "${gen_status}" "FAIL"; then
-    safe_guard "${sol_job}" gen_output
+    insensitive guard "${sol_job}" gen_output
     ret=$(job_ret "${sol_job}")
 
     if [ ${ret} -ne 0 ]; then
@@ -90,7 +90,7 @@ echo -n "val"
 val_job="${test_name}.val"
 
 if ! "${skip_val}" && ! is_in "${gen_status}" "FAIL"; then
-    safe_guard "${val_job}" validate
+    insensitive guard "${val_job}" validate
     ret=$(job_ret "${val_job}")
 
     if [ ${ret} -ne 0 ]; then

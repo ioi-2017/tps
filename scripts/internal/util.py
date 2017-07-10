@@ -6,11 +6,14 @@ import sys
 
 
 def run_bash_command(command):
+    p = None
     try:
-        ret = subprocess.call(' '.join(command), shell=True)
+        p = subprocess.Popen(' '.join(command), shell=True)
+        ret = p.wait()
         if ret != 0:
             exit(ret)
     except KeyboardInterrupt:
+        p.terminate()
         sys.stderr.write('[Interrupted]\n')
         exit(130)
 
