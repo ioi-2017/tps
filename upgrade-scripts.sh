@@ -5,7 +5,7 @@ set -euo pipefail
 source "scripts/internal/util.sh"
 
 function usage {
-	errcho "Usage: upgrade.sh [options] <problem-dir>"
+	errcho "Usage: upgrade-scripts.sh [options] <problem-dir>"
 	errcho "Options:"
 	errcho -e "  -h, --help"
 	errcho -e "  -d, --dry"
@@ -141,11 +141,11 @@ get_all_scripts_files | while read file; do
     message=""
     if "${b_exists}"; then
         if "${c_exists}"; then
-            if diff "${b}" "${c}"; then
+            if are_same "${b}" "${c}"; then
                 message="'${file}' is not changed"
-            elif "${a_exists}" && diff "${a}" "${b}"; then
+            elif "${a_exists}" && are_same "${a}" "${b}"; then
                 message="keeping changes of '${file}' in problem"
-            elif "${a_exists}" && diff "${a}" "${c}"; then
+            elif "${a_exists}" && are_same "${a}" "${c}"; then
                 message="applying changes to '${file}'"
                 do_action cp "${b}" "${c}"
             else
@@ -157,7 +157,7 @@ get_all_scripts_files | while read file; do
                 message="new file '${file}' added"
                 do_action mkdir -p "$(dirname "${c}")"
                 do_action cp "${b}" "${c}"
-            elif diff "${a}" "${b}"; then
+            elif are_same "${a}" "${b}"; then
                 message="keeping file '${file}' deleted"
             else
                 push_conflict "${file}"
@@ -168,7 +168,7 @@ get_all_scripts_files | while read file; do
         if "${c_exists}"; then
             if ! "${a_exists}"; then
                 message="keeping extra file '${file}' in problem"
-            elif diff "${a}" "${c}"; then
+            elif are_same "${a}" "${c}"; then
                 message="deleted file '${file}' because it is deleted in source"
                 do_action rm -f "${c}"
             else

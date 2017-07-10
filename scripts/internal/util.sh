@@ -23,6 +23,10 @@ function check_variable {
 	fi
 }
 
+function are_same {
+    diff "$1" "$2" > /dev/null 2>&1
+}
+
 function recreate_dir {
     dir=$1
     mkdir -p "${dir}"
