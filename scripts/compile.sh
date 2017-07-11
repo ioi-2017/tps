@@ -6,27 +6,50 @@ source "${internals}/util.sh"
 
 
 function usage {
-	errcho "Usage: <compile> [--public] <solution-path>"
-	exit 2
+	errcho "Usage: <compile> [options] <solution-path>"
+	errcho "Options:"
+	errcho -e "  -p, --public"
+	errcho -e "\tCompile using public graders"
 }
 
-[ $# -gt 0 ] || usage
+grader_type="judge"
+used_grader_dir="${grader_dir}"
 
-if [ "$1" == "--public" ]; then
-	shift
-	grader_type="public"
-	used_grader_dir="${public_dir}"
-else
-	grader_type="judge"
-	used_grader_dir="${grader_dir}"
+function handle_option {
+    shifts=0
+    case "${curr}" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -p|--public)
+            grader_type="public"
+            used_grader_dir="${public_dir}"
+            ;;
+        *)
+            invalid_arg "undefined option"
+            ;;
+    esac
+}
+
+function handle_positional_arg {
+    if [ -z "${solution+x}" ]; then
+        solution="${curr}"
+        return
+    fi
+    invalid_arg "meaningless argument"
+}
+
+argument_parser "handle_positional_arg" "handle_option" "$@"
+
+if [ -z "${solution+x}" ]; then
+    errcho "Solution is not specified."
+    usage
+    exit 2
 fi
 
-[ $# -gt 0 ] || usage
-solution="$1"; shift
-
-[ $# -gt 0 ] && usage
-
 sensitive check_file_exists "Solution file" "${solution}"
+
 
 ext="$(extension "${solution}")"
 prog="${problem_name}.${ext}"
