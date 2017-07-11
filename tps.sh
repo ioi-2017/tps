@@ -70,11 +70,72 @@ function __tps_help__ {
 [ $# -gt 0 ] || __tps_help__
 __tps_command__="$1"; shift
 
-
 if [ "${__tps_command__}" == "--bash-completion" ] ; then
-	if [ ! -z "${base_dir+x}" -a -d "${__tps_scripts_dir__}" ]; then
-		__tps_list_commands__
+	[ $# -gt 0 ] || exit 0
+	[ ! -z "${base_dir+x}" -a -d "${__tps_scripts_dir__}" ] || exit 0
+	
+	index=$1
+	
+	[ $index -gt 0 ] || exit 0
+
+	# removing index
+	shift
+	
+	# removing 'tps'
+	shift
+
+	cur="${!index}"
+
+	if [ $index -eq 1 ]; then
+		opts="$(__tps_list_commands__)"
+		compgen -W "${opts}" -- "${cur}" | {
+			while read -r tmp; do
+				printf '%s \n' "$tmp"
+			done
+		}
+		exit 0
 	fi
+
+	command="$1"; shift
+	
+	command_bc_options_file="${__tps_scripts_dir__}/bash_completion/${command}.options"
+
+	if [ -f "${command_bc_options_file}" ] && [[ ${cur} == -*  ]] && ! [[ ${cur} == --?*=* ]]; then
+		compgen -W "$(cat "${command_bc_options_file}")" -- "${cur}" | {
+			while read -r tmp; do
+				if [[ ${tmp} != *= ]]; then
+					printf '%s \n' "$tmp"
+				else
+					printf '%s\n' "$tmp"
+				fi
+			done
+		}
+		exit 0
+	fi
+
+	compgen -f -- "${cur}"
+
+#	errcho "index = $index"
+#	errcho "cur = '$cur'"
+
+
+#	opts="$(tps --bash-completion ${COMP_WORDS[1]})"
+#	if [[ ${cur} == -* ]]; then
+#		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+#		return 0
+#	fi
+#
+#	COMPREPLY=( $(compgen -f ${cur}) )
+
+
+
+
+#		echo $# > /tmp/tps.argc
+#		while [ $# -gt 0 ]; do
+#			echo "'$1'"
+#			shift
+#		done > /tmp/tps.args
+
 	exit 0
 fi
 

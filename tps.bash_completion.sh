@@ -1,14 +1,16 @@
+
 # bash completion for tps
 
 function _tps() {
-	local cur
-
-	COMPREPLY=()
-	cur="${COMP_WORDS[COMP_CWORD]}"
-
-	opts="$(tps --bash-completion)"
-
-	COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+	COMPREPLY=( )
+	index=0
+	while IFS= read tmp; do
+		if [ -z "${tmp}" ]; then
+			continue
+		fi
+		COMPREPLY[${index}]="${tmp}"
+		index=$((index+1))
+	done <<< "$(tps --bash-completion "${COMP_CWORD}" "${COMP_WORDS[@]}")"
 }
 
-complete -F _tps tps
+complete -o nospace -o bashdefault -F _tps tps
