@@ -49,7 +49,7 @@ while read raw_line; do
 	args=($line)
 	file=${args[1]}
 	make_${line}
-	if grep -i secret "${file}" > /dev/null; then
+	if grep -iq secret "${file}"; then
 		errcho "Secret found in '${file}'"
 		exit 1
 	fi

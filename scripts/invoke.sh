@@ -3,6 +3,7 @@
 set -euo pipefail
 
 source "${internals}/util.sh"
+source "${internals}/problem_util.sh"
 
 
 function usage {
@@ -17,8 +18,12 @@ function usage {
 	errcho -e "  -d, --gen-data=<gen-data-file>"
 	errcho -e "      --no-check[er]"
 	errcho -e "      --no-sol-comp[ile]"
-#	errcho -e "      --no-tle"
-#	errcho -e "      --time-limit=<time-limit>"
+	errcho -e "      --no-tle"
+	errcho -e "      --time-limit=<time-limit>"
+	errcho -e "\tGiven in seconds, e.g. --time-limit=1.2 means 1.2 seconds"
+	errcho -e "      --hard-time-limit=<hard-time-limit>"
+	errcho -e "\tSolution code will be killed after <hard-time-limit> seconds,"
+	errcho -e "\t\tdefaults to <time-limit> + 2"
 }
 
 
@@ -57,6 +62,15 @@ function handle_option {
         --no-check|--no-checker)
             skip_check="true"
             ;;
+        --time-limit=*)
+            fetch_arg_value "soft_tl" "-@" "--time-limit" "soft time limit"
+            ;;
+        --hard-time-limit=*)
+            fetch_arg_value "hard_tl" "-@" "--hard-time-limit" "hard time limit"
+            ;;
+        --no-tle)
+            soft_tl=$((24*60*60))
+            ;;
         *)
             invalid_arg "undefined option"
             ;;
@@ -79,11 +93,31 @@ if [ -z "${solution+x}" ]; then
     exit 2
 fi
 
+if [ -z "${soft_tl+x}" ]; then
+    soft_tl="$(get_time_limit)"
+fi
+
+if ! check_float "${soft_tl}"; then
+    errcho "Provided time limit '${soft_tl}' is not a positive real number"
+    usage
+    exit 2
+fi
+
+if [ -z "${hard_tl+x}" ]; then
+    hard_tl="$(python -c "print(${soft_tl} + 2)")"
+fi
+
+if ! check_float "${hard_tl}"; then
+    errcho "Provided hard time limit '${hard_tl}' is not a positive real number"
+    usage
+    exit 2
+fi
+
 sensitive check_file_exists "Solution file" "${solution}"
 
 sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
-export show_reason sensitive_run singular_test sole_test_name skip_check
+export show_reason sensitive_run singular_test sole_test_name skip_check soft_tl hard_tl
 
 
 recreate_dir "${logs_dir}"

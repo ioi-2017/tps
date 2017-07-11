@@ -5,6 +5,7 @@ import os
 import subprocess
 
 BASE_DIR = os.environ.get('base_dir')
+WEB_TERMINAL = os.environ.get('WEB_TERMINAL')
 
 valid_problem_types = ('batch', 'interactive', 'communication', 'output-only', 'two-phase')
 model_solution_verdict = 'model_solution'
@@ -90,12 +91,12 @@ def verify_problem():
     if problem is None:
         return problem
 
-    git_origin_name = subprocess.check_output('git remote get-url origin | rev | cut -d/ -f1 | rev | cut -d. -f1', shell=True).strip()
-
     if not isinstance(problem['name'], string_types):
         error('name is not a string')
-    elif problem['name'] != git_origin_name:
-        warning('problem name and git project name are not the same')
+    elif WEB_TERMINAL is None or WEB_TERMINAL != "true":
+        git_origin_name = subprocess.check_output('basename -s .git $(git config --local remote.origin.url)', shell=True).strip()
+        if problem['name'] != git_origin_name:
+            warning('problem name and git project name are not the same')
 
     if not isinstance(problem['title'], string_types):
         error('title is not a string')
