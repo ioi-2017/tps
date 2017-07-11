@@ -1,5 +1,8 @@
 
 # bash completion for tps
+#
+# Based on git bash completion helper functions
+#   https://github.com/git/git/blob/master/contrib/completion/git-completion.bash
 
 __git_reassemble_comp_words_by_ref()
 {
