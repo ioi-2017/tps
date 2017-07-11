@@ -71,16 +71,39 @@ if ! git show -s --oneline "${old_scripts_version}" > /dev/null; then
 fi
 
 
-function source_current_scripts_version {
+function check_repo_is_clean {
+    dir="$1"
+    pushd > /dev/null 2>&1
     ret=0
-    tag="$(git describe --tags | head -1)" || ret=$?
-    if [ "${ret}" -eq 0 ]; then
-        version="${tag}"
-    else
-        version="$(git log --pretty=format:'%H' -n 1)"
+    if [ -n "$(git status --porcelain)" ]; then
+        ret=1
     fi
-    echo "${version}"
+    popd > /dev/null 2>&1
+    return ${ret}
 }
+
+if ! check_repo_is_clean "${problem_scripts}"; then
+    cecho red >&2 "There are uncommitted changes in problem repo"
+    read -p "Are you sure you want to proceed? [y/N]" res
+    if [ "${res}" != "y" ]; then
+        exit 1
+    else
+        echo
+    fi
+fi
+
+if ! check_repo_is_clean "${source_scripts}"; then
+    cecho red >&2 "There are uncommitted changes in source scripts repo"
+    exit 1
+fi
+
+ret=0
+tag="$(git describe --tags | head -1)" || ret=$?
+if [ "${ret}" -eq 0 ]; then
+    source_current_scripts_version="${tag}"
+else
+    source_current_scripts_version="$(git log --pretty=format:'%H' -n 1)"
+fi
 
 function list_dir_files {
     dir="$1"
@@ -113,6 +136,7 @@ function do_action {
         ret=0
         "$@" || ret=$?
         if [ ${ret} -eq 0 ]; then
+            changed="true"
             status="OK"
         fi
         return ${ret}
@@ -121,7 +145,7 @@ function do_action {
 
 recreate_dir "${old_scripts}"
 
-get_all_scripts_files | while read file; do
+while read file; do
     c="${problem_scripts}/${file}"
     b="${source_scripts}/${file}"
     a="${old_scripts}/${file}"
@@ -136,44 +160,45 @@ get_all_scripts_files | while read file; do
     c_exists="true"
     [ -f "${c}" ] || c_exists="false"
 
+    changed="false"
     status="OK"
     "${dry_run}" && status="SKIP"
     message=""
     if "${b_exists}"; then
         if "${c_exists}"; then
             if are_same "${b}" "${c}"; then
-                message="'${file}' is not changed"
+                message="not changed"
             elif "${a_exists}" && are_same "${a}" "${b}"; then
-                message="keeping changes of '${file}' in problem"
+                message="keeping changes in problem"
             elif "${a_exists}" && are_same "${a}" "${c}"; then
-                message="applying changes to '${file}'"
+                message="applying changes in problem"
                 do_action cp "${b}" "${c}"
             else
                 push_conflict "${file}"
-                message="CONFLICT! both problem and script source changed '${file}'"
+                message="CONFLICT! both problem and script source changed this file"
             fi
         else
             if ! "${a_exists}"; then
-                message="new file '${file}' added"
+                message="added as new file"
                 do_action mkdir -p "$(dirname "${c}")"
                 do_action cp "${b}" "${c}"
             elif are_same "${a}" "${b}"; then
-                message="keeping file '${file}' deleted"
+                message="keeping deleted"
             else
                 push_conflict "${file}"
-                message="CONFLICT! file '${file}' which is deleted in problem has been updated"
+                message="CONFLICT! deleted file in problem has been updated"
             fi
         fi
     else
         if "${c_exists}"; then
             if ! "${a_exists}"; then
-                message="keeping extra file '${file}' in problem"
+                message="keeping extra file in problem"
             elif are_same "${a}" "${c}"; then
-                message="deleted file '${file}' because it is deleted in source"
+                message="file deleted because it is deleted in source"
                 do_action rm -f "${c}"
             else
                 push_conflict "${file}"
-                message="CONFLICT! file '${file}' which is changed in problem has been deleted"
+                message="CONFLICT! changed file in problem has been deleted"
             fi
         else
             cecho red >&2 "Unreachable code reached!"
@@ -184,11 +209,28 @@ get_all_scripts_files | while read file; do
     printf >&2 "%-40s" "${file}"
     box_padding=10
     echo_status "${status}"
-    errcho "${message}"
-done
+    if "${changed}"; then
+        cecho yellow >&2 "${message}"
+    else
+        errcho "${message}"
+    fi
+done <<< "$(get_all_scripts_files)"
 
 if ! "${dry_run}"; then
-    echo "$(source_current_scripts_version)" > "${problem_old_scripts_version_file}"
+    errcho
+
+    do_update_version="true"
+    if "${has_conflicts}"; then
+        do_update_version="false"
+        read -p "There are some conflicts. Should the .scripts_version file be updated? [y/N]" res
+        if [ "${res}" == "y" ]; then
+            do_update_version="true"
+        fi
+    fi
+    if "${do_update_version}"; then
+        echo "${source_current_scripts_version}" > "${problem_old_scripts_version_file}"
+        cecho yellow "updated .script_version file in problem to '${source_current_scripts_version}'"
+    fi
 fi
 
 errcho
