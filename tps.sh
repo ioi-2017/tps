@@ -114,28 +114,6 @@ if [ "${__tps_command__}" == "--bash-completion" ] ; then
 	fi
 
 	compgen -f -- "${cur}"
-
-#	errcho "index = $index"
-#	errcho "cur = '$cur'"
-
-
-#	opts="$(tps --bash-completion ${COMP_WORDS[1]})"
-#	if [[ ${cur} == -* ]]; then
-#		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
-#		return 0
-#	fi
-#
-#	COMPREPLY=( $(compgen -f ${cur}) )
-
-
-
-
-#		echo $# > /tmp/tps.argc
-#		while [ $# -gt 0 ]; do
-#			echo "'$1'"
-#			shift
-#		done > /tmp/tps.args
-
 	exit 0
 fi
 
