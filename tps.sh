@@ -71,22 +71,22 @@ function __tps_help__ {
 __tps_command__="$1"; shift
 
 if [ "${__tps_command__}" == "--bash-completion" ] ; then
-	[ $# -gt 0 ] || exit 0
+	[ $# -gt 1 ] || exit 0
 	[ ! -z "${base_dir+x}" -a -d "${__tps_scripts_dir__}" ] || exit 0
 	
-	index=$1
-	
-	[ $index -gt 0 ] || exit 0
+	index="$1"; shift
+	[ ${index} -gt 0 ] || exit 0
 
-	# removing index
-	shift
+	cursor_location="$1"; shift
+	[ ${cursor_location} -ge 0 ] || exit 0
 	
 	# removing 'tps'
 	shift
 
 	cur="${!index}"
+	cur="${cur:0:${cursor_location}}"
 
-	if [ $index -eq 1 ]; then
+	if [ ${index} -eq 1 ]; then
 		opts="$(__tps_list_commands__)"
 		compgen -W "${opts}" -- "${cur}" | {
 			while read -r tmp; do
