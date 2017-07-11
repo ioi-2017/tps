@@ -73,7 +73,7 @@ fi
 
 function check_repo_is_clean {
     dir="$1"
-    pushd > /dev/null 2>&1
+    pushd "${dir}" > /dev/null 2>&1 || exit 1
     ret=0
     if [ -n "$(git status --porcelain)" ]; then
         ret=1
@@ -82,7 +82,7 @@ function check_repo_is_clean {
     return ${ret}
 }
 
-if ! check_repo_is_clean "${problem_scripts}"; then
+if ! check_repo_is_clean "$(dirname ${problem_scripts})"; then
     cecho red >&2 "There are uncommitted changes in problem repo"
     read -p "Are you sure you want to proceed? [y/N]" res
     if [ "${res}" != "y" ]; then
@@ -92,9 +92,14 @@ if ! check_repo_is_clean "${problem_scripts}"; then
     fi
 fi
 
-if ! check_repo_is_clean "${source_scripts}"; then
+if ! check_repo_is_clean "$(dirname ${source_scripts})"; then
     cecho red >&2 "There are uncommitted changes in source scripts repo"
-    exit 1
+    read -p "Are you sure you want to proceed? [y/N]" res
+    if [ "${res}" != "y" ]; then
+        exit 1
+    else
+        echo
+    fi
 fi
 
 ret=0
@@ -107,7 +112,7 @@ fi
 
 function list_dir_files {
     dir="$1"
-    pushd "${dir}" > /dev/null 2>&1
+    pushd "${dir}" > /dev/null 2>&1 || exit 1
     git ls-files
     popd  > /dev/null 2>&1
 }
