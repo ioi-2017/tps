@@ -26,8 +26,13 @@ def check_file_exists(file_path):
 
 def load_json(file_path):
     check_file_exists(file_path)
+    data = None
     with open(file_path, 'r') as f:
-        data = json.load(f)
+        try:
+            data = json.load(f)
+        except ValueError:
+            sys.stderr.write("Invalid json file '%s'\n" % file_path)
+            exit(1)
     return data
 
 
