@@ -101,6 +101,14 @@ def verify_problem():
     if not isinstance(problem['title'], string_types):
         error('title is not a string')
 
+    try:
+        with open(os.path.join(BASE_DIR, 'statement', 'index.md')) as f:
+            statement_title = f.readline().replace('#', '').strip()
+            if statement_title != problem['title']:
+                warning('title in statement does not match')
+    except IOError:
+        warning('statement does not exists')
+
     if not isinstance(problem['type'], string_types) or problem['type'] not in valid_problem_types:
         error('type should be one of {}'.format('/'.join(valid_problem_types)))
 
@@ -248,7 +256,7 @@ def verify_solutions(subtasks):
 
 def verify_existence(files):
     for file in files:
-        if not os.path.isfile(file):
+        if not os.path.isfile(os.path.join(BASE_DIR, file)):
             error(file)
 
 
