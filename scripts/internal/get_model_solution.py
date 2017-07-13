@@ -1,11 +1,13 @@
 import json
 import os
 import sys
+from util import check_file_exists
 
 SOLUTIONS_JSON = os.environ.get('solutions_json')
 
 
 if __name__ == '__main__':
+    check_file_exists(SOLUTIONS_JSON)
     with open(SOLUTIONS_JSON, 'r') as f:
         data = json.load(f)
         model_solutions = [solution for solution in data.keys() if data[solution]['verdict'] == 'model_solution']
