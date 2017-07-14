@@ -9,7 +9,7 @@ WEB_TERMINAL = os.environ.get('WEB_TERMINAL')
 
 valid_problem_types = ('batch', 'interactive', 'communication', 'output-only', 'two-phase')
 model_solution_verdict = 'model_solution'
-valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error')
+valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error', 'partially_correct')
 necessary_files = (
     'checker/testlib.h', 'checker/Makefile', 'checker/checker.cpp',
     'validator/testlib.h', 'validator/Makefile',
@@ -94,7 +94,9 @@ def verify_problem():
     if not isinstance(problem['name'], string_types):
         error('name is not a string')
     elif WEB_TERMINAL is None or WEB_TERMINAL != "true":
-        git_origin_name = subprocess.check_output('basename -s .git $(git config --local remote.origin.url)', shell=True).strip()
+	# TODO check if git is available
+	# TODO handle it with less bash
+        git_origin_name = subprocess.check_output('bash -c "basename $(git config --local remote.origin.url)"', shell=True).strip()[:-4]
         if problem['name'] != git_origin_name:
             warning('problem name and git project name are not the same')
 
