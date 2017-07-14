@@ -23,7 +23,7 @@ __tps_target_file__="problem.json"
 __tps_curr__="$PWD"
 while [ "${__tps_curr__}" != "${__tps_prev__}" ] ; do
 	if [ -f "${__tps_curr__}/${__tps_target_file__}" ] ; then
-		base_dir="${__tps_curr__}"
+		BASE_DIR="${__tps_curr__}"
 		break
 	fi
 	__tps_prev__="${__tps_curr__}"
@@ -33,7 +33,7 @@ done
 
 
 __tps_scripts__="scripts"
-__tps_scripts_dir__="${base_dir}/${__tps_scripts__}"
+__tps_scripts_dir__="${BASE_DIR}/${__tps_scripts__}"
 
 
 function __tps_list_commands__ {
@@ -53,7 +53,7 @@ function __tps_help__ {
 	echo ""
 	echo "Usage: tps <command> <arguments>..."
 	echo ""
-	if [ -z "${base_dir+x}" ]; then
+	if [ -z "${BASE_DIR+x}" ]; then
 		echo "Currently not in a TPS repository ('${__tps_target_file__}' not found in any of the parent directories)."
 	elif [ ! -d "${__tps_scripts_dir__}" ] ; then
 		echo "Directory '${__tps_scripts__}' is not available."
@@ -72,7 +72,7 @@ __tps_command__="$1"; shift
 
 if [ "${__tps_command__}" == "--bash-completion" ] ; then
 	[ $# -gt 1 ] || exit 0
-	[ ! -z "${base_dir+x}" -a -d "${__tps_scripts_dir__}" ] || exit 0
+	[ ! -z "${BASE_DIR+x}" -a -d "${__tps_scripts_dir__}" ] || exit 0
 	
 	index="$1"; shift
 	[ ${index} -gt 0 ] || exit 0
@@ -124,13 +124,16 @@ if [ "${__tps_command__}" == "--bash-completion" ] ; then
 fi
 
 
-if [ -z "${base_dir+x}" ]; then
+if [ -z "${BASE_DIR+x}" ]; then
 	errcho "Error: Not in a TPS repository ('${__tps_target_file__}' not found in any of the parent directories)"
 	exit 2
 fi
 
-export base_dir
 
+export BASE_DIR
+
+#keeping the lower-case variable 'base_dir' for backward compatibility.
+export base_dir="${BASE_DIR}"
 
 
 if [ ! -d "${__tps_scripts_dir__}" ] ; then
@@ -139,7 +142,7 @@ if [ ! -d "${__tps_scripts_dir__}" ] ; then
 fi
 
 __tps_init__="${__tps_scripts__}/internal/tps_init.sh"
-__tps_init_file__="${base_dir}/${__tps_init__}"
+__tps_init_file__="${BASE_DIR}/${__tps_init__}"
 
 if [ ! -f "${__tps_init_file__}" ] ; then
 	errcho "Error: File '${__tps_init__}' not found."
