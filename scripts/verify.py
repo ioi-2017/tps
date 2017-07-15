@@ -103,9 +103,20 @@ def verify_problem():
 
     try:
         with open(os.path.join(BASE_DIR, 'statement', 'index.md')) as f:
-            statement_title = f.readline().replace('#', '').strip()
-            if statement_title != problem['title']:
-                warning('title in statement does not match')
+            first_line = None
+            for line in f.readlines():
+                if line.strip() != '':
+                    first_line = line
+                    break
+
+            if first_line is None:
+                warning('statement is empty')
+            elif not first_line.strip().startswith('#'):
+                warning('statement does not start with a title')
+            else:
+                statement_title = first_line.replace('#', '').strip()
+                if statement_title != problem['title']:
+                    warning('title (%s) does not match title in statement (%s)' % (problem['title'], statement_title))
     except IOError:
         warning('statement does not exists')
 
