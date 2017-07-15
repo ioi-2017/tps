@@ -30,8 +30,9 @@ def load_json(file_path):
     with open(file_path, 'r') as f:
         try:
             data = json.load(f)
-        except ValueError:
+        except ValueError as e:
             sys.stderr.write("Invalid json file '%s'\n" % file_path)
+            sys.stderr.write("%s\n" % e.message)
             exit(3)
     return data
 
