@@ -20,4 +20,8 @@ for bc_dir in "/etc/bash_completion.d" "/usr/local/etc/bash_completion.d"; do
     cp "${bc_file}" "${bc_dir}/"
 done
 
+if ! python -c "import psutil" >/dev/null 2>/dev/null; then
+    sudo pip install psutil
+fi
+
 echo done.
