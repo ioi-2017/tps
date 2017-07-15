@@ -146,6 +146,7 @@ function echo_verdict {
         Correct) color=green ;;
         Wrong*|Runtime*) color=red ;;
         Time*) color=blue ;;
+        Unknown) color=gray ;;
         *) color=purple ;;
     esac
 

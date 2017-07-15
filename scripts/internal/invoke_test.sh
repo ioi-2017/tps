@@ -79,21 +79,27 @@ export box_padding=5
 echo -n "check"
 check_job="${test_name}.check"
 
-if ! "${skip_check}" && ! is_in "${sol_status}" "FAIL" "SKIP"; then
-    insensitive guard "${check_job}" run_checker
-    ret=$(job_ret "${check_job}")
-
-    if [ "${ret}" -ne 0 ]; then
-        final_ret=${ret}
-        failed_jobs="${failed_jobs} ${check_job}"
-
-        score="0"
-        verdict="Judge Failure"
-        reason="checker exited with code ${ret}"
+if ! is_in "${sol_status}" "FAIL" "SKIP"; then
+    if "${skip_check}"; then
+        score="?"
+        verdict="Unknown"
+        reason="Checker skipped"
     else
-        score="$(sed -n 1p "${logs_dir}/${check_job}.out")"
-        verdict="$(sed -n 1p "${logs_dir}/${check_job}.err")"
-        reason="$(sed -n 2p "${logs_dir}/${check_job}.err")"
+        insensitive guard "${check_job}" run_checker
+        ret=$(job_ret "${check_job}")
+
+        if [ "${ret}" -ne 0 ]; then
+            final_ret=${ret}
+            failed_jobs="${failed_jobs} ${check_job}"
+
+            score="0"
+            verdict="Judge Failure"
+            reason="checker exited with code ${ret}"
+        else
+            score="$(sed -n 1p "${logs_dir}/${check_job}.out")"
+            verdict="$(sed -n 1p "${logs_dir}/${check_job}.err")"
+            reason="$(sed -n 2p "${logs_dir}/${check_job}.err")"
+        fi
     fi
 fi
 
