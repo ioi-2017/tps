@@ -32,7 +32,7 @@ def load_json(file_path):
             data = json.load(f)
         except ValueError:
             sys.stderr.write("Invalid json file '%s'\n" % file_path)
-            exit(1)
+            exit(3)
     return data
 
 

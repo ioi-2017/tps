@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 from collections import defaultdict
@@ -9,12 +8,6 @@ SUBTASKS_JSON = os.environ.get('subtasks_json')
 INTERNALS_DIR = os.environ.get('internals')
 SINGULAR_TEST = os.environ.get('singular_test')
 SOLE_TEST_NAME = os.environ.get('sole_test_name')
-
-
-def load_subtasks_data():
-    with open(SUBTASKS_JSON, 'r') as f:
-        data = json.load(f)
-    return data
 
 
 class MappingVisitor(DataVisitor):
@@ -43,17 +36,6 @@ class MappingVisitor(DataVisitor):
             for test in self.tests_map[subtask]:
                 test_subtasks[test].append(subtask)
         return test_subtasks
-
-    def get_test_validators(self):
-        subtasks_data = load_subtasks_data()
-        validators = defaultdict(set)
-        for subtask in self.subtasks:
-            subtask_validators = subtasks_data['subtasks'][subtask]['validators']
-            for test in self.tests_map[subtask]:
-                validators[test] |= subtask_validators
-        for test in validators.keys():
-            validators[test] |= subtasks_data['global_validators']
-        return validators
 
     def print_mapping(self, stream):
         for subtask in self.subtasks:

@@ -1,6 +1,7 @@
 import os
 import sys
 
+from json_extract import navigate_json
 from util import check_file_exists, load_json, log_warning
 
 SUBTASKS_JSON = os.environ.get('subtasks_json')
@@ -26,19 +27,22 @@ if __name__ == '__main__':
         usage()
 
     test_name = sys.argv[1]
-    test_subtasks = get_test_subtasks(sys.argv[2], test_name)
+    mapping_file = sys.argv[2]
+
+    test_subtasks = get_test_subtasks(mapping_file, test_name)
 
     if len(test_subtasks) == 0:
         log_warning("Test '%s' is in no subtasks." % test_name)
 
     data = load_json(SUBTASKS_JSON)
-    test_validators = data['global_validators']
+
+    test_validators = data.get('global_validators', [])
 
     if len(test_validators) == 0:
         log_warning("There is no global validator for the problem.")
 
     for subtask in test_subtasks:
-        test_validators += data['subtasks'][subtask]['validators']
+        test_validators += navigate_json(data, 'subtasks/%s' % subtask, SUBTASKS_JSON).get('validators', [])
 
     seen = set()
     for validator in test_validators:

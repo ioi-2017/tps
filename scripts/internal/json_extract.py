@@ -1,3 +1,4 @@
+import os
 import sys
 
 from util import load_json
@@ -8,7 +9,7 @@ def usage():
     exit(2)
 
 
-def navigate_json(data, path):
+def navigate_json(data, path, json_file_name):
     for part in path.split('/'):
         if part == '.':
             continue
@@ -20,13 +21,13 @@ def navigate_json(data, path):
             else:
                 raise KeyError
         except (KeyError, IndexError):
-            sys.stderr.write("Requested key '%s' not found in '%s'\n" % (path, json_file))
+            sys.stderr.write("Requested key '%s' not found in '%s'\n" % (path, os.path.basename(json_file_name)))
             exit(4)
     return data
 
 
 def navigate_json_file(file, path):
-    return navigate_json(load_json(file), path)
+    return navigate_json(load_json(file), path, file)
 
 
 if __name__ == '__main__':
