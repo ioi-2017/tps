@@ -119,8 +119,8 @@ function boxed_echo {
     cecho "${color}" -n "$1"
     echo -n "]"
 
-    if [ ! -z "${box_padding+x}" ]; then
-        pad=$((box_padding - ${#1}))
+    if [ ! -z "${BOX_PADDING+x}" ]; then
+        pad=$((BOX_PADDING - ${#1}))
         hspace "${pad}"
     fi
 }
@@ -159,7 +159,7 @@ abort_status=1001
 
 function job_ret {
     job="$1"
-    ret_file="${logs_dir}/${job}.ret"
+    ret_file="${LOGS_DIR}/${job}.ret"
     if [ -f "${ret_file}" ]; then
         cat "${ret_file}"
     else
@@ -173,7 +173,7 @@ function check_float {
 
 function job_tlog_file {
     job="$1"
-    echo "${logs_dir}/${job}.tlog"
+    echo "${LOGS_DIR}/${job}.tlog"
 }
 
 function job_tlog {
@@ -196,8 +196,8 @@ function job_tlog {
 
 function has_warnings {
     job="$1"
-    warn_file="${logs_dir}/${job}.warn"
-    [ -s "${warn_file}" ]
+    WARN_FILE="${LOGS_DIR}/${job}.warn"
+    [ -s "${WARN_FILE}" ]
 }
 
 function job_status {
@@ -219,10 +219,10 @@ function job_status {
 
 function guard {
     job="$1"; shift
-    outlog="${logs_dir}/${job}.out"
-    errlog="${logs_dir}/${job}.err"
-    retlog="${logs_dir}/${job}.ret"
-    export warn_file="${logs_dir}/${job}.warn"
+    outlog="${LOGS_DIR}/${job}.out"
+    errlog="${LOGS_DIR}/${job}.err"
+    retlog="${LOGS_DIR}/${job}.ret"
+    export WARN_FILE="${LOGS_DIR}/${job}.warn"
 
     echo "${abort_status}" > "${retlog}"
 
@@ -251,12 +251,12 @@ function execution_report {
     echo "$(job_ret "${job}")"
     if has_warnings "${job}"; then
         cecho yellow "warnings:"
-        cat "${logs_dir}/${job}.warn"
+        cat "${LOGS_DIR}/${job}.warn"
     fi
     cecho yellow "stdout:"
-    cat "${logs_dir}/${job}.out"
+    cat "${LOGS_DIR}/${job}.out"
     cecho yellow "stderr:"
-    cat "${logs_dir}/${job}.err"
+    cat "${LOGS_DIR}/${job}.err"
 }
 
 function reporting_guard {

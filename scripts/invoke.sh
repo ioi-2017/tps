@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-source "${internals}/util.sh"
-source "${internals}/problem_util.sh"
+source "${INTERNALS}/util.sh"
+source "${INTERNALS}/problem_util.sh"
 
 
 function usage {
@@ -27,12 +27,12 @@ function usage {
 }
 
 
-gen_data_file="${gen_dir}/data"
-show_reason="false"
-sensitive_run="false"
-singular_test="false"
-sole_test_name=""
-skip_check="false"
+gen_data_file="${GEN_DIR}/data"
+SHOW_REASON="false"
+SENSITIVE_RUN="false"
+SINGULAR_TEST="false"
+SOLE_TEST_NAME=""
+SKIP_CHECK="false"
 skip_compile_sol="false"
 
 
@@ -44,32 +44,32 @@ function handle_option {
             exit 0
             ;;
         -t|--test=*)
-            fetch_arg_value "sole_test_name" "-t" "--test" "test name"
-            singular_test="true"
+            fetch_arg_value "SOLE_TEST_NAME" "-t" "--test" "test name"
+            SINGULAR_TEST="true"
             ;;
         -s|--sensitive)
-            sensitive_run="true"
+            SENSITIVE_RUN="true"
             ;;
         -d|--gen-data=*)
             fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
             ;;
         -r|--show-reason)
-            show_reason="true"
+            SHOW_REASON="true"
             ;;
         --no-sol-compile)
             skip_compile_sol="true"
             ;;
         --no-check)
-            skip_check="true"
+            SKIP_CHECK="true"
             ;;
         --time-limit=*)
-            fetch_arg_value "soft_tl" "-@" "--time-limit" "soft time limit"
+            fetch_arg_value "SOFT_TL" "-@" "--time-limit" "soft time limit"
             ;;
         --hard-time-limit=*)
-            fetch_arg_value "hard_tl" "-@" "--hard-time-limit" "hard time limit"
+            fetch_arg_value "HARD_TL" "-@" "--hard-time-limit" "hard time limit"
             ;;
         --no-tle)
-            soft_tl=$((24*60*60))
+            SOFT_TL=$((24*60*60))
             ;;
         *)
             invalid_arg "undefined option"
@@ -99,22 +99,22 @@ if ! python -c "import psutil" >/dev/null 2>/dev/null; then
     exit 1
 fi
 
-if [ -z "${soft_tl+x}" ]; then
-    soft_tl="$(get_time_limit)"
+if [ -z "${SOFT_TL+x}" ]; then
+    SOFT_TL="$(get_time_limit)"
 fi
 
-if ! check_float "${soft_tl}"; then
-    errcho "Provided time limit '${soft_tl}' is not a positive real number"
+if ! check_float "${SOFT_TL}"; then
+    errcho "Provided time limit '${SOFT_TL}' is not a positive real number"
     usage
     exit 2
 fi
 
-if [ -z "${hard_tl+x}" ]; then
-    hard_tl="$(python -c "print(${soft_tl} + 2)")"
+if [ -z "${HARD_TL+x}" ]; then
+    HARD_TL="$(python -c "print(${SOFT_TL} + 2)")"
 fi
 
-if ! check_float "${hard_tl}"; then
-    errcho "Provided hard time limit '${hard_tl}' is not a positive real number"
+if ! check_float "${HARD_TL}"; then
+    errcho "Provided hard time limit '${HARD_TL}' is not a positive real number"
     usage
     exit 2
 fi
@@ -123,31 +123,31 @@ sensitive check_file_exists "Solution file" "${solution}"
 
 sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
-export show_reason sensitive_run singular_test sole_test_name skip_check soft_tl hard_tl
+export SHOW_REASON SENSITIVE_RUN SINGULAR_TEST SOLE_TEST_NAME SKIP_CHECK SOFT_TL HARD_TL
 
 
-recreate_dir "${logs_dir}"
+recreate_dir "${LOGS_DIR}"
 
-export status_pad=20
+export STATUS_PAD=20
 
-printf "%-${status_pad}scompile" "solution"
+printf "%-${STATUS_PAD}scompile" "solution"
 if "${skip_compile_sol}"; then
     echo_status "SKIP"
 else
-    sensitive reporting_guard "solution.compile" bash "${scripts}/compile.sh" "${solution}"
+    sensitive reporting_guard "solution.compile" bash "${SCRIPTS}/compile.sh" "${solution}"
 fi
 echo
 
-printf "%-${status_pad}scompile" "checker"
-if "${skip_check}"; then
+printf "%-${STATUS_PAD}scompile" "checker"
+if "${SKIP_CHECK}"; then
     echo_status "SKIP"
 else
-    sensitive reporting_guard "checker.compile" make -C "${checker_dir}"
+    sensitive reporting_guard "checker.compile" make -C "${CHECKER_DIR}"
 fi
 echo
 
 ret=0
-python "${internals}/invoke.py" < "${gen_data_file}" || ret=$?
+python "${INTERNALS}/invoke.py" < "${gen_data_file}" || ret=$?
 
 
 echo

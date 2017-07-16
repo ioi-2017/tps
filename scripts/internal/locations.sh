@@ -1,32 +1,32 @@
 
 #defines variables for locations
 
-problem_json="${base_dir}/problem.json"
-solutions_json="${base_dir}/solutions.json"
-subtasks_json="${base_dir}/subtasks.json"
+PROBLEM_JSON="${BASE_DIR}/problem.json"
+SOLUTIONS_JSON="${BASE_DIR}/solutions.json"
+SUBTASKS_JSON="${BASE_DIR}/subtasks.json"
 
-scripts="${base_dir}/scripts"
-internals="${scripts}/internal"
-templates="${scripts}/templates"
+SCRIPTS="${BASE_DIR}/scripts"
+INTERNALS="${SCRIPTS}/internal"
+TEMPLATES="${SCRIPTS}/templates"
 
-sandbox="${base_dir}/sandbox"
-logs_dir="${base_dir}/logs"
+SANDBOX="${BASE_DIR}/sandbox"
+LOGS_DIR="${BASE_DIR}/logs"
 
-gen_dir="${base_dir}/gen"
-gen_data="${gen_dir}/data"
+GEN_DIR="${BASE_DIR}/gen"
+GEN_DATA="${GEN_DIR}/data"
 
-tests_dir="${base_dir}/tests"
-mapping_file="${tests_dir}/mapping"
+TESTS_DIR="${BASE_DIR}/tests"
+MAPPING_FILE="${TESTS_DIR}/mapping"
 
-validator_dir="${base_dir}/validator"
-checker_dir="${base_dir}/checker"
-solution_dir="${base_dir}/solution"
+VALIDATOR_DIR="${BASE_DIR}/validator"
+CHECKER_DIR="${BASE_DIR}/checker"
+SOLUTION_DIR="${BASE_DIR}/solution"
 
-grader_dir="${base_dir}/grader"
+GRADER_DIR="${BASE_DIR}/grader"
 
-public_dir="${base_dir}/public"
-public_examples="${public_dir}/examples"
+PUBLIC_DIR="${BASE_DIR}/public"
+PUBLIC_EXAMPLES="${PUBLIC_DIR}/examples"
 
-statement_dir="${base_dir}/statement"
-editorial_dir="${base_dir}/editorial"
+STATEMENT_DIR="${BASE_DIR}/statement"
+EDITORIAL_DIR="${BASE_DIR}/editorial"
 

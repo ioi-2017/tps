@@ -2,12 +2,12 @@
 
 set -euo pipefail
 
-source "${internals}/util.sh"
-source "${templates}/tps_variables.sh"
+source "${INTERNALS}/util.sh"
+source "${TEMPLATES}/tps_variables.sh"
 
 check_variable tps_url
 
-problem_code=$(sensitive python "${internals}/json_extract.py" "${problem_json}" "code")
+problem_code=$(sensitive python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "code")
 
 
 commit=$(git log --pretty=format:'%H' -n 1)

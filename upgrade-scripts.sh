@@ -214,7 +214,7 @@ while read file; do
     fi
 
     printf >&2 "%-40s" "${file}"
-    box_padding=10
+    BOX_PADDING=10
     echo_status "${status}"
     if "${changed}"; then
         cecho yellow >&2 "${message}"

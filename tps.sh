@@ -5,7 +5,7 @@
 # IOI 2017, Iran
 
 
-tps_version=1.0
+tps_version=1.1
 
 
 

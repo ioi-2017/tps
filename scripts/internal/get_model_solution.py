@@ -3,7 +3,7 @@ import sys
 
 from util import load_json
 
-SOLUTIONS_JSON = os.environ.get('solutions_json')
+SOLUTIONS_JSON = os.environ.get('SOLUTIONS_JSON')
 
 
 if __name__ == '__main__':

@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-source "${internals}/util.sh"
-source "${internals}/problem_util.sh"
+source "${INTERNALS}/util.sh"
+source "${INTERNALS}/problem_util.sh"
 
 
 function usage {
@@ -23,13 +23,13 @@ function usage {
 
 
 model_solution=""
-gen_data_file="${gen_dir}/data"
-sensitive_run="false"
-singular_test="false"
-sole_test_name=""
-skip_gen="false"
-skip_sol="false"
-skip_val="false"
+gen_data_file="${GEN_DIR}/data"
+SENSITIVE_RUN="false"
+SINGULAR_TEST="false"
+SOLE_TEST_NAME=""
+SKIP_GEN="false"
+SKIP_SOL="false"
+SKIP_VAL="false"
 skip_compile_sol="false"
 
 function handle_option {
@@ -40,14 +40,14 @@ function handle_option {
             exit 0
             ;;
         -t|--test=*)
-            fetch_arg_value "sole_test_name" "-t" "--test" "test name"
-            singular_test="true"
+            fetch_arg_value "SOLE_TEST_NAME" "-t" "--test" "test name"
+            SINGULAR_TEST="true"
             ;;
         -m|--model-solution=*)
             fetch_arg_value "model_solution" "-m" "--model-solution" "solution path"
             ;;
         -s|--sensitive)
-            sensitive_run="true"
+            SENSITIVE_RUN="true"
             ;;
         -d|--gen-data=*)
             fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
@@ -56,13 +56,13 @@ function handle_option {
             skip_compile_sol="true"
             ;;
         --no-gen)
-            skip_gen="true"
+            SKIP_GEN="true"
             ;;
         --no-sol)
-            skip_sol="true"
+            SKIP_SOL="true"
             ;;
         --no-val)
-            skip_val="true"
+            SKIP_VAL="true"
             ;;
         *)
             invalid_arg "undefined option"
@@ -76,7 +76,7 @@ function handle_positional_arg {
 
 argument_parser "handle_positional_arg" "handle_option" "$@"
 
-if ! "${skip_sol}"; then
+if ! "${SKIP_SOL}"; then
 	if [ -z "${model_solution}" ]; then
 	    model_solution="$(sensitive get_model_solution)"
 	fi
@@ -86,44 +86,44 @@ fi
 
 sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
-export sensitive_run singular_test sole_test_name skip_gen skip_sol skip_val
+export SENSITIVE_RUN SINGULAR_TEST SOLE_TEST_NAME SKIP_GEN SKIP_SOL SKIP_VAL
 
 
-recreate_dir "${logs_dir}"
+recreate_dir "${LOGS_DIR}"
 
-export status_pad=20
+export STATUS_PAD=20
 
-printf "%-${status_pad}scompile" "generator"
-if "${skip_gen}"; then
+printf "%-${STATUS_PAD}scompile" "generator"
+if "${SKIP_GEN}"; then
     echo_status "SKIP"
 else
-    sensitive reporting_guard "generators.compile" make -C "${gen_dir}"
+    sensitive reporting_guard "generators.compile" make -C "${GEN_DIR}"
 fi
 echo
 
-printf "%-${status_pad}scompile" "solution"
-if "${skip_sol}" || "${skip_compile_sol}";  then
+printf "%-${STATUS_PAD}scompile" "solution"
+if "${SKIP_SOL}" || "${skip_compile_sol}";  then
     echo_status "SKIP"
 else
-    sensitive reporting_guard "solution.compile" bash "${scripts}/compile.sh" "${model_solution}"
+    sensitive reporting_guard "solution.compile" bash "${SCRIPTS}/compile.sh" "${model_solution}"
 fi
 echo
 
-printf "%-${status_pad}scompile" "validator"
-if "${skip_val}"; then
+printf "%-${STATUS_PAD}scompile" "validator"
+if "${SKIP_VAL}"; then
     echo_status "SKIP"
 else
-    sensitive reporting_guard "validators.compile" make -C "${validator_dir}"
+    sensitive reporting_guard "validators.compile" make -C "${VALIDATOR_DIR}"
 fi
 echo
 
 # TODO confirm
-if ! "${skip_gen}"; then
-    recreate_dir "${tests_dir}"
+if ! "${SKIP_GEN}"; then
+    recreate_dir "${TESTS_DIR}"
 fi
 
 ret=0
-python "${internals}/gen.py" "${mapping_file}" < "${gen_data_file}" || ret=$?
+python "${INTERNALS}/gen.py" "${MAPPING_FILE}" < "${gen_data_file}" || ret=$?
 
 
 echo

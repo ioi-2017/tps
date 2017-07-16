@@ -2,25 +2,25 @@
 
 set -euo pipefail
 
-source "${internals}/util.sh"
+source "${INTERNALS}/util.sh"
 
 test_name="$1"; shift
 
-input="${tests_dir}/${test_name}.in"
-answer="${tests_dir}/${test_name}.out"
-sol_output="${sandbox}/${test_name}.out"
+input="${TESTS_DIR}/${test_name}.in"
+answer="${TESTS_DIR}/${test_name}.out"
+sol_output="${SANDBOX}/${test_name}.out"
 
 function run_solution {
     tlog_file="$(job_tlog_file "${sol_job}")"
-    python "${internals}/timer.py" "${soft_tl}" "${hard_tl}" "${tlog_file}" bash "${scripts}/run.sh" < "${input}" > "${sol_output}"
+    python "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${SCRIPTS}/run.sh" < "${input}" > "${sol_output}"
 }
 
 function run_checker {
-    "${checker_dir}/checker.exe" "${input}" "${answer}" "${sol_output}"
+    "${CHECKER_DIR}/checker.exe" "${input}" "${answer}" "${sol_output}"
 }
 
 
-printf "%-${status_pad}s" "${test_name}"
+printf "%-${STATUS_PAD}s" "${test_name}"
 
 failed_jobs=""
 final_ret=0
@@ -38,7 +38,7 @@ else
 fi
 
 
-export box_padding=4
+export BOX_PADDING=4
 
 echo -n "sol"
 sol_job="${test_name}.sol"
@@ -54,10 +54,10 @@ if ! is_in "${input_status}" "FAIL" "SKIP"; then
         verdict="Time Limit Exceeded"
         terminated="$(job_tlog "${sol_job}" "terminated")"
         if "${terminated}"; then
-            reason="solution terminated after hard time limit '${hard_tl}'"
+            reason="solution terminated after hard time limit '${HARD_TL}'"
         else
             solution_exit_code="$(job_tlog "${sol_job}" "ret")"
-            reason="solution finished after time limit '${soft_tl}', with exit code '${solution_exit_code}'"
+            reason="solution finished after time limit '${SOFT_TL}', with exit code '${solution_exit_code}'"
         fi
     elif [ ${ret} -ne 0 ]; then
         failed_jobs="${failed_jobs} ${sol_job}"
@@ -74,13 +74,13 @@ printf "%7s" "${execution_time}"
 hspace 5
 
 
-export box_padding=5
+export BOX_PADDING=5
 
 echo -n "check"
 check_job="${test_name}.check"
 
 if ! is_in "${sol_status}" "FAIL" "SKIP"; then
-    if "${skip_check}"; then
+    if "${SKIP_CHECK}"; then
         score="?"
         verdict="Unknown"
         reason="Checker skipped"
@@ -96,9 +96,9 @@ if ! is_in "${sol_status}" "FAIL" "SKIP"; then
             verdict="Judge Failure"
             reason="checker exited with code ${ret}"
         else
-            score="$(sed -n 1p "${logs_dir}/${check_job}.out")"
-            verdict="$(sed -n 1p "${logs_dir}/${check_job}.err")"
-            reason="$(sed -n 2p "${logs_dir}/${check_job}.err")"
+            score="$(sed -n 1p "${LOGS_DIR}/${check_job}.out")"
+            verdict="$(sed -n 1p "${LOGS_DIR}/${check_job}.err")"
+            reason="$(sed -n 2p "${LOGS_DIR}/${check_job}.err")"
         fi
     fi
 fi
@@ -109,10 +109,10 @@ echo_status "${check_status}"
 
 printf "%5s" "${score}"
 hspace 2
-export box_padding=20
+export BOX_PADDING=20
 echo_verdict "${verdict}"
 
-if "${show_reason}"; then
+if "${SHOW_REASON}"; then
     hspace 2
     printf "%s" "${reason}"
 fi
@@ -120,7 +120,7 @@ fi
 echo
 
 
-if "${sensitive_run}"; then
+if "${SENSITIVE_RUN}"; then
     if [ ${final_ret} -ne 0 ]; then
         for job in ${failed_jobs}; do
             echo

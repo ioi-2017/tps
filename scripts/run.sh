@@ -1,3 +1,3 @@
 #!/bin/bash
 
-bash "${sandbox}/run.sh" "$@"
+bash "${SANDBOX}/run.sh" "$@"

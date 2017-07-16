@@ -2,13 +2,13 @@
 
 set -euo pipefail
 
-source "${internals}/util.sh"
+source "${INTERNALS}/util.sh"
 
-grader="${grader_dir}"
-public="${public_dir}"
+grader="${GRADER_DIR}"
+public="${PUBLIC_DIR}"
 
-attachment_name="${problem_name}.zip"
-public_files="${templates}/public.files"
+attachment_name="${PROBLEM_NAME}.zip"
+public_files="${TEMPLATES}/public.files"
 
 function fix() {
 	cecho yellow -n "fix: "
@@ -21,7 +21,7 @@ function pgg() {
 	cecho yellow -n "pgg: "
 	echo "$@"
 	check_file_exists "file" "${grader}/$1"
-	python ${internals}/pgg.py < "${grader}/$1" > "${public}/$1"
+	python ${INTERNALS}/pgg.py < "${grader}/$1" > "${public}/$1"
 	fix "$@"
 }
 
@@ -33,17 +33,17 @@ function make_public() {
 	fix "$@"
 }
 
-extention_point="${templates}/make_public_extension.sh"
+extention_point="${TEMPLATES}/make_public_extension.sh"
 
 if [ -f "${extention_point}" ] ; then
 	source "${extention_point}"
 fi
 
 function replace_tokens {
-	sed -e "s/PROBLEM_NAME_PLACE_HOLDER/${problem_name}/g"
+	sed -e "s/PROBLEM_NAME_PLACE_HOLDER/${PROBLEM_NAME}/g"
 }
 
-pushd "${public_dir}" > /dev/null
+pushd "${PUBLIC_DIR}" > /dev/null
 
 while read raw_line; do
 	line=$(echo $raw_line | replace_tokens | xargs)
@@ -73,7 +73,7 @@ done < $public_files | zip -@ "${attachment_name}"
 
 popd > /dev/null
 
-mv "${public_dir}/${attachment_name}" .
+mv "${PUBLIC_DIR}/${attachment_name}" .
 
 cecho yellow "Created attachment '${attachment_name}'."
 

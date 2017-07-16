@@ -4,7 +4,7 @@ import sys
 from json_extract import navigate_json
 from util import check_file_exists, load_json, log_warning
 
-SUBTASKS_JSON = os.environ.get('subtasks_json')
+SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 
 
 def usage():

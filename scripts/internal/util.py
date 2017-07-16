@@ -37,7 +37,7 @@ def load_json(file_path):
 
 
 def log_warning(message):
-    warnfile = os.environ.get('warn_file')
+    warnfile = os.environ.get('WARN_FILE')
 
     if warnfile is None:
         return

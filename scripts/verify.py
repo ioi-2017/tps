@@ -4,7 +4,7 @@ import json
 import os
 import subprocess
 
-BASE_DIR = os.environ.get('base_dir')
+BASE_DIR = os.environ.get('BASE_DIR')
 WEB_TERMINAL = os.environ.get('WEB_TERMINAL')
 
 valid_problem_types = ('batch', 'interactive', 'communication', 'output-only', 'two-phase')

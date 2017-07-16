@@ -2,21 +2,21 @@
 
 set -euo pipefail
 
-source "${internals}/util.sh"
-source "${internals}/problem_util.sh"
+source "${INTERNALS}/util.sh"
+source "${INTERNALS}/problem_util.sh"
 
 test_name="$1"; shift
 command="$1"; shift
 args="$@"
 
-input="${tests_dir}/${test_name}.in"
-output="${tests_dir}/${test_name}.out"
+input="${TESTS_DIR}/${test_name}.in"
+output="${TESTS_DIR}/${test_name}.out"
 
 function gen_input {
     if [ "${command}" == "manual" ]; then
-        cat "${gen_dir}/manual/${args}" > "${input}"
+        cat "${GEN_DIR}/manual/${args}" > "${input}"
     else
-        "${gen_dir}/${command}.exe" ${args} > "${input}"
+        "${GEN_DIR}/${command}.exe" ${args} > "${input}"
     fi
 }
 
@@ -25,7 +25,7 @@ function gen_output {
         errcho "input file ${test_name}.in is not available"
         return 4
     fi
-    bash "${scripts}/run.sh" < "${input}" > "${output}"
+    bash "${SCRIPTS}/run.sh" < "${input}" > "${output}"
 }
 
 function validate {
@@ -44,18 +44,18 @@ function validate {
 }
 
 
-printf "%-${status_pad}s" "${test_name}"
+printf "%-${STATUS_PAD}s" "${test_name}"
 
 failed_jobs=""
 final_ret=0
 
 
-export box_padding=7
+export BOX_PADDING=7
 
 echo -n "gen"
 gen_job="${test_name}.gen"
 
-if ! "${skip_gen}"; then
+if ! "${SKIP_GEN}"; then
     insensitive guard "${gen_job}" gen_input
     ret=$(job_ret "${gen_job}")
 
@@ -72,7 +72,7 @@ echo_status "${gen_status}"
 echo -n "sol"
 sol_job="${test_name}.sol"
 
-if ! "${skip_sol}" && ! is_in "${gen_status}" "FAIL"; then
+if ! "${SKIP_SOL}" && ! is_in "${gen_status}" "FAIL"; then
     insensitive guard "${sol_job}" gen_output
     ret=$(job_ret "${sol_job}")
 
@@ -89,7 +89,7 @@ echo_status "${sol_status}"
 echo -n "val"
 val_job="${test_name}.val"
 
-if ! "${skip_val}" && ! is_in "${gen_status}" "FAIL"; then
+if ! "${SKIP_VAL}" && ! is_in "${gen_status}" "FAIL"; then
     insensitive guard "${val_job}" validate
     ret=$(job_ret "${val_job}")
 
@@ -105,7 +105,7 @@ echo_status "${val_status}"
 echo
 
 
-if "${sensitive_run}"; then
+if "${SENSITIVE_RUN}"; then
     if [ ${final_ret} -ne 0 ]; then
         for job in ${failed_jobs}; do
             echo

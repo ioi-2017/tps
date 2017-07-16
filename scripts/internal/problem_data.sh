@@ -1,12 +1,12 @@
 
-#sets the variable problem_name from file problem.json
+#sets the problem related variables from file problem.json
 
-problem_name="$(python "${internals}/json_extract.py" "${problem_json}" "name")"
-problem_type="$(python "${internals}/json_extract.py" "${problem_json}" "type")"
-HAS_GRADER="$(python "${internals}/json_extract.py" "${problem_json}" "has_grader" 2> /dev/null)" || true
+PROBLEM_NAME="$(python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "name")"
+PROBLEM_TYPE="$(python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "type")"
+HAS_GRADER="$(python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_grader" 2> /dev/null)" || true
 
 if [ -z "${HAS_GRADER}"  ]; then
-    case "${problem_type}" in
+    case "${PROBLEM_TYPE}" in
         output-only) HAS_GRADER="false" ;;
         *) HAS_GRADER="true" ;;
     esac

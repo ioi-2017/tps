@@ -4,10 +4,10 @@ from collections import defaultdict
 from gen_data_parser import DataVisitor, parse_data, data_parse_error, check_test_exists
 from util import run_bash_command
 
-SUBTASKS_JSON = os.environ.get('subtasks_json')
-INTERNALS_DIR = os.environ.get('internals')
-SINGULAR_TEST = os.environ.get('singular_test')
-SOLE_TEST_NAME = os.environ.get('sole_test_name')
+SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
+INTERNALS_DIR = os.environ.get('INTERNALS')
+SINGULAR_TEST = os.environ.get('SINGULAR_TEST')
+SOLE_TEST_NAME = os.environ.get('SOLE_TEST_NAME')
 
 
 class MappingVisitor(DataVisitor):
