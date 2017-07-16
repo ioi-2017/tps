@@ -21,6 +21,7 @@ source "${INTERNALS}/problem_data.sh"
 PYTHONPATH="${PYTHONPATH}:${INTERNALS}:${TEMPLATES}"
 
 ulimit -s 512000 > /dev/null 2>&1 || true
+JAVA_OPTS="-Xmx512M -Xss256M"
 
 set +a
 
