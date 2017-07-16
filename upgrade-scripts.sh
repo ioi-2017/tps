@@ -113,7 +113,9 @@ fi
 function list_dir_files {
     dir="$1"
     pushd "${dir}" > /dev/null 2>&1 || exit 1
-    git ls-files
+    git ls-files | while read file; do
+        [ -f "${file}" ] && echo "${file}"
+    done
     popd  > /dev/null 2>&1
 }
 
