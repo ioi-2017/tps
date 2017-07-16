@@ -35,7 +35,6 @@ if __name__ == '__main__':
         log_warning("Test '%s' is in no subtasks." % test_name)
 
     data = load_json(SUBTASKS_JSON)
-
     test_validators = data.get('global_validators', [])
 
     if len(test_validators) == 0:

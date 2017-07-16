@@ -26,15 +26,14 @@ def check_file_exists(file_path):
 
 def load_json(file_path):
     check_file_exists(file_path)
-    data = None
     with open(file_path, 'r') as f:
         try:
-            data = json.load(f)
+            return json.load(f)
         except ValueError as e:
             sys.stderr.write("Invalid json file '%s'\n" % file_path)
             sys.stderr.write("%s\n" % e.message)
             exit(3)
-    return data
+    return None
 
 
 def log_warning(message):

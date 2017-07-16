@@ -93,6 +93,12 @@ if [ -z "${solution+x}" ]; then
     exit 2
 fi
 
+if ! python -c "import psutil" >/dev/null 2>/dev/null; then
+    errcho "Error: Package 'psutil' is not installed. You can install it using:"
+    errcho "pip install psutil"
+    exit 1
+fi
+
 if [ -z "${soft_tl+x}" ]; then
     soft_tl="$(get_time_limit)"
 fi

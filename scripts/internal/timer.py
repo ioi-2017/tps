@@ -2,6 +2,21 @@ import datetime
 import subprocess
 import sys
 from threading import Timer
+import os
+
+try:
+    import psutil
+except ImportError, e:
+    sys.stderr.write('Package \'psutil\' is not installed. You can install it using:\npip install psutil\n')
+    exit(1)
+
+
+def kill_proc_tree(pid, including_parent=True):
+    parent = psutil.Process(pid)
+    procs = list(reversed(parent.children(recursive=True))) + ([parent] if including_parent else [])
+    for proc in procs:
+        proc.kill()
+    psutil.wait_procs(procs, timeout=1)
 
 
 def usage():
@@ -11,7 +26,7 @@ def usage():
 
 def terminate(data):
     data["terminated"] = True
-    data["process"].terminate()
+    kill_proc_tree(data["process"].pid)
 
 
 def timer(time_limit, command):
@@ -57,5 +72,3 @@ if __name__ == '__main__':
         exit(124)
     else:
         exit(data["ret"])
-
-
