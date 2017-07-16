@@ -13,8 +13,6 @@ function usage {
     errcho -e "\tCompile using public graders"
 }
 
-HAS_GRADER=true
-
 if "${HAS_GRADER}"; then
     grader_type="judge"
     used_grader_dir="${grader_dir}"
