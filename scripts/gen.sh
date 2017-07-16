@@ -80,7 +80,7 @@ if ! "${skip_sol}"; then
 	if [ -z "${model_solution}" ]; then
 	    model_solution="$(sensitive get_model_solution)"
 	fi
-	
+
 	sensitive check_file_exists "Solution file" "${model_solution}"
 fi
 
