@@ -18,7 +18,7 @@ function usage {
 	errcho -e "      --no-gen"
 	errcho -e "      --no-sol"
 	errcho -e "      --no-val"
-	errcho -e "      --no-sol-comp[ile]"
+	errcho -e "      --no-sol-compile"
 }
 
 
@@ -52,7 +52,7 @@ function handle_option {
         -d|--gen-data=*)
             fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
             ;;
-        --no-sol-comp|--no-sol-compile)
+        --no-sol-compile)
             skip_compile_sol="true"
             ;;
         --no-gen)

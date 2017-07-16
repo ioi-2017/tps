@@ -16,8 +16,8 @@ function usage {
 	errcho -e "\tDisplays the reason for not being accepted, e.g. checker output"
 	errcho -e "  -t, --test=<test-name>"
 	errcho -e "  -d, --gen-data=<gen-data-file>"
-	errcho -e "      --no-check[er]"
-	errcho -e "      --no-sol-comp[ile]"
+	errcho -e "      --no-check"
+	errcho -e "      --no-sol-compile"
 	errcho -e "      --no-tle"
 	errcho -e "      --time-limit=<time-limit>"
 	errcho -e "\tGiven in seconds, e.g. --time-limit=1.2 means 1.2 seconds"
@@ -56,10 +56,10 @@ function handle_option {
         -r|--show-reason)
             show_reason="true"
             ;;
-        --no-sol-comp|--no-sol-compile)
+        --no-sol-compile)
             skip_compile_sol="true"
             ;;
-        --no-check|--no-checker)
+        --no-check)
             skip_check="true"
             ;;
         --time-limit=*)

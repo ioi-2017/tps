@@ -4,8 +4,6 @@
 --test=
 --gen-data=
 --no-check
---no-checker
---no-sol-comp
 --no-sol-compile
 --no-tle
 --time-limit=
