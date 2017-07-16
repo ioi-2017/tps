@@ -144,6 +144,7 @@ function echo_verdict {
 
     case "${verdict}" in
         Correct) color=green ;;
+        Partial*) color=yellow ;;
         Wrong*|Runtime*) color=red ;;
         Time*) color=blue ;;
         Unknown) color=gray ;;

@@ -76,12 +76,13 @@ function handle_positional_arg {
 
 argument_parser "handle_positional_arg" "handle_option" "$@"
 
-
-if [ -z "${model_solution}" ]; then
-    model_solution="$(sensitive get_model_solution)"
+if ! "${skip_sol}"; then
+	if [ -z "${model_solution}" ]; then
+	    model_solution="$(sensitive get_model_solution)"
+	fi
+	
+	sensitive check_file_exists "Solution file" "${model_solution}"
 fi
-
-sensitive check_file_exists "Solution file" "${model_solution}"
 
 sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
