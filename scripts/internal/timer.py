@@ -6,7 +6,7 @@ import os
 
 try:
     import psutil
-except ImportError, e:
+except ImportError as e:
     sys.stderr.write('Package \'psutil\' is not installed. You can install it using:\npip install psutil\n')
     exit(1)
 
