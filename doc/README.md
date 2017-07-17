@@ -53,7 +53,7 @@ Description of the task. It has several attributes:
 name: The short-name of the task. The source code submitted by the contestant should use this name.
 code: A unique code assigned to each task in the TPS web-interface. Usually it is the same as the `name`, but is reserved for the cases that the name is changed and we don’t want to change the TPS web-interface.
 title: Task title, as appears in the task statement.
-type: Task type, that can be `batch`, `interactive`, `communication`, `output-only`, `two-phase`.
+type: Task type, that can be `Batch`, `Communication`, `OutputOnly`, `TwoSteps`.
 time_limit: A real number, the maximum CPU time (in seconds) of the main process (does not include CPU time of the manager process).
 memory_limit: the maximum memory that can be used by the main process, in MB.
 description: An optional description of the task.
@@ -66,7 +66,7 @@ Below is a sample `problem.json`:
  "title": "Mountains",
  "memory_limit": 256,
  "time_limit": 1.0,
- "type": "batch",
+ "type": "Batch",
  "description": "Find maximum number of Deevs"
 }
 ```
