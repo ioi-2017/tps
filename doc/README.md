@@ -12,7 +12,7 @@ It is recommended to install bash completion if it is not already installed (on 
 
 [http://davidalger.com/development/bash-completion-on-os-x-with-brew/](http://davidalger.com/development/bash-completion-on-os-x-with-brew/)
 
-TPS currently supports c++, pas and java. The gcc compiler is mandatory, and fpc (free pascal) and java compilers are required if there are solutions of those languages.
+TPS currently supports c++, pas and java. The `gcc` compiler is mandatory, and `fpc` (free pascal) and java compilers are required if there are solutions of those languages.
 
 Python (2 or 3) is required.
 
@@ -20,7 +20,7 @@ The system should support make command (for Makefiles).
 
 # Task Preparation System (TPS)
 
-The TPS has two interfaces: a git interface that is ideal for those who love terminal, and a web interface with a GUI. Currently the web interface is read-only, hence any changes to the task statement or test material should be done through the git interface. The main functionality of the web interface is to invocate solutions over the whole set of tests to see how they perform on the real contest machines, in parallel.
+The TPS has two interfaces: a git interface that is ideal for those who love terminal, and a web interface with a GUI. Currently the web interface is read-only, hence any changes to the task statement or test material should be done through the git interface. The main functionality of the web interface is to invoke solutions over the whole set of tests to see how they perform on the real contest machines, in parallel.
 
 The following sections describe these interfaces.
 
@@ -51,13 +51,14 @@ A new folder `mountains` will be created that contains the statement and all tes
 
 Description of the task. It has several attributes:
 name: The short-name of the task. The source code submitted by the contestant should use this name.
-code: A unique code assigned to each task in the TPS web-interface. Usually it is the same as the “name”, but is reserved for the cases that the name is changed and we don’t want to change the TPS web-interface.
+code: A unique code assigned to each task in the TPS web-interface. Usually it is the same as the `name`, but is reserved for the cases that the name is changed and we don’t want to change the TPS web-interface.
 title: Task title, as appears in the task statement.
 type: Task type, that can be `batch`, `interactive`, `communication`, `output-only`, `two-phase`.
 time_limit: A real number, the maximum CPU time (in seconds) of the main process (does not include CPU time of the manager process).
 memory_limit: the maximum memory that can be used by the main process, in MB.
 description: An optional description of the task.
-Below is a sample problem.json:
+Below is a sample `problem.json`:
+
 ```
 {
  "name": "mountains",
@@ -72,11 +73,11 @@ Below is a sample problem.json:
 
 ## gen
 
-The code for generating test data. Usually it includes “testlib.h” which simplifies file IO, random number generation, etc. It can contain a folder “manual” that contains manually created test data (all other test data will be automatically generated).
+The code for generating test data. Usually it includes `testlib.h` which simplifies file IO, random number generation, etc. It can contain a folder `manual` that contains manually created test data (all other test data will be automatically generated).
 
 ## gen/data
 
-This file contains the information of how to create the test data, and their mapping to the subtasks. The file is separated into several test-sets (a line starting with “@subtask”). Each test-set can include other test-sets by a line starting with “@include”. Hence a test-set might be an actual subtask, or a temporary one that is included in the other subtasks. Below is an example:
+This file contains the information of how to create the test data, and their mapping to the subtasks. The file is separated into several test-sets (a line starting with `@subtask`). Each test-set can include other test-sets by a line starting with `@include`. Hence a test-set might be an actual subtask, or a temporary one that is included in the other subtasks. Below is an example:
 
 ```
 @subtask samples
@@ -102,15 +103,15 @@ gencode bpc 40 waneegbt
 
 ## grader
 
-The program that contains the main routine, which will be compiled with the contestant source code and call its functions. It contains one folder for each programming language, which contains a specific grader for that language. The “cpp” folder usually contains a “.h” interface file that is included in the contestant program. Each grader can have secret and public parts. The public grader (which is given to the contestants during the contest) can be automatically created from the grader by removing the secret parts, which are bounded between “// BEGIN SECRET” and “// END SECRET” lines.
+The program that contains the main routine, which will be compiled with the contestant source code and call its functions. It contains one folder for each programming language, which contains a specific grader for that language. The `cpp` folder usually contains a `.h` interface file that is included in the contestant program. Each grader can have secret and public parts. The public grader (which is given to the contestants during the contest) can be automatically created from the grader by removing the secret parts, which are bounded between `// BEGIN SECRET` and `// END SECRET` lines.
 
 ## checker
 
-It contains the program that verifies the input, output and answer of a test and checks if the output is correct or wrong. It usually uses “testlib.h”.
+It contains the program that verifies the input, output and answer of a test and checks if the output is correct or wrong. It usually uses `testlib.h`.
 
 ## solution
 
-It contains different solutions developed by the scientific committee, for different programming languages (all in the same folder). Each solution has a verdict that are listed in solutions.json file.
+It contains different solutions developed by the scientific committee, for different programming languages (all in the same folder). Each solution has a verdict that are listed in `solutions.json` file.
 
 ## solutions.json
 
@@ -133,7 +134,7 @@ Below is an example:
 
 ## validator
 
-This folder contains validators for the whole set of test data (global validators), or for each/multiple sub-task(s), plus a Makefile. They usually include “testlib.h”.
+This folder contains validators for the whole set of test data (global validators), or for each/multiple sub-task(s), plus a Makefile. They usually include `testlib.h`.
 
 ## subtasks.json
 
@@ -198,14 +199,14 @@ All the public graders, example test data, sample source codes and compile scrip
 
 # TPS commands
 
-In addition to the normal git commands (e.g. clone, pull, commit, push, merge), the TPS provides a “tps” command with bash auto-completion functionality.
+In addition to the normal git commands (e.g. clone, pull, commit, push, merge), the TPS provides a `tps` command with bash auto-completion functionality.
 
 Here is the usage:
 ```
 tps <command> <arguments>...
 ```
 
-Below are the list of commands that can be use with tps:
+Below are the list of commands that can be use with `tps`:
 
 ## analyze
 
@@ -213,11 +214,11 @@ This will open the TPS web interface on the same commit, to verify the directory
 
 ## compile
 
-Given a single solution code, TPS will understand its programming language, put it in the “sandbox” folder with a new name that matches the short name of the task, puts necessary grader files in sandbox (use `-p, --public` argument to copy the public grader), compiles it, and creates run.sh (that runs the program based on the programming language) and exec.sh (which handles the required pipe-lining for interactive tasks). It also looks for `scripts/post_compile.sh` and runs if it the compile process is done successfully.
+Given a single solution code, TPS will understand its programming language, put it in the `sandbox` folder with a new name that matches the short name of the task, puts necessary grader files in sandbox (use `-p, --public` argument to copy the public grader), compiles it, and creates run.sh (that runs the program based on the programming language) and exec.sh (which handles the required pipe-lining for interactive tasks). It also looks for `scripts/post_compile.sh` and runs if it the compile process is done successfully.
 
 ## gen
 
-Compiles generator, model-solution , and validator, and then generates and validates the test data and check model solution on them. The other arugments are:
+Compiles generator, model-solution , and validator, and then generates and validates the test data and check model solution on them. The other arguments are:
 
 * `-m, --model-solution=<model-solution-path>`: change the model solution.
 * `-s, --sensitive`: Terminate on the first error.
@@ -242,7 +243,7 @@ Below are the arguments:
 * `-s, --sensitive`: terminate on the first error.
 * `-r, --show-reason`: display the reason for not being accepted, e.g. checker output
 * `-t, --test=<test-name>`: invoke a single test case.
-* `-d, --gen-data=<gen-data-file>`: use alternative gen/data file.
+* `-d, --gen-data=<gen-data-file>`: use alternative `gen/data` file.
 * `--no-check[er]`: do not run checker.
 * `--no-sol-comp[ile]`: do not compile solution.
 * `--no-tle`: no time limit exceeded report.
@@ -261,6 +262,6 @@ Verifies the directory structure, and reports error or warning messages accordin
 
 Runs the compiled solution in the sandbox for a given set of arguments.
 
-# web interface
+# Web Interface
 
-You can login to [https://tps.ioi2017.org](https://tps.ioi2017.org) and go to any task. There you can see the task statement and all of test materials. The test cases are only available after they are generated. For generating the testcases you should go to the analysis page and click on the generate button. During the generation you can also see the generation state by reloading the page. You may then analyze the testdata using the testcases section. You may also use invocations to evaluate solutions.
+You can login to [https://tps.ioi2017.org](https://tps.ioi2017.org) and go to any task. There you can see the task statement and all of test materials. The test cases are only available after they are generated. For generating the test cases you should go to the analysis page and click on the generate button. During the generation you can also see the generation state by reloading the page. You may then analyze the test data using the test cases section. You may also use invocations to evaluate solutions.
