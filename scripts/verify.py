@@ -9,7 +9,7 @@ import sys
 BASE_DIR = os.environ.get('BASE_DIR')
 PROBLEM_NAME = os.environ.get('PROBLEM_NAME')
 HAS_GRADER = os.environ.get('HAS_GRADER')
-HAS_MANAGER = os.environ.get('HAS_GRADER')
+HAS_MANAGER = os.environ.get('HAS_MANAGER')
 WEB_TERMINAL = os.environ.get('WEB_TERMINAL')
 
 valid_problem_types = ('Batch', 'Communication', 'OutputOnly', 'TwoSteps')
@@ -27,7 +27,10 @@ manager_necessary_files = (
     'grader/Makefile', 'grader/manager.cpp'
 )
 
-string_types = (str, unicode)
+if sys.version_info >= (3,):
+    string_types = (str,)
+else:
+    string_types = (str, unicode)
 
 GREEN = '\033[32m'
 YELLOW = '\033[33m'
@@ -102,7 +105,7 @@ def verify_problem():
     elif WEB_TERMINAL is None or WEB_TERMINAL != "true":
         # TODO check if git is available
         # TODO handle it with less bash
-        git_origin_name = subprocess.check_output('bash -c "basename $(git config --local remote.origin.url)"', shell=True).strip()[:-4]
+        git_origin_name = subprocess.check_output('bash -c "basename $(git config --local remote.origin.url)"', shell=True).strip().decode('utf-8')[:-4]
         if problem['name'] != git_origin_name:
             warning('problem name and git project name are not the same')
 
@@ -185,7 +188,7 @@ def verify_subtasks():
     indexes = set()
     score_sum = 0
 
-    for name, data in subtasks.iteritems():
+    for name, data in subtasks.items():
         if not isinstance(data, dict):
             error('invalid data in {}'.format(name))
             continue
@@ -315,16 +318,16 @@ def verify():
         verify_existence(manager_necessary_files)
 
     for error in errors:
-        sys.stdout.writeln(error)
+        sys.stdout.write("%s\n" % error)
 
     if not errors:
         if warnings:
-            sys.stdout.writeln(YELLOW + 'verified ' + ENDC + 'but there are some warnings')
+            sys.stdout.write("%sverified %sbut there are some warnings\n" % (YELLOW, ENDC))
         else:
-            sys.stdout.writeln(GREEN + 'verified.' + ENDC)
+            sys.stdout.write("%sverified.%s\n" % (GREEN, ENDC))
 
     for warning in warnings:
-        sys.stdout.writeln(warning)
+        sys.stdout.write("%s\n" % warning)
 
 
 if __name__ == "__main__":
