@@ -45,5 +45,7 @@ if __name__ == '__main__':
     elif isinstance(result, list):
         for item in result:
             print(item)
+    elif isinstance(result, bool):
+        print("true" if result else "false")
     else:
         print(result)
