@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Markdown Viewer</title>  
+  <link rel="stylesheet" href="assets/style.css">
+  <script type="text/javascript" src="assets/libs.js"></script>
+  <script type="text/javascript" src="assets/w3.js"></script>
+  <script type="text/javascript" src="prop.js"></script>
+</head>
+<body>
+
+	<div id="main" class="markdown-body pdf">
+        <div w3-include-html="header.html"></div>
+        <div id="content" class="rendered_content" dir="ltr" lang="en"></div>
+	    <div id="error-message" style="display: none;text-align: center; font-size: 24px;"></div>
+    	<div w3-include-html="footer.html"></div>
+    </div>
+  <footer style="position:fixed; bottom: 0;">
+  	<p style="font-size: 11px;color: white;">@copyright <a href="http://ioi2017.org/">ioi 2017</a></p>
+  </footer>
+  <script>
+	w3.includeHTML();
+
+	// Initilize Makrded.js Renderer
+
+	var renderer = new marked.Renderer();
+
+	// enable resize option for images
+	renderer.image = function(href, title, text) {
+	    var tags = '';
+	    if (title) {
+		size = title.split('x');
+		if (size[1])
+		    tags = 'width=' + size[0] + ' height=' + size[1];
+		else
+		    tags = 'width=' + size[0];
+	    }else if(href && href.indexOf('=') != -1){		
+		size = href.split('=')[1].split('x');
+		href = href.split('=')[0];
+		if (size[1])
+		    tags = 'width=' + size[0] + ' height=' + size[1];
+		else
+		    tags = 'width=' + size[0];
+	    }
+	    return ('<img src="' + href + '" alt="' + text + '" ' + tags + '>');
+	};
+
+	// remove trailing newline in code blocks
+	renderer.code = function(code, language) {
+	    return ('<pre><code>' + code + '</code></pre>');
+	};
+
+	// global options
+	marked.setOptions({
+	    renderer: renderer,
+	    gfm: true,
+	    tables: true,
+	    breaks: false,
+	    pedantic: false,
+	    sanitize: false,
+	    smartLists: true,
+	    smartypants: false
+	});
+
+	var path = window.location.pathname;
+	var html = path.split("/").pop();
+	var docName = html.substr(0, html.lastIndexOf("."));
+	var md = docName + ".md";
+	document.title = "Markdown Viewer - " + docName;
+	
+	function readTextFile(file){
+	    var rawFile = new XMLHttpRequest();
+	    rawFile.open("GET", file, true);
+	    rawFile.onreadystatechange = function (){
+			if(rawFile.readyState === 4){
+			    if(rawFile.status === 200){
+			        var allText = rawFile.responseText;
+					document.getElementById('content').innerHTML = marked(allText);
+					renderMathInElement(document.getElementById('content'));
+			    }else{
+					document.getElementById("error-message").style.display = "block";
+					document.getElementById("error-message").textContent = "'" +  md + "' not found";
+				}
+			}
+	    }
+	    rawFile.send(null);
+	}
+	
+	function readJsonProp(file){
+		var rawFile = new XMLHttpRequest();
+	    rawFile.open("GET", file, true);
+	    rawFile.onreadystatechange = function (){
+			if(rawFile.readyState === 4){
+			    if(rawFile.status === 200 || rawFile.status == 0){
+			        var props = JSON.parse(rawFile.responseText);
+			        Object.keys(props).forEach(function(key){
+			        	var elm = document.getElementById("prop_"+key);
+			        	if(elm)
+			        		elm.textContent = props[key];
+			        })
+			    }
+			}
+	    }
+	    rawFile.send(null);
+	}
+
+	//if is firefox
+	if(typeof InstallTrigger !== 'undefined'){
+		readTextFile(md);
+	}else{
+		document.getElementById("error-message").style.display = "block";
+		document.getElementById("error-message").textContent = "It only works in firefox";
+	}
+		
+	readJsonProp("prop.json");
+  </script>
+</body>
+</html>
