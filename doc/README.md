@@ -145,7 +145,10 @@ Below is an example:
 {
 	"mountains-haghani-solution.cpp": {"verdict": "model_solution"},
 	"mountain.cpp": {"verdict": "correct"},
-	"greedy.cpp": {"verdict": "incorrect", "except": {"samples": "correct", "n2": "time_limit"}}
+	"greedy.cpp": {
+		"verdict": "incorrect",
+		"except": {"samples": "correct", "n2": "time_limit"}
+	}
 }
 ```
 
@@ -232,7 +235,7 @@ This will open the TPS web interface on the same commit, to verify the directory
 
 ## compile
 
-Given a single solution code, TPS will understand its programming language, put it in the `sandbox` folder with a new name that matches the short name of the task, puts necessary grader files in sandbox (use `-p, --public` argument to copy the public grader), compiles it, and creates run.sh (that runs the program based on the programming language) and exec.sh (which handles the required pipe-lining for interactive tasks). It also looks for `scripts/post_compile.sh` and runs if it the compile process is done successfully.
+Given a single solution code, TPS will understand its programming language, put it in the `sandbox` folder with a new name that matches the short name of the task, puts necessary grader files in sandbox (use `-p, --public` argument to copy the public grader), compiles it, and creates `exec.sh` (that runs the program based on the programming language) and `run.sh` (which handles the required pipe-handling for interactive tasks). It also looks for `scripts/post_compile.sh` and runs if it the compile process is done successfully.
 
 ## gen
 
