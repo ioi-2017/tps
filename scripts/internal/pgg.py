@@ -21,7 +21,7 @@ def edit_distance(s1, s2):
 
 def die(msg):
     global lineNo
-    print >> sys.stderr, 'error: line %s: %s' % (lineNo, msg)
+    sys.stderr.write('error: line %s: %s\n' % (lineNo, msg))
     exit(1)
 
 
@@ -59,4 +59,4 @@ for line in sys.stdin:
 if not printLine:
     die('ends in secret')
 
-print '\n'.join(output)
+print('\n'.join(output))

@@ -57,7 +57,7 @@ This file contains the general description of the task. It has several attribute
 
 `title`: Task title, as appears in the task statement.
 
-`type`: Task type, that can be `batch`, `interactive`, `communication`, `output-only`, `two-phase`.
+`type`: Task type, that can be `Batch`, `Communication`, `OutputOnly`, `TwoSteps`.
 
 `time_limit`: A real number, the maximum CPU time (in seconds) of the main process (does not include CPU time of manager or IO).
 
@@ -74,7 +74,7 @@ Below is a sample `problem.json`:
  "title": "Mountains",
  "memory_limit": 256,
  "time_limit": 1.0,
- "type": "batch",
+ "type": "Batch",
  "description": "Find maximum number of Deevs"
 }
 ```

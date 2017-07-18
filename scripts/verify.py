@@ -4,29 +4,38 @@ import json
 import os
 import subprocess
 
+import sys
+
 BASE_DIR = os.environ.get('BASE_DIR')
+PROBLEM_NAME = os.environ.get('PROBLEM_NAME')
+HAS_GRADER = os.environ.get('HAS_GRADER')
+HAS_MANAGER = os.environ.get('HAS_MANAGER')
 WEB_TERMINAL = os.environ.get('WEB_TERMINAL')
 
-valid_problem_types = ('batch', 'interactive', 'communication', 'output-only', 'two-phase')
+valid_problem_types = ('Batch', 'Communication', 'OutputOnly', 'TwoSteps')
 model_solution_verdict = 'model_solution'
 valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error', 'partially_correct')
 necessary_files = (
     'checker/testlib.h', 'checker/Makefile', 'checker/checker.cpp',
     'validator/testlib.h', 'validator/Makefile',
     'gen/testlib.h', 'gen/Makefile', 'gen/data',
-    'grader/cpp/grader.cpp', 'grader/pas/grader.pas', 'grader/java/grader.java',
+)
+grader_necessary_files = (
+    'grader/cpp/%s.h' % PROBLEM_NAME, 'grader/cpp/grader.cpp', 'grader/pas/grader.pas', 'grader/java/grader.java',
+)
+manager_necessary_files = (
+    'grader/Makefile', 'grader/manager.cpp'
 )
 
-string_types = (str, unicode)
+if sys.version_info >= (3,):
+    string_types = (str,)
+else:
+    string_types = (str, unicode)
 
-HEADER = '\033[95m'
-OKBLUE = '\033[94m'
-GREEN = '\033[92m'
-YELLOW = '\033[93m'
-FAIL = '\033[91m'
-ENDC = '\033[0m'
-BOLD = '\033[1m'
-UNDERLINE = '\033[4m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+RED = '\033[31m'
+ENDC = '\033[00m'
 
 errors = []
 warnings = []
@@ -34,7 +43,7 @@ namespace = ''
 
 
 def error(description):
-    errors.append(FAIL + 'ERROR: {} - {}'.format(namespace, description) + ENDC)
+    errors.append(RED + 'ERROR: {} - {}'.format(namespace, description) + ENDC)
 
 
 def warning(description):
@@ -94,9 +103,9 @@ def verify_problem():
     if not isinstance(problem['name'], string_types):
         error('name is not a string')
     elif WEB_TERMINAL is None or WEB_TERMINAL != "true":
-	# TODO check if git is available
-	# TODO handle it with less bash
-        git_origin_name = subprocess.check_output('bash -c "basename $(git config --local remote.origin.url)"', shell=True).strip()[:-4]
+        # TODO check if git is available
+        # TODO handle it with less bash
+        git_origin_name = subprocess.check_output('bash -c "basename $(git config --local remote.origin.url)"', shell=True).strip().decode('utf-8')[:-4]
         if problem['name'] != git_origin_name:
             warning('problem name and git project name are not the same')
 
@@ -124,6 +133,22 @@ def verify_problem():
 
     if not isinstance(problem['type'], string_types) or problem['type'] not in valid_problem_types:
         error('type should be one of {}'.format('/'.join(valid_problem_types)))
+
+    if 'has_grader' in problem:
+        if not isinstance(problem['has_grader'], bool):
+            error('has_grader should be a boolean')
+        else:
+            if problem['type'] == 'OutputOnly' and problem['has_grader'] is True:
+                warning('output only problems could not have grader')
+
+    if 'has_manager' in problem:
+        if not isinstance(problem['has_manager'], bool):
+            error('has_manager should be a boolean')
+        else:
+            if problem['type'] == 'Communication' and problem['has_manager'] is False:
+                warning('communication problems must have manager')
+            if problem['type'] == 'OutputOnly' and problem['has_manager'] is True:
+                warning('output only problems could not have manager')
 
     if not isinstance(problem['time_limit'], float) or problem['time_limit'] < 0.5:
         error('time_limit should be a number greater or equal to 0.5')
@@ -163,13 +188,13 @@ def verify_subtasks():
     indexes = set()
     score_sum = 0
 
-    for name, data in subtasks.iteritems():
+    for name, data in subtasks.items():
         if not isinstance(data, dict):
             error('invalid data in {}'.format(name))
             continue
 
         try:
-            check_keys(data, ['index', 'score', 'validators'], name)
+            check_keys(data, ['index', 'score'], name)
         except KeyError:
             continue
 
@@ -183,16 +208,17 @@ def verify_subtasks():
         else:
             score_sum += data['score']
 
-        if not isinstance(data['validators'], list):
-            error('validators is not an array in subtask {}'.format(name))
-        else:
-            for index, validator in enumerate(data['validators']):
-                if not isinstance(validator, string_types):
-                    error('validator #{} is not a string in subtask {}'.format(index, name))
-                elif validator not in validators:
-                    error('{} does not exists'.format(validator))
-                else:
-                    used_validators.add(validator)
+        if 'validators' in data:
+            if not isinstance(data['validators'], list):
+                error('validators is not an array in subtask {}'.format(name))
+            else:
+                for index, validator in enumerate(data['validators']):
+                    if not isinstance(validator, string_types):
+                        error('validator #{} is not a string in subtask {}'.format(index, name))
+                    elif validator not in validators:
+                        error('{} does not exists'.format(validator))
+                    else:
+                        used_validators.add(validator)
 
     for unused_validator in set(validators) - used_validators:
         warning('unused validator {}'.format(unused_validator))
@@ -286,19 +312,23 @@ def verify():
 
     namespace = 'not found'
     verify_existence(necessary_files)
+    if HAS_GRADER == "true":
+        verify_existence(grader_necessary_files)
+    if HAS_MANAGER == "true":
+        verify_existence(manager_necessary_files)
 
     for error in errors:
-        print error
+        sys.stdout.write("%s\n" % error)
 
     if not errors:
         if warnings:
-            print YELLOW + 'verified ' + ENDC + 'but there are some warnings'
+            sys.stdout.write("%sverified %sbut there are some warnings\n" % (YELLOW, ENDC))
         else:
-            print GREEN + 'verified.' + ENDC
+            sys.stdout.write("%sverified.%s\n" % (GREEN, ENDC))
 
     for warning in warnings:
-        print warning
+        sys.stdout.write("%s\n" % warning)
 
 
 if __name__ == "__main__":
-        verify()
+    verify()
