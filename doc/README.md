@@ -12,7 +12,7 @@ It is recommended to install bash completion if it is not already installed (on 
 
 [http://davidalger.com/development/bash-completion-on-os-x-with-brew/](http://davidalger.com/development/bash-completion-on-os-x-with-brew/)
 
-TPS currently supports c++, pas and java. The `gcc` compiler is mandatory, and `fpc` (free pascal) and java compilers are required if there are solutions of those languages.
+TPS currently supports C++, Pascal and Java. The `gcc` compiler is mandatory, and `fpc` (free pascal) and java compilers are required if there are invocations of those languages.
 
 Python (2 or 3) is required.
 
@@ -26,9 +26,9 @@ The following sections describe these interfaces.
 
 # git and terminal interface
 
-You can login to [http://tps.ioi2017.org/git](http://tps.ioi2017.org/git) and goto any task, and see the git (SSH) address to clone the task. It is very helpful to go to Settings (from the top-right corner) and add public ssh keys in `SSH Keys` tab to bypass all password prompts in the future. SSH keys can be generated using `ssh-keygen` command.
+You can login to [http://tps.ioi2017.org/git](http://tps.ioi2017.org/git), go to any task and use the (SSH) address to clone the task. It is helpful to go to Settings (from the top-right corner) and add public ssh keys in `SSH Keys` tab to bypass all password prompts in the future. SSH keys can be generated using `ssh-keygen` command.
 
-To install the TPS terminal interface, first clone the common/scripts repository using the following commands:
+To install the TPS terminal interface, clone the common/scripts repository and install it using the following commands:
 
 ```
 git clone ssh://git@tps.ioi2017.org:10022/common/scripts.git
@@ -49,14 +49,22 @@ A new folder `mountains` will be created that contains the statement and all tes
 
 ## problem.json
 
-Description of the task. It has several attributes:
-name: The short-name of the task. The source code submitted by the contestant should use this name.
-code: A unique code assigned to each task in the TPS web-interface. Usually it is the same as the `name`, but is reserved for the cases that the name is changed and we don’t want to change the TPS web-interface.
-title: Task title, as appears in the task statement.
-type: Task type, that can be `batch`, `interactive`, `communication`, `output-only`, `two-phase`.
-time_limit: A real number, the maximum CPU time (in seconds) of the main process (does not include CPU time of the manager process).
-memory_limit: the maximum memory that can be used by the main process, in MB.
-description: An optional description of the task.
+This file contains the general description of the task. It has several attributes:
+
+`name`: The short name of the task.
+
+`code`: A unique code assigned to each task in the TPS web-interface. Usually it is the same as the `name`, but is reserved in case the `name` is changed.
+
+`title`: Task title, as appears in the task statement.
+
+`type`: Task type, that can be `batch`, `interactive`, `communication`, `output-only`, `two-phase`.
+
+`time_limit`: A real number, the maximum CPU time (in seconds) of the main process (does not include CPU time of manager or IO).
+
+`memory_limit`: the maximum memory that can be used by the main process, in MB.
+
+`description`: An optional description of the task.
+
 Below is a sample `problem.json`:
 
 ```
@@ -71,70 +79,80 @@ Below is a sample `problem.json`:
 }
 ```
 
-## gen
+## gen/
 
-The code for generating test data. Usually it includes `testlib.h` which simplifies file IO, random number generation, etc. It can contain a folder `manual` that contains manually created test data (all other test data will be automatically generated).
+All the required files for generating test data are here. It contains `testlib.h` and all the codes that are used to generate the test data. It can contain a folder `manual` that contains manually created test data, so that they can be used in gen/data.
 
 ## gen/data
 
-This file contains the information of how to create the test data, and their mapping to the subtasks. The file is separated into several test-sets (a line starting with `@subtask`). Each test-set can include other test-sets by a line starting with `@include`. Hence a test-set might be an actual subtask, or a temporary one that is included in the other subtasks. Below is an example:
+This file contains the arguments used to generate test data, and their mapping to the subtasks. It is separated into several test-sets. Each test-set can include other test-sets by a line starting with `@include`. A test-set can be an actual subtask (`@subtask`), or just a test-set (`@testset`) that can be included in the other subtasks. Below is an example:
 
 ```
 @subtask samples
-manual sample-1.in
-manual sample-2.in
+manual sample-01.in
+manual sample-02.in
+#uses a manually generated test from manual folder
+
+# a comment is here
+@testset ABC
+gencode random 2
+#another comment
+gencode slow_up 19 asdgs
 
 @subtask 2^n
-gencode random 1
-gencode random 2
-gencode random 3
-gencode slow_up 19 asdgs
 gencode slow_up 19 sfgrev
+@include ABC
+gencode wall-envlope 19
+gencode semi-manual 19
 gencode magic 19
+manual man-01.in
+
+@testset apple
+gencode random 40 qwetf
+gencode sqr 40 cefut
+gencode random 40 sadfa
 
 @subtask bt
-@include 2^n
-gencode random 40
-gencode random 40 sadfa
-gencode sqr 40 nymup
-gencode sqr 40 waneegbt
-gencode bpc 40 waneegbt
+@include 2^n apple
+#inclusion is transitive, so it also includes ABC
+gencode magic 40
+
+@subtask full
+@include bt
+gencode random 1000 ovuef
+gencode random 2000 ocewu
+gencode magic 2000
 ```
 
-## grader
+## grader/
 
-The program that contains the main routine, which will be compiled with the contestant source code and call its functions. It contains one folder for each programming language, which contains a specific grader for that language. The `cpp` folder usually contains a `.h` interface file that is included in the contestant program. Each grader can have secret and public parts. The public grader (which is given to the contestants during the contest) can be automatically created from the grader by removing the secret parts, which are bounded between `// BEGIN SECRET` and `// END SECRET` lines.
+This folder contains the program that have the main routine, which will be compiled with a solution or contestant's source code and call its functions. It contains one folder for each programming language (cpp/pas/java), which contains a specific grader for that language. The `cpp` folder usually contains a `.h` interface file that is included in grader (and possibly in contestant's program). It contains the graders that are used by the judging system. The public grader, which is given to the contestants during the contest, can be the same as this graders, or can be automatically created from the grader by removing the secret parts, which are bounded between `// BEGIN SECRET` and `// END SECRET` lines, or can be prepared separately.
 
-## checker
+## checker/
 
-It contains the program that verifies the input, output and answer of a test and checks if the output is correct or wrong. It usually uses `testlib.h`.
+It contains a program, `checker.cpp`, that takes the input, output and answer of a test and checks if the output is correct or wrong, or evaluates the output in partial-scoring tasks. It also contains `testlib.h` that the checker file usually uses.
 
-## solution
+## solution/
 
-It contains different solutions developed by the scientific committee, for different programming languages (all in the same folder). Each solution has a verdict that are listed in `solutions.json` file.
+It contains all solutions that are prepared and used in develepment of the task, for different programming languages (all in the same folder). Each solution has a verdict that are listed in `solutions.json` file.
 
 ## solutions.json
 
-The verdict of each solution. It is used by the web interface to check if the behavior of each solution is expected on the test data. The verdicts can be `correct`, `time_limit`, `memory_limit`, `incorrect`, `runtime_error`, `failed`, `time_limit_and_runtime_error`, `partially_correct`.
+The verdict of each solution. It is used by the web-interface to check if the behavior of each solution is expected on the test data. The verdicts can be `correct`, `time_limit`, `memory_limit`, `incorrect`, `runtime_error`, `failed`, `time_limit_and_runtime_error`, `partially_correct`.
 Below is an example:
 
 ```
 {
-	"mountains-haghani-solution.cpp": {
-		"verdict": "model_solution"
-	},
-	"mountain.cpp": {
-		"verdict": "correct"
-	},
-	"greedy.cpp": {
-		"verdict": "incorrect"
-	},
+	"mountains-haghani-solution.cpp": {"verdict": "model_solution"},
+	"mountain.cpp": {"verdict": "correct"},
+	"greedy.cpp": {"verdict": "incorrect", "except": {"samples": "correct", "n2": "time_limit"}}
 }
 ```
 
-## validator
+## validator/
 
-This folder contains validators for the whole set of test data (global validators), or for each/multiple sub-task(s), plus a Makefile. They usually include `testlib.h`.
+This folder contains validators for the whole set of test data (global validators), or for each/multiple subtask(s), and a Makefile for compiling validators. It also contains `testlib.h` that the checker file usually uses.
+
 
 ## subtasks.json
 
@@ -173,27 +191,27 @@ It contains the list of all subtasks, the score of each subtask, and a mapping b
 }
 ```
 
-## statement
+## statement/
 
-This folder contains the task statement, in markdown format. The main file is `index.md`, from which html file and other formats will be created. The pictures can be placed right in the same folder.
+This folder contains the task statement, in markdown format. The main file is `index.md`, from which html file and other formats will be created. The pictures can be placed here as well.
 
-## tests
+## tests/
 
-Initially it is empty, but after running generator it will contain all the test data (both input and output files). It also will contain a file `mapping` that contains, for each test, a line consisting names of a subtask and a test. The same test can be mapped to multiple subtasks. This mapping is used during the validation of test cases, and also for the CMS.
+After running generator (using `tps gen`) it will contain all the test data (both input and output files). It also will contain a file `mapping` that contains, for each test, a line consisting names of a subtask and a test. The same test can be mapped to multiple subtasks. This mapping is used during the validation of test cases, and also by CMS.
 
-## sanbox
+## sanbox/
 
-A folder that is used to compile solutions, and run them over the test data. It is not synched with git.
+A folder that is used to compile solutions, and run them over the test data. It is not synced with git.
 
-## logs
+## logs/
 
 Contains all compile and run logs.
 
-## scripts
+## scripts/
 
-All the scripts used by the TPS.
+All the scripts used by the TPS are stored here.
 
-## public
+## public/
 
 All the public graders, example test data, sample source codes and compile scripts to be given to the contestant are stored here.
 
