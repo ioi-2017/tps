@@ -25,7 +25,7 @@ python -m pip install psutil
 ```
 
 
-The system should support make command (for Makefiles).
+The system should support `make` command (for Makefiles).
 
 # TPS interfaces
 
@@ -35,9 +35,9 @@ The following sections describe these interfaces.
 
 # git and terminal interface
 
-You can login to [http://tps.ioi2017.org/git](http://tps.ioi2017.org/git), go to any task and use the (SSH) address to clone the task. It is helpful to go to Settings (from the top-right corner) and add public ssh keys in `SSH Keys` tab to bypass all password prompts in the future. SSH keys can be generated using `ssh-keygen` command.
+You can login to [http://tps.ioi2017.org/git](http://tps.ioi2017.org/git), go to any task and use the (SSH) address to clone the task. It is helpful to go to Settings (from the top-right corner) and add public ssh keys in *SSH Keys* tab to bypass all password prompts in the future. SSH keys can be generated using `ssh-keygen` command.
 
-To install the TPS terminal interface, clone the common/scripts repository and install it using the following commands:
+To install the TPS terminal interface, clone the `common/scripts` repository and install it using the following commands:
 
 ```
 git clone ssh://git@tps.ioi2017.org:10022/common/scripts.git
@@ -54,7 +54,6 @@ git clone ssh://git@tps.ioi2017.org:10022/practice/mountains.git
 ```
 
 A new folder `mountains` will be created that contains the statement and all test material of the task. Here is a brief description of files and subfolders in each task folder:
-
 
 ## problem.json
 
@@ -78,13 +77,13 @@ Below is a sample `problem.json`:
 
 ```
 {
- "name": "mountains",
- "code": "mountains",
- "title": "Mountains",
- "memory_limit": 256,
- "time_limit": 1.0,
- "type": "Batch",
- "description": "Find maximum number of Deevs"
+    "name": "mountains",
+    "code": "mountains",
+    "title": "Mountains",
+    "memory_limit": 256,
+    "time_limit": 1.0,
+    "type": "Batch",
+    "description": "Find maximum number of Deevs"
 }
 ```
 
@@ -152,7 +151,7 @@ Below is an example:
 
 ```
 {
-	"mountains-haghani-solution.cpp": {"verdict": "model_solution"},
+    "mountains-haghani-solution.cpp": {"verdict": "model_solution"},
 	"mountain.cpp": {"verdict": "correct"},
 	"greedy.cpp": {
 		"verdict": "incorrect",
@@ -165,41 +164,40 @@ Below is an example:
 
 This folder contains validators for the whole set of test data (global validators), or for each/multiple subtask(s), and a Makefile for compiling validators. It also contains `testlib.h` that the validators usually use.
 
-
 ## subtasks.json
 
 It contains the list of all subtasks, the score of each subtask, and a mapping between validators and subtasks. The total scores should be 100. Below is an example:
 
 ```
 {
-       "global_validators": ["validator.cpp"],
-       "subtasks": {
-               "samples": {
-                       "index": 0,
-                       "score": 0,
-                       "validators": []
-               },
-               "2^n": {
-                       "index": 1,
-                       "score": 20,
-                       "validators": ["sub1_validator.cpp"]
-               },
-               "bt": {
-                       "index": 2,
-                       "score": 20,
-                       "validators": ["sub2_validator.cpp"]
-               },
-               "n3": {
-                       "index": 3,
-                       "score": 30,
-                       "validators": ["sub3_validator.cpp"]
-               },
-               "full": {
-                       "index": 4,
-                       "score": 30,
-                       "validators": []
-               }
-       }
+    "global_validators": ["validator.cpp"],
+    "subtasks": {
+         "samples": {
+              "index": 0,
+              "score": 0,
+              "validators": []
+         },
+         "2^n": {
+              "index": 1,
+              "score": 20,
+              "validators": ["sub1_validator.cpp"]
+         },
+         "bt": {
+              "index": 2,
+              "score": 20,
+              "validators": ["sub2_validator.cpp"]
+         },
+         "n3": {
+              "index": 3,
+              "score": 30,
+              "validators": ["sub3_validator.cpp"]
+         },
+         "full": {
+              "index": 4,
+              "score": 30,
+              "validators": []
+         }
+    }
 }
 ```
 
@@ -229,9 +227,10 @@ All the public graders, example test data, sample source codes and compile scrip
 
 # TPS commands
 
-In addition to the normal git commands (e.g. clone, pull, commit, push, merge), the TPS provides a `tps` command with bash auto-completion functionality.
+In addition to the normal `git` commands (e.g. `clone`, `pull`, `commit`, `push`, `merge`), the TPS provides a `tps` command with bash auto-completion functionality.
 
 Here is the usage:
+
 ```
 tps <command> <arguments>...
 ```
@@ -278,7 +277,7 @@ Below are the arguments:
 * `--no-sol-comp[ile]`: do not compile solution.
 * `--no-tle`: no time limit exceeded report.
 * `--time-limit=<time-limit>`: use alternative time limit in seconds.
-* `--hard-time-limit=<hard-time-limit>`: solution process will be killed after the given time in seconds. Default: `<time-limit>` + 2.
+* `--hard-time-limit=<hard-time-limit>`: solution process will be killed after the given time in seconds. Default: `<time-limit>`$+2$.
 
 ## make-public
 
