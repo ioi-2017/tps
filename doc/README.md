@@ -152,7 +152,7 @@ Below is an example:
 
 ## validator/
 
-This folder contains validators for the whole set of test data (global validators), or for each/multiple subtask(s), and a Makefile for compiling validators. It also contains `testlib.h` that the checker file usually uses.
+This folder contains validators for the whole set of test data (global validators), or for each/multiple subtask(s), and a Makefile for compiling validators. It also contains `testlib.h` that the validators usually use.
 
 
 ## subtasks.json
