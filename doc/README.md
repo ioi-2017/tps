@@ -12,7 +12,18 @@ It is recommended to install bash completion if it is not already installed (the
 
 TPS currently supports C++, Pascal and Java. The `gcc` compiler is mandatory, and `fpc` (free pascal) and java compilers are required if there are invocations of those languages.
 
-Python (2 or 3) is required.
+Python (2 or 3) is required. The module `psutil` should be installed. You can install it by running the following command on Linux and OS/X:
+
+```
+sudo pip install psutil
+```
+
+on Windows:
+
+```
+python -m pip install psutil
+```
+
 
 The system should support make command (for Makefiles).
 
