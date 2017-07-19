@@ -79,7 +79,9 @@ Below is a sample `problem.json`:
 
 ## gen/
 
-All the required files for generating test data are here. It contains `testlib.h` and all the codes that are used to generate the test data. It can contain a folder `manual` that contains manually created test data, so that they can be used in gen/data.
+All the required files for generating test data are here. 
+It contains `testlib.h`, `Makefile`, and all the codes that are used to generate the test data. 
+It can contain a folder `manual` that contains manually created test data, so that they can be used in `gen/data`.
 
 ## gen/data
 
@@ -233,7 +235,7 @@ This will open the TPS web interface on the same commit, to verify the directory
 
 ## compile
 
-Given a single solution code, TPS will understand its programming language, put it in the `sandbox` folder with a new name that matches the short name of the task, puts necessary grader files in sandbox (use `-p, --public` argument to copy the public grader), compiles it, and creates `exec.sh` (that runs the program based on the programming language) and `run.sh` (which handles the required pipe-handling for interactive tasks). It also looks for `scripts/post_compile.sh` and runs if it the compile process is done successfully.
+Given a single solution code, TPS will understand its programming language, put it in the `sandbox` folder with a new name that matches the short name of the task, puts necessary grader files in sandbox (use `-p, --public` argument to copy the public grader), compiles it, and creates `exec.sh` (that runs the program based on the programming language) and `run.sh` (which handles the required pipe-handling for interactive tasks). It also looks for `scripts/templates/post_compile.sh` and runs it if the compile process is finished successfully. The hook script `post_compile.sh` is useful in some task types; for example, in `Communication` tasks, a manager file should also be compiled and put beside the grader.
 
 ## gen
 
@@ -271,7 +273,10 @@ Below are the arguments:
 
 ## make-public
 
-Generate the public folder that is given to the contestant. It contains the public graders for each language, example test data, sample solution, the compile scripts, and input tests for the output-only tasks.
+Updates the public folder that is given to the contestant. 
+It contains the public graders for each language, example test data, sample solution, the compile scripts, and input tests for the output-only tasks.
+The script finally creates a file `attachment.zip` which can be directly put in CMS.
+The behavior of the script is specified per file in `scripts/templates/public.files`.
 
 ## verify
 
