@@ -8,9 +8,7 @@ IOI 2017, Tehran, Iran
 
 # Prerequisites
 
-It is recommended to install bash completion if it is not already installed (on OS/X for example). There is a manual here:
-
-[http://davidalger.com/development/bash-completion-on-os-x-with-brew/](http://davidalger.com/development/bash-completion-on-os-x-with-brew/)
+It is recommended to install bash completion if it is not already installed (there is a manual for OS/X [here](http://davidalger.com/development/bash-completion-on-os-x-with-brew/)).
 
 TPS currently supports C++, Pascal and Java. The `gcc` compiler is mandatory, and `fpc` (free pascal) and java compilers are required if there are invocations of those languages.
 
@@ -18,7 +16,7 @@ Python (2 or 3) is required.
 
 The system should support make command (for Makefiles).
 
-# Task Preparation System (TPS)
+# TPS interfaces
 
 The TPS has two interfaces: a git interface that is ideal for those who love terminal, and a web interface with a GUI. Currently the web interface is read-only, hence any changes to the task statement or test material should be done through the git interface. The main functionality of the web interface is to invoke solutions over the whole set of tests to see how they perform on the real contest machines, in parallel.
 
