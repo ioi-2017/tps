@@ -119,6 +119,9 @@ Temporary Items
 
 .idea/
 
+# Eclipse
+/.project
+
 # CMake
 cmake-build-debug/
 
