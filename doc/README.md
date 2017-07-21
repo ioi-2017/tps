@@ -89,8 +89,8 @@ Below is a sample `problem.json`:
 
 ## gen/
 
-All the required files for generating test data are here. 
-It contains `testlib.h`, `Makefile`, and all the codes that are used to generate the test data. 
+All the required files for generating test data are here.
+It contains `testlib.h`, `Makefile`, and all the codes that are used to generate the test data.
 It can contain a folder `manual` that contains manually created test data, so that they can be used in `gen/data`.
 
 ## gen/data
@@ -249,11 +249,13 @@ Given a single solution code, TPS will understand its programming language, put 
 
 ## gen
 
-Compiles generator, model-solution , and validator, and then generates and validates the test data and check model solution on them. The other arguments are:
+Compiles generator, model-solution , and validator, and then generates and validates the test data and check model solution on them. Each test is assigned a test name by the TPS. The test names are in `X-YY` format, where `X` is the subtask number, starting from `0`, and `YY` is the test number, starting from `01`, in the same order of their presence in the `gen/data` file. This format is set in `scripts/templates/test_name.py` and can be changed per task, if required.
+
+The other arguments are:
 
 * `-m, --model-solution=<model-solution-path>`: change the model solution.
 * `-s, --sensitive`: Terminate on the first error.
-* `-t, --test=<test-name>`: run the whole process for only a single test.
+* `-t, --test=<test-name>`: run the whole process for only a single test. The `test-name` should be in the same `X-YY` format, as explained above.  
 * `-d, --gen-data=<gen-data-file>`: use another file rather than `gen/data`.
 * `--no-gen`: do not generate the tests again.
 * `--no-sol`: do not run the model-solution.
@@ -283,7 +285,7 @@ Below are the arguments:
 
 ## make-public
 
-Updates the public folder that is given to the contestant. 
+Updates the public folder that is given to the contestant.
 It contains the public graders for each language, example test data, sample solution, the compile scripts, and input tests for the output-only tasks.
 The script finally creates a file `attachment.zip` which can be directly put in CMS.
 The behavior of the script is specified per file in `scripts/templates/public.files`.
