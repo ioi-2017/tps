@@ -128,10 +128,12 @@ cmake-build-debug/
 ## File-based project format:
 *.iws
 
+# Pascal.gitignore
+*.ppu
+
 # Python.gitignore
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
 *.py[cod]
 *$py.class
