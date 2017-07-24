@@ -47,8 +47,8 @@
  * Modified to be compatible with CMS & requirements for IOI2017
  *
  * * Changed the ordering of checker arguments
- *	from <input-file> <output-file> <answer-file>
- *	to <input-file> <answer-file> <output-file>
+ *    from <input-file> <output-file> <answer-file>
+ *    to <input-file> <answer-file> <output-file>
  *
  * * Added "Security Violation" as a new result type.
  *
@@ -57,18 +57,22 @@
  * * The checker exit codes should always be 0 in CMS.
  *
  * * For partial scoring, forced quitp() functions to accept only scores in the range [0,1].
+ *   If the partial score is less than 1e-5, it becomes 1e-5, because 0 grades are considered wrong in CMS.
+ *   Grades in range [1e-5, 0.001) are printed exactly (to prevent rounding to zero).
+ *   Grades in [0.001, 1] are printed with 3 digits after decimal point.
  *
  * * Added the following utility function/methods: 
- * 	void InStream::readSecret(string secret)
- * 	void InStream::readGraderResult()
- * 		+supporting conversion of graderResult to CMS result
- * 	void quitp(double), quitp(int)
- * 	void registerChecker(string probName, argc, argv)
- * 	void readBothSecrets(string secret)
- * 	void readBothGraderResults()
- * 	void quit(TResult)
- * 	bool compareTokens(string a, string b, char separator=' ')
- * 	void compareRemainingLines(int lineNo=1)
+ *     void InStream::readSecret(string secret)
+ *     void InStream::readGraderResult()
+ *         +supporting conversion of graderResult to CMS result
+ *     void quitp(double), quitp(int)
+ *     void registerChecker(string probName, argc, argv)
+ *     void readBothSecrets(string secret)
+ *     void readBothGraderResults()
+ *     void quit(TResult)
+ *     bool compareTokens(string a, string b, char separator=' ')
+ *     void compareRemainingLines(int lineNo=1)
+ *     void skip_ok()
  *
  */
 
@@ -2218,7 +2222,7 @@ __attribute__((const))
 int resultExitCode(TResult r)
 {
     if (testlibMode == _checker)
-	return 0;//CMS Checkers should always finish with zero exit code.
+        return 0;//CMS Checkers should always finish with zero exit code.
     if (r == _ok)
         return OK_EXIT_CODE;
     if (r == _wa)
@@ -2350,7 +2354,12 @@ NORETURN void InStream::quit(TResult result, const char* msg)
             errorName = "Security Violation";
             break;
         case _points:
-            pointsStr = format("%.3lf", __testlib_points);
+            if (__testlib_points < 1e-5)
+                pointsStr = "0.00001";//prevent zero scores in CMS as zero is considered wrong
+            else if (__testlib_points < 0.001)
+                pointsStr = format("%lf", __testlib_points);//prevent rounding the numbers below 0.001
+            else
+                pointsStr = format("%.3lf", __testlib_points);
             color = LightYellow;
             errorName = "Partially Correct";
             break;
@@ -3636,7 +3645,7 @@ NORETURN void __testlib_quitp(double points, const char* message)
     if (NULL == message || 0 == strlen(message))
         quitMessage = stringPoints;
     else
-        quitMessage = stringPoints + " " + message;
+        quitMessage = message;
 
     quit(_points, quitMessage.c_str());
 }
@@ -3652,7 +3661,7 @@ NORETURN void __testlib_quitp(int points, const char* message)
     if (NULL == message || 0 == strlen(message))
         quitMessage = stringPoints;
     else
-        quitMessage = stringPoints + " " + message;
+        quitMessage = message;
 
     quit(_points, quitMessage.c_str());
 }
@@ -4385,23 +4394,26 @@ void InStream::readGraderResult()
         return;
     if (result == _grader_SV)
     {
-        quitf(_sv, "security violation in grader");
+        if (eof())
+           quitf(_sv, "Security violation in grader");
+        std::string msg = readLine();
+        quitf(_wa, "Security violation in grader: %s", msg.c_str());
     }
     if (result == _grader_WA)
     {
         if (eof())
-             quitf(_wa, "WA in grader");
+            quitf(_wa, "WA in grader");
         std::string msg = readLine();
         quitf(_wa, "WA in grader: %s", msg.c_str());
     }
     if (result == _grader_FAIL)
     {
         if (eof())
-             quitf(_fail, "FAIL in grader");
+            quitf(_fail, "FAIL in grader");
         std::string msg = readLine();
         quitf(_fail, "FAIL in grader: %s", msg.c_str());
     }
-    quitf(_fail, "unknown grader result");
+    quitf(_fail, "Unknown grader result");
 }
 
 void readBothGraderResults()
@@ -4416,14 +4428,40 @@ NORETURN void quit(TResult result)
     ouf.quit(result, "");
 }
 
-
-
-
-bool compareTokens(std::string a, std::string b, char separator=' ')
+/// Used in validators: skips the rest of input, assuming it to be correct
+NORETURN void skip_ok()
 {
-    return (tokenize(a, separator) == tokenize(b, separator));
+    if (testlibMode != _validator)
+        quitf(_fail, "skip_ok() only works in validators");
+    testlibFinalizeGuard.quitCount++;
+    exit(0);
 }
 
+/// 1 -> 1st, 2 -> 2nd, 3 -> 3rd, 4 -> 4th, ...
+std::string englishTh(int x)
+{
+    char c[100];
+    sprintf(c, "%d%s", x, englishEnding(x).c_str());
+    return c;
+}
+
+/// Compares the tokens of two lines
+void compareTokens(int lineNo, std::string a, std::string b, char separator=' ')
+{
+    std::vector<std::string> toka = tokenize(a, separator);
+    std::vector<std::string> tokb = tokenize(b, separator);
+    if (toka == tokb)
+        return;
+    std::string dif = format("%s lines differ - ", englishTh(lineNo).c_str());
+    if (toka.size() != tokb.size())
+        quitf(_wa, "%sexpected: %d tokens, found %d tokens", dif.c_str(), toka.size(), tokb.size());
+    for (int i=0; i<int(toka.size()); i++)
+        if (toka[i] != tokb[i])
+            quitf(_wa, "%son the %s token, expected: '%s', found: '%s'", dif.c_str(), englishTh(i+1).c_str(), compress(toka[i]).c_str(), compress(tokb[i]).c_str());
+    quitf(_fail, "%sbut I don't know why!", dif.c_str());
+}
+
+/// Compares the tokens of the remaining lines
 NORETURN void compareRemainingLines(int lineNo=1)
 {
     for (; !ans.eof(); lineNo++) 
@@ -4435,8 +4473,7 @@ NORETURN void compareRemainingLines(int lineNo=1)
         
         std::string p = ouf.readString();
 
-        if (!compareTokens(j, p))
-            quitf(_wa, "%d%s lines differ - expected: '%s', found: '%s'", lineNo, englishEnding(lineNo).c_str(), j.c_str(), p.c_str());
+        compareTokens(lineNo, j, p);
     }
     quit(_ok);
 }
