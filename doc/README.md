@@ -24,6 +24,12 @@ on Windows:
 python -m pip install psutil
 ```
 
+The `dos2unix` utility is required for making public folders (task attachments).
+You may install it in OS/X using following command:
+
+```
+brew install dos2unix
+```
 
 The system should support `make` command (for Makefiles).
 
