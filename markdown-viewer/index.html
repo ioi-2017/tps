@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Markdown Viewer</title>  
+  <meta name="version" content="6.2">
+  <link rel="stylesheet" href="assets/style.css">
+  <script type="text/javascript" src="assets/libs.js"></script>
+  <script type="text/javascript" src="assets/w3.js"></script>
+  <script type="text/javascript" src="prop.js"></script>
+</head>
+<body>
+
+    <footer>
+  	<p id="copyright">@copyright IOI 2017</p>
+	<div class="credit" id="credit-container">
+		<div style="text-align:center;width:40%;margin-top:20px;"><a href="http://ioi2017.org/" target="_blank"><img src="assets/IOI-2017.svg" width="90%"/></a></div>
+		<div style="width:60%;">
+			<p style="font-size:14px;padding:0 15px;text-align:left;"> Credits: 
+			<br /><a href="http://ioi2017.org/" target="_blank" style="font-size:20px;">IOI 2017 Iran</a>
+			<br /><span style="font-size:16px;">Host Technical Committee</span>
+			<br />Hamid Zarrabizadeh<br />Ali Yadegari<br />Kian Mirjalali<br />Navid Saleh</p>
+
+		</div>
+	    </div>
+    </footer>
+
+    <div id="main" class="markdown-body pdf">
+        <div w3-include-html="header.html"></div>
+        <div id="content" class="rendered_content" dir="ltr" lang="en"></div>
+	<div id="error-message" style="display: none;text-align: center; font-size: 24px;"></div>
+    	<div w3-include-html="footer.html"></div>
+    </div>
+  <script>
+	w3.includeHTML();
+
+	// Initilize Makrded.js Renderer
+
+	var renderer = new marked.Renderer();
+
+	// enable resize option for images
+	renderer.image = function(href, title, text) {
+	    var tags = '';
+	    if (title) {
+		size = title.split('x');
+		if (size[1])
+		    tags = 'width=' + size[0] + ' height=' + size[1];
+		else
+		    tags = 'width=' + size[0];
+	    }else if(href && href.indexOf('=') != -1){		
+		size = href.split('=')[1].split('x');
+		href = href.split('=')[0];
+		if (size[1])
+		    tags = 'width=' + size[0] + ' height=' + size[1];
+		else
+		    tags = 'width=' + size[0];
+	    }
+	    return ('<img src="' + href + '" alt="' + text + '" ' + tags + '>');
+	};
+
+	// remove trailing newline in code blocks
+	renderer.code = function(code, language) {
+	    return ('<pre><code>' + code + '</code></pre>');
+	};
+
+	// global options
+	marked.setOptions({
+	    renderer: renderer,
+	    gfm: true,
+	    tables: true,
+	    breaks: false,
+	    pedantic: false,
+	    sanitize: false,
+	    smartLists: true,
+	    smartypants: false
+	});
+
+	var path = window.location.pathname;
+	var html = path.split("/").pop();
+	var docName = html.substr(0, html.lastIndexOf("."));
+	var md = docName + ".md";
+	var json_ = docName + ".json";
+	
+	function readTextFile(file){
+	    var rawFile = new XMLHttpRequest();
+	    rawFile.open("GET", file, true);
+	    rawFile.onreadystatechange = function (){
+			if(rawFile.readyState === 4){
+			    if(rawFile.status === 200){
+			        var allText = rawFile.responseText;
+					document.getElementById('content').innerHTML = marked(allText);
+					renderMathInElement(document.getElementById('content'));
+			    }else{
+					document.getElementById("error-message").style.display = "block";
+					document.getElementById("error-message").textContent = "'" +  md + "' not found";
+				}
+			}
+	    }
+	    rawFile.send(null);
+	}
+	
+	function readJsonProp(file){
+		var rawFile = new XMLHttpRequest();
+	    rawFile.open("GET", file, true);
+	    rawFile.onreadystatechange = function (){
+			if(rawFile.readyState === 4){
+			    if(rawFile.status === 200 || rawFile.status == 0){
+			        var props = JSON.parse(rawFile.responseText);
+			        Object.keys(props).forEach(function(key){
+			        	var elm = document.getElementById("prop_"+key);
+			        	if(elm)elm.textContent = props[key];
+			        })
+				document.title = props["html_title"]?props["html_title"]:"Markdown Viewer";
+			    }
+			}
+	    }
+	    rawFile.send(null);
+	}
+
+	showingCredit = false;
+	function showCredit(){
+		document.getElementById('credit-container').style.display = "block";
+		showingCredit=true;
+	}
+	function hideCredit(e){
+		document.getElementById('credit-container').style.display = "none";
+		showingCredit=false;
+	}
+	function toggleCredit(){
+		if(showingCredit)
+			hideCredit();
+		else
+			showCredit();
+	}
+
+	
+	document.addEventListener('click', function(e) {
+		if(e.target.id!='copyright')	   
+			hideCredit();
+		else
+			toggleCredit();
+	}, false);
+
+	//if is firefox
+	if(typeof InstallTrigger !== 'undefined'){
+		readTextFile(md);
+	}else{
+		document.getElementById("error-message").style.display = "block";
+		document.getElementById("error-message").textContent = "It only works in firefox";
+	}
+		
+	readJsonProp(json_);
+  </script>
+</body>
+</html>
