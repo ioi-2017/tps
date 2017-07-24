@@ -37,6 +37,9 @@ wheels/
 *.manifest
 *.spec
 
+# Executables
+*.exe
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
