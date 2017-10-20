@@ -1367,11 +1367,6 @@ body {
 	font-smoothing: antialiased;
 }
 
-@media print {
-	footer {
-		display: none;
-	}
-}
 
 body {
 	margin: 3em 5em;
@@ -1468,8 +1463,41 @@ div.pdf {
 	border: 1px solid #ddd;
 	border-radius: 0px
 }
+footer {
+	position: fixed;
+	bottom: 0;
+	width: 120px;
+	border-radius: 4px;
+	background-color: #ccc;		
+	text-align: center;
+	margin-left:-4em;
+}
+footer>p {
+	font-size: 11px;
+	color: rgb(82, 86, 89);
+	margin:3px;
+	cursor: pointer;
+}
+footer>p:hover {
+	color: black;
+}
+.credit {
+	display: none;
+	width: 450px;
+	position: fixed;
+	bottom: 30px;
+	background-color: #ccc;
+	border-radius: 4px;
+	padding:15px;
+}
+.credit div{
+	float: left;
+}
 
 @media print {
+	footer {
+		display: none;
+	}
 	body {
 		margin: 0;
 		background-color: white;
@@ -1481,4 +1509,5 @@ div.pdf {
 		box-shadow: none;
 		width: 100%;
 	}
+	
 }
