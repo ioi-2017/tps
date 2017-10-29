@@ -1,0 +1,13 @@
+MAIN AUTHORS (with push rights on GIT repository)
+
+Kian Mirjalali <mirjalali@gmail.com>
+Hamed Saleh <hameelas@gmail.com>
+Ali Haghani <ahaghani75@gmail.com>
+Mohammad Reza Maleki <maleki.mr@gmail.com>
+
+OTHER CONTRIBUTORS
+
+Hamed Valizadeh <havaliza@gmail.com>
+Keivan Mohtashami <akmohtashami2010@yahoo.com>
+Hamid Zarrabi-Zadeh <zarrabi@sharif.edu>
+

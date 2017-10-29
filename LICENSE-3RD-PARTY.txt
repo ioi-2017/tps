@@ -1,0 +1,3 @@
+Some parts of bash completion code is taken from here:
+https://github.com/git/git/blob/master/contrib/completion/git-completion.bash
+
