@@ -43,15 +43,14 @@ The following sections describe these interfaces.
 
 You can login to [http://tps.ioi2017.org/git](http://tps.ioi2017.org/git), go to any task and use the (SSH) address to clone the task. It is helpful to go to Settings (from the top-right corner) and add public ssh keys in *SSH Keys* tab to bypass all password prompts in the future. SSH keys can be generated using `ssh-keygen` command.
 
-To install the TPS terminal interface, clone the `common/scripts` repository and install it using the following commands:
+To install the TPS terminal interface, clone the `tps-cli` repository and install it using the following commands:
 
 ```
-git clone ssh://git@tps.ioi2017.org:10022/common/scripts.git
-cd scripts
+cd tps-cli
 ./install-tps.sh
 ```
 
-Windows users can download the zip file directly, extract it and run `install-tps.bat`.
+Windows users can run `install-tps.bat`.
 
 To clone the task *mountains* for instance, open terminal and run:
 
