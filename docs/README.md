@@ -33,20 +33,18 @@ brew install dos2unix
 
 The system should support `make` command (for Makefiles).
 
-# TPS interfaces
+# TPS Interfaces
 
-The TPS has two interfaces: a git interface that is ideal for those who love terminal, and a web interface with a GUI. Currently the web interface is read-only, hence any changes to the task statement or test material should be done through the git interface. The main functionality of the web interface is to invoke solutions over the whole set of tests to see how they perform on the real contest machines, in parallel.
+The TPS has two interfaces: a command-line interface that is ideal for those who love terminal, and a web interface with a GUI. Currently the web interface is read-only, hence any changes to the task statement or test material should be done through the git interface. The main functionality of the web interface is to invoke solutions over the whole set of tests to see how they perform on the real contest machines, in parallel.
 
 The following sections describe these interfaces.
 
-# git and terminal interface
+# Command-line interface
 
-You can login to [http://tps.ioi2017.org/git](http://tps.ioi2017.org/git), go to any task and use the (SSH) address to clone the task. It is helpful to go to Settings (from the top-right corner) and add public ssh keys in *SSH Keys* tab to bypass all password prompts in the future. SSH keys can be generated using `ssh-keygen` command.
-
-To install the TPS terminal interface, clone the `tps-cli` repository and install it using the following commands:
+To install the TPS command-line interface, clone the `tps` repository, and install it using the following commands:
 
 ```
-cd tps-cli
+cd tps
 ./install-tps.sh
 ```
 
@@ -303,6 +301,7 @@ Verifies the directory structure, and reports error or warning messages accordin
 
 Runs the compiled solution in the sandbox for a given set of arguments.
 
-# Web Interface
+# Web interface
 
-You can login to [https://tps.ioi2017.org](https://tps.ioi2017.org) and go to any task. There you can see the task statement and all of test materials. The test cases are only available after they are generated. For generating the test cases you should go to the analysis page and click on the generate button. During the generation you can also see the generation state by reloading the page. You may then analyze the test data using the test cases section. You may also use invocations to evaluate solutions.
+To use the TPS web interface, clone `tps-web` repository from [here](https://github.com/ioi-2017/tps-web).
+Using the web interface, you can go to any task, and see the task statement and all of test materials. The test cases are only available after they are generated. For generating the test cases you should go to the analysis page and click on the generate button. During the generation you can also see the generation state by reloading the page. You may then analyze the test data using the test cases section. You may also use invocations to evaluate solutions.

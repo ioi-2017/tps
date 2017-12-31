@@ -8,9 +8,9 @@ in Tehran, Iran.
 TPS consists of a command-line interface and a web interface.
 The command-line interface provides a set of scripts for preparing the tasks, while
 the web interface provides an interface to visualize the tasks,
-and prepare them for final release. 
+and prepare them for final release.
 
-The TPS command-line interface is provided in this repository. 
+The TPS command-line interface is provided in this repository.
 You may find the web interface at https://github.com/ioi-2017/tps-web.
 
 
@@ -32,7 +32,7 @@ It helps a lot in detecting changes and conflicts.
 
 Documentation
 -------------
-A detailed documentation is provided in the [`doc`](https://github.com/ioi-2017/tps/tree/master/doc) directory.
+A detailed documentation is provided in the [`docs`](https://github.com/ioi-2017/tps/tree/master/docs) directory.
 
 
 License
@@ -45,5 +45,3 @@ and uses some third party codes that are distributed under their own terms
 Copyright
 ---------
 Copyright (c) 2017, IOI 2017 Host Technical Committee
-
-
