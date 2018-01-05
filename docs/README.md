@@ -24,7 +24,7 @@ on Windows:
 python -m pip install psutil
 ```
 
-The `dos2unix` utility is required for making public folders (task attachments).
+The `dos2unix` utility is required for making public directories (task attachments).
 You may install it in OS/X using following command:
 
 ```
@@ -50,13 +50,13 @@ cd tps
 
 Windows users can run `install-tps.bat`.
 
-To clone the task *mountains* for instance, open terminal and run:
 
-```
-git clone ssh://git@tps.ioi2017.org:10022/practice/mountains.git
-```
+# Task Directory Structure
 
-A new folder `mountains` will be created that contains the statement and all test material of the task. Here is a brief description of files and subfolders in each task folder:
+Let's explain the current directory structure of tasks.
+Consider the task *mountains* for instance. It is available in the samples directory.
+It contains the statement, codes, and all test material for the task.
+Here is a brief description of files and subdirectories in each task directory:
 
 ## problem.json
 
@@ -64,11 +64,11 @@ This file contains the general description of the task. It has several attribute
 
 `name`: The short name of the task.
 
-`code`: A unique code assigned to each task in the TPS web-interface. Usually it is the same as the `name`, but is reserved in case the `name` is changed.
+`code`: A unique code assigned to each task in the TPS web-interface. Usually it is the same as the `name`, but the `code` is fixed even if the `name` is changed.
 
 `title`: Task title, as appears in the task statement.
 
-`type`: Task type, that can be `Batch`, `Communication`, `OutputOnly`, `TwoSteps`.
+`type`: Task type, that can be `Batch`, `Communication`, `OutputOnly`, or `TwoSteps`.
 
 `time_limit`: A real number, the maximum CPU time (in seconds) of the main process (does not include CPU time of manager or IO).
 
@@ -94,7 +94,7 @@ Below is a sample `problem.json`:
 
 All the required files for generating test data are here.
 It contains `testlib.h`, `Makefile`, and all the codes that are used to generate the test data.
-It can contain a folder `manual` that contains manually created test data, so that they can be used in `gen/data`.
+It can contain a directory `manual` that contains manually created test data, so that they can be used in `gen/data`.
 
 ## gen/data
 
@@ -104,7 +104,7 @@ This file contains the arguments used to generate test data, and their mapping t
 @subtask samples
 manual sample-01.in
 manual sample-02.in
-#uses a manually generated test from manual folder
+#uses a manually generated test from manual directory
 
 # a comment is here
 @testset ABC
@@ -139,7 +139,9 @@ gencode magic 2000
 
 ## grader/
 
-This folder contains the program that have the main routine, which will be compiled with a solution or contestant's source code and call its functions. It contains one folder for each programming language (cpp/pas/java), which contains a specific grader for that language. The `cpp` folder usually contains a `.h` interface file that is included in grader (and possibly in contestant's program). It contains the graders that are used by the judging system. The public grader, which is given to the contestants during the contest, can be the same as this graders, or can be automatically created from the grader by removing the secret parts, which are bounded between `// BEGIN SECRET` and `// END SECRET` lines, or can be prepared separately.
+This directory contains the program that have the main routine, which will be compiled with a solution or contestant's source code and call its functions.
+It contains one directory for each programming language (cpp/pas/java), which contains a specific grader for that language.
+The `cpp` directory usually contains a `.h` interface file that is included in grader (and possibly in contestant's program). It contains the graders that are used by the judging system. The public grader, which is given to the contestants during the contest, can be the same as this graders, or can be automatically created from the grader by removing the secret parts, which are bounded between `// BEGIN SECRET` and `// END SECRET` lines, or can be prepared separately.
 
 ## checker/
 
@@ -147,11 +149,13 @@ It contains a program, `checker.cpp`, that takes the input, output and answer of
 
 ## solution/
 
-It contains all solutions that are prepared and used in develepment of the task, for different programming languages (all in the same folder). Each solution has a verdict that are listed in `solutions.json` file.
+It contains all solutions that are prepared and used in develepment of the task, for different programming languages (all in the same directory). Each solution has a verdict that are listed in `solutions.json` file.
 
 ## solutions.json
 
-The verdict of each solution. It is used by the web-interface to check if the behavior of each solution is expected on the test data. The verdicts can be `correct`, `time_limit`, `memory_limit`, `incorrect`, `runtime_error`, `failed`, `time_limit_and_runtime_error`, `partially_correct`.
+This file specifies the verdict of each solution. It is used by the web-interface to check if the behavior of each solution is expected on the test data. The verdicts can be `correct`, `time_limit`, `memory_limit`, `incorrect`, `runtime_error`, `failed`, `time_limit_and_runtime_error`, `partially_correct`.
+There is also a special verdict `model_solution` which should be used exactly once.
+The model solution is used to generate the correct outputs for test data.
 Below is an example:
 
 ```
@@ -167,7 +171,7 @@ Below is an example:
 
 ## validator/
 
-This folder contains validators for the whole set of test data (global validators), or for each/multiple subtask(s), and a Makefile for compiling validators. It also contains `testlib.h` that the validators usually use.
+This directory contains validators for the whole set of test data (global validators), or for each/multiple subtask(s), and a Makefile for compiling validators. It also contains `testlib.h` that the validators usually use.
 
 ## subtasks.json
 
@@ -177,70 +181,84 @@ It contains the list of all subtasks, the score of each subtask, and a mapping b
 {
     "global_validators": ["validator.cpp"],
     "subtasks": {
-         "samples": {
-              "index": 0,
-              "score": 0,
-              "validators": []
-         },
-         "2^n": {
-              "index": 1,
-              "score": 20,
-              "validators": ["sub1_validator.cpp"]
-         },
-         "bt": {
-              "index": 2,
-              "score": 20,
-              "validators": ["sub2_validator.cpp"]
-         },
-         "n3": {
-              "index": 3,
-              "score": 30,
-              "validators": ["sub3_validator.cpp"]
-         },
-         "full": {
-              "index": 4,
-              "score": 30,
-              "validators": []
-         }
+          "samples": {
+               "index": 0,
+               "score": 0,
+                "validators": []
+          },
+          "2^n": {
+                "index": 1,
+                "score": 20,
+                "validators": ["sub1_validator.cpp"]
+          },
+          "bt": {
+                "index": 2,
+                "score": 20,
+                "validators": ["sub2_validator.cpp"]
+          },
+          "n3": {
+                "index": 3,
+                "score": 30,
+                "validators": ["sub3_validator.cpp"]
+          },
+          "full": {
+                "index": 4,
+                "score": 30,
+                "validators": []
+          }
     }
 }
 ```
 
 ## statement/
 
-This folder contains the task statement, in markdown format. The main file is `index.md`, from which html file and other formats will be created. The pictures can be placed here as well.
-
-## tests/
-
-After running generator (using `tps gen`) it will contain all the test data (both input and output files). It also will contain a file `mapping` that contains, for each test, a line consisting names of a subtask and a test. The same test can be mapped to multiple subtasks. This mapping is used during the validation of test cases, and also by CMS.
-
-## sanbox/
-
-A folder that is used to compile solutions, and run them over the test data. It is not synced with git.
-
-## logs/
-
-Contains all compile and run logs.
+This directory contains the task statement, usually in markdown format. The main file is `index.md`, from which html file and other formats will be created. The pictures can be placed here as well.
 
 ## scripts/
 
-All the scripts used by the TPS are stored here.
+All the scripts used by the TPS command for this task are stored here.
+If you invoke 
+```
+tps mycommand ...
+```
+it will look in this directory for `mycommand.sh`, `mycommand.py`, and `mycommand.exe`.
 
 ## public/
 
 All the public graders, example test data, sample source codes and compile scripts to be given to the contestant are stored here.
 
+## tests/
+
+After running the generators (using `tps gen`), it will contain all the test data (both input and output files). 
+It also will contain a file named `mapping` that specifies the mapping of test cases to subtasks.
+For each test case $c$ and subtask $s$ containing $c$, there is a line containing $s$ and $c$.
+The same test can be mapped to multiple subtasks. 
+This mapping is used during the validation of test cases, and also in exporting to CMS.
+
+## sanbox/
+
+A directory that is used to compile solutions, and run them over the test data.
+
+## logs/
+
+Contains all compile and run logs.
+
+
+## Derived directories
+Note that `logs`, `sandbox`, and `tests` are _derived_ directories i.e. their content is computed based on other files.
+So, these directories are in gitignore.
+
 # TPS commands
 
-In addition to the normal `git` commands (e.g. `clone`, `pull`, `commit`, `push`, `merge`), the TPS provides a `tps` command with bash auto-completion functionality.
-
+TPS provides a `tps` command with bash auto-completion functionality. 
 Here is the usage:
 
 ```
-tps <command> <arguments>...
+tps &lt;command&gt; &lt;arguments&gt;...
 ```
 
-Below are the list of commands that can be use with `tps`:
+Below are the list of commands that can usually be used with `tps`.
+The exact list of commands depends on the contents of the `scripts` directory in the task package.
 
 ## analyze
 
@@ -248,11 +266,12 @@ This will open the TPS web interface on the same commit, to verify the directory
 
 ## compile
 
-Given a single solution code, TPS will understand its programming language, put it in the `sandbox` folder with a new name that matches the short name of the task, puts necessary grader files in sandbox (use `-p, --public` argument to copy the public grader), compiles it, and creates `exec.sh` (that runs the program based on the programming language) and `run.sh` (which handles the required pipe-handling for interactive tasks). It also looks for `scripts/templates/post_compile.sh` and runs it if the compile process is finished successfully. The hook script `post_compile.sh` is useful in some task types; for example, in `Communication` tasks, a manager file should also be compiled and put beside the grader.
+Given a single solution code, TPS will understand its programming language, put it in the `sandbox` directory with a new name that matches the short name of the task, puts necessary grader files in sandbox (use `-p, --public` argument to copy the public grader), compiles it, and creates `exec.sh` (that runs the program based on the programming language) and `run.sh` (which handles the required pipe-handling for interactive tasks). It also looks for `scripts/templates/post_compile.sh` and runs it if the compile process is finished successfully. The hook script `post_compile.sh` is useful in some task types; for example, in `Communication` tasks, a manager file should also be compiled and put beside the grader.
 
 ## gen
 
-Compiles generator, model-solution , and validator, and then generates and validates the test data and check model solution on them. Each test is assigned a test name by the TPS. The test names are in `X-YY` format, where `X` is the subtask number, starting from `0`, and `YY` is the test number, starting from `01`, in the same order of their presence in the `gen/data` file. This format is set in `scripts/templates/test_name.py` and can be changed per task, if required.
+Compiles generator, model-solution, and validator, and then generates and validates the test data and check model solution on them. Each test is assigned a test name by the TPS. 
+Currently, the test names are in `X-YY` format, where `X` is the subtask name (or testset number, starting from `0`), and `YY` is the test number, starting from `01`, in the same order of their presence in the `gen/data` file. This format is set in `scripts/templates/test_name.py` and can be changed per task, if required.
 
 The other arguments are:
 
@@ -286,9 +305,14 @@ Below are the arguments:
 * `--time-limit=<time-limit>`: use alternative time limit in seconds.
 * `--hard-time-limit=<hard-time-limit>`: solution process will be killed after the given time in seconds. Default: `<time-limit>`$+2$.
 
+## run
+
+Runs the compiled solution in the sandbox for a given set of arguments.
+This command is quite basic. Naturally, you should use the `invoke` command instead.
+
 ## make-public
 
-Updates the public folder that is given to the contestant.
+Updates the public directory that is given to the contestant.
 It contains the public graders for each language, example test data, sample solution, the compile scripts, and input tests for the output-only tasks.
 The script finally creates a file `attachment.zip` which can be directly put in CMS.
 The behavior of the script is specified per file in `scripts/templates/public.files`.
@@ -297,11 +321,9 @@ The behavior of the script is specified per file in `scripts/templates/public.fi
 
 Verifies the directory structure, and reports error or warning messages accordingly.
 
-## run
-
-Runs the compiled solution in the sandbox for a given set of arguments.
 
 # Web interface
 
 To use the TPS web interface, clone `tps-web` repository from [here](https://github.com/ioi-2017/tps-web).
 Using the web interface, you can go to any task, and see the task statement and all of test materials. The test cases are only available after they are generated. For generating the test cases you should go to the analysis page and click on the generate button. During the generation you can also see the generation state by reloading the page. You may then analyze the test data using the test cases section. You may also use invocations to evaluate solutions.
+Currently, exporting packages for CMS are also available only in the web interface.
