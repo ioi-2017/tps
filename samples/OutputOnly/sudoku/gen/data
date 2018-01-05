@@ -1,0 +1,29 @@
+@subtask subtask01
+manual 01.in
+
+@subtask subtask02
+manual 02.in
+
+@subtask subtask03
+blocks 3 4
+
+@subtask subtask04
+blocks 10 chess
+
+@subtask subtask05
+real 20 0
+
+@subtask subtask06
+real 4 85
+
+@subtask subtask07
+real 8 50
+
+@subtask subtask08
+real 12 10000
+
+@subtask subtask09
+real 16 50000
+
+@subtask subtask10
+real 20 89859

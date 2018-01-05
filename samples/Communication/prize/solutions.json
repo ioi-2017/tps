@@ -1,0 +1,166 @@
+{
+	"main.cpp": {
+		"verdict": "model_solution"
+	},
+	"frogs_binarysearch.cpp": {
+		"verdict": "correct"
+	},
+	"OptimalSolution.cpp": {
+		"verdict": "correct"
+	},
+	"prize.java": {
+		"verdict": "correct"
+	},
+	"prize_pavel.java": {
+		"verdict": "correct"
+	},
+	"prize.pas": {
+		"verdict": "correct"
+	},
+	"prize-random.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"frogs-saeed.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"Wrong5100.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},"peyman-9000.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},"just2gen.cpp": {
+		"verdict": "incorrect",
+		"except": {
+			"v2": "correct"
+		}
+	},
+	"q4999.cpp": {
+		"verdict": "correct"
+	},
+	"q5000.cpp": {
+		"verdict": "correct"
+	},
+	"q5001.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5199.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5200.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5201.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5399.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5400.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5401.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5599.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5600.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5601.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5799.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5800.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5801.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q5999.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q6000.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q6001.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q9999.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q10000.cpp": {
+		"verdict": "partially_correct",
+		"except" : {
+			"v2": "correct"
+		}
+	},
+	"q10001.cpp": {
+		"verdict": "incorrect"
+	}
+}
+

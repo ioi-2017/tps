@@ -1,0 +1,5 @@
+@subtask samples
+manual manual-1.in
+
+@subtask main
+gencode 1000 peyman ali keivan soroush reza mammad amin

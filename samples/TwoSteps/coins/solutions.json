@@ -1,0 +1,42 @@
+{
+	"coins.cpp": {
+		"verdict": "model_solution"
+	},
+	"coins.java": {
+		"verdict": "correct"
+	},
+	"coins.pas": {
+		"verdict": "correct"
+	},
+	"k8.cpp": {
+		"verdict": "incorrect",
+		"except": {
+			"k8": "correct"
+		}
+	},
+	"k64.cpp": {
+		"verdict": "incorrect",
+		"except": {
+			"k64": "correct"
+		}
+	},
+	"c2.cpp": {
+		"verdict": "incorrect",
+		"except": {
+			"c2": "correct"
+		}
+	},
+	"c3.cpp": {
+		"verdict": "incorrect",
+		"except": {
+			"c3": "correct"
+		}
+	},
+	"tof.cpp": {
+		"verdict": "incorrect"
+	},
+	"wa.cpp": {
+		"verdict": "incorrect"
+	}
+}
+

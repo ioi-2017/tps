@@ -1,0 +1,99 @@
+{
+    "wiring-mahdi-ac.cpp": {
+        "verdict": "model_solution"
+    },
+    "wiring-haas-ac.cpp": {
+        "verdict": "correct"
+    },
+    "wiring-haas-ac-ternary.cpp": {
+        "verdict": "correct"
+    },
+    "wiring-saeed-ac.cpp": {
+        "verdict": "correct"
+    },
+    "wiring-malek-ac.cpp": {
+        "verdict": "correct"
+    },
+    "wiring-haas-wa.cpp": {
+        "verdict": "incorrect"
+    },
+    "wiring-saeed-wa.cpp": {
+        "verdict": "incorrect"
+    },
+    "wiring-roghani-redsfirst.cpp": {
+        "verdict": "incorrect",
+        "except": {
+            "redsfirst": "correct"
+        }
+    },
+    "wiring-haghani-wa.cpp": {
+        "verdict": "incorrect",
+		"except": {
+			"smallblocks": "correct",
+			"consecutive": "failed",
+			"full": "failed"
+		}
+    },
+	"wiring-safarnejad.java":{
+		"verdict": "correct"
+	},
+	"wiring-haas-ac.pas":{
+		"verdict": "correct"
+	},
+	"wiring-roghani-smallblocks.cpp":{
+		"verdict": "incorrect",
+		"except": {
+			"smallblocks": "correct"
+		}
+	},
+	"wiring-roghani-smallblocks.java":{
+		"verdict": "time_limit",
+		"except": {
+			"slow": "correct",
+			"redsfirst": "correct",
+			"smallblocks": "correct"
+		}
+	},
+	"wiring-roghani-newsmallblocks.cpp":{
+		"verdict": "incorrect",
+		"except": {
+			"slow": "correct",
+			"redsfirst": "correct",
+			"smallblocks": "correct"
+		}
+	},
+	"wiring-mahdi-consecutive.cpp":{
+		"verdict": "incorrect",
+		"except": {
+			"consecutive" : "correct"
+		}
+	},
+	"wiring-mahdi-consecutive-tof.cpp":{
+		"verdict": "incorrect",
+		"except":{
+			"redsfirst": "correct",
+			"consecutive": "correct"
+		}
+	},
+	"wiring-mahdi-tof.cpp":{
+		"verdict": "failed",
+		"except":{
+			"smallblocks": "correct"
+		}
+
+	},
+	"wiring-mahdi-slow.cpp":{
+		"verdict": "failed",
+		"except": {
+			"slow": "correct"
+		}
+	},
+	"wiring-beta3-tof.cpp":{
+		"verdict": "incorrect",
+		"except": {
+			"redsfirst": "correct",
+			"smallblocks": "correct",
+			"consecutive": "correct"
+		}
+	}
+}

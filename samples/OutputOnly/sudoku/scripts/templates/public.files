@@ -1,0 +1,15 @@
+#examples
+public examples/01.in
+public examples/01.out
+
+#tests
+public tests/01.in
+public tests/02.in
+public tests/03.in
+public tests/04.in
+public tests/05.in
+public tests/06.in
+public tests/07.in
+public tests/08.in
+public tests/09.in
+public tests/10.in

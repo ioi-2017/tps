@@ -1,0 +1,119 @@
+@subtask samples
+manual 01.in
+
+@subtask n7
+gencode 30000	7	21 		knary 	6	kian
+gencode 30000	7	21 		knary 	5	kian
+gencode 30000	7	21		sqrt		ali
+gencode 30000	7	13		normal		keyvan
+gencode 30000	6	10		kite	3	mohammad
+gencode 30000	7	16		knary	2	saeed
+gencode 30000	2	1		normal		peyman
+gencode 30000	3	3		normal		hamed
+gencode 30000	6	5		knary	5	haghani
+gencode 30000	6	14		sqrt		roghani
+gencode 30000	7	6		normal		jabbarzade
+gencode 30000	6	15		knary	5	sharifi
+gencode 30000	7 	21 		long	21	mirjalali
+
+@subtask n50
+@include n7
+gencode 30000	50	1225	normal		ilchi
+gencode 30000	50	1225	knary	49	saba
+gencode 30000	50	1225	knary	48	saba
+gencode 30000	50	1002	normal		mohammadreza
+gencode 30000	50	371		normal		mohammadreza
+gencode 30000	50	1027	sqrt		soroush
+gencode 30000	50	965		knary	12	amin
+gencode 30000	50	900		long	13	hashemi
+clique	30000	50	35		dgjdsg
+clique	30000	50	30		dgjdsg
+clique	30000	50	25		dgjdsg
+clique	30000	50	4		cerwga
+clique_cycle	30000	50	25	dlgjw
+clique_cycle	30000	50	30	dlgjw
+clique_cycle	30000	50	12	dlgjw
+clique_cycle	30000	50	6	dlgjw
+two-clique		30000	50	1
+two-clique		30000	50	0
+two-clique		30000	50	0	dgasg
+two-clique		30000	50	0	ewtqw
+
+@subtask n240
+@include n50
+gencode 30000	240	28680	normal		ilchi
+gencode 30000	240	27680	normal		ilchi
+gencode 30000	240	19000	normal		mohammadreza
+gencode 30000	240	1200	normal		mohammadreza
+gencode 30000	240	28500	sqrt		soroush
+gencode 30000	240	24300		knary	12	amin
+gencode 30000	240	19000	long	13	hashemi
+gencode 30000	240	28680		knary	239	saba
+gencode 30000	240	28580		knary	239	saba
+clique	30000	240	150		dgjdsg
+clique	30000	240	110		dgjdsg
+clique	30000	240	120		dgjdsg
+clique	30000	240	100		dgjdsg
+clique	30000	240	40		egwgae
+clique	30000	240	4		cerwga
+clique_cycle	30000	240	12	dlgjw
+clique_cycle	30000	240	40	dlgjw
+clique_cycle	30000	240	120	dlgjw
+clique_cycle	30000	240	110	dlgjw
+clique_cycle	30000	240	100	dlgjw
+clique_cycle	30000	240	150	dlgjw
+two-clique		30000	240	1	wteed
+two-clique		30000	240	0	dgrew
+two-clique		30000	240	0	trnld
+
+@subtask complete
+gencode 12000	2	1			normal		farahani
+gencode 12000	10	45			sqrt		hoora
+gencode 12000	400	79800		knary 2		abootalebi
+gencode 12000	500	124750		normal		fatemeh
+gencode 12000	500	124750		sqrt		zardbani
+gencode 12000	500	124750		knary	499	saba
+gencode 12000	500	124750		knary	498	saba
+gencode 12000	500	124750		knary	497	saba
+gencode 12000	500	124750		knary	4	zarbaf
+gencode 12000	500	124750		beard	3	farnoosh
+gencode 12000	500	124750		beard	80	danial
+gencode 12000	500	124750		long	500	malekmohammad
+gencode 12000	3	3			normal		farzad
+gencode 12000	500	124750		long	9	speeder
+gencode 12000	500	124750		kite	15	johari
+
+@subtask full
+gencode 8000	2	1		normal		peyman
+gencode 8000	500	124750		sqrt		zardbani
+gencode 8000	500	120312		normal		ali
+gencode 8000	412	43101		normal		saleh
+gencode 8000	500	124631		sqrt		roghani
+gencode 8000	500	124531		sqrt		roghani
+gencode 8000	500	124331		sqrt		roghani
+gencode 8000	500	120631		sqrt		roghani
+gencode 8000	500	102341		knary	499	mirjalali
+gencode 8000	500	119867		long 	387	aliakbar
+gencode 8000	500	61677		normal		hamzeh
+clique	8000	500		350	saba
+clique	8000	500		300	saba
+clique	8000	500		200	saba
+clique	8000	500		130	hasan
+clique	8000	500		100	kimia
+clique	8000	496		97	hamedsaleh
+clique	8000	500		80	javad
+clique	8000	500		10	tayebi
+clique	8000	500		4	fatemeh
+clique_cycle	8000	500		300
+clique_cycle	8000	500		200
+clique_cycle	8000	500		180
+clique_cycle	8000	500		85
+clique_cycle	8000	500		100
+clique_cycle 	8000	499		132
+clique_cycle	8000 	498		111
+clique_cycle	8000	500		25
+clique_cycle	8000	500		4
+two-clique		8000	500		1
+two-clique		8000	500		0
+two-clique		8000	498		0	dghk
+two-clique		8000	498		0	ewlg

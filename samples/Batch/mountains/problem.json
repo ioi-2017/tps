@@ -1,0 +1,9 @@
+{
+  "name": "mountains",
+  "code": "mountains",
+  "title": "Mountains",
+  "memory_limit": 256,
+  "time_limit": 1.0,
+  "type": "Batch",
+  "description": "Find maximum number of Deevs to imprison"
+}

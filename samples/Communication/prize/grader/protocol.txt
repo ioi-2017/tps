@@ -1,0 +1,22 @@
+Manager >
+Grader  <
+
+> n
+
+< A i
+> l r
+.
+.
+.
+
+< A i
+> -1 -1
+
+< B i
+
+argv[1] FIFO
+argv[2] FIFO
+argv[3] Log
+cin     Input
+cout    Score
+cerr    Contestant message

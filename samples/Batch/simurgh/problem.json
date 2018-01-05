@@ -1,0 +1,9 @@
+{
+	"name": "simurgh",
+	"code": "simurgh",
+	"title": "Simurgh",
+	"type": "Batch",
+	"time_limit": 2.0,
+	"memory_limit": 1024,
+	"description": "Simurgh - Finding Spanning Tree"
+}

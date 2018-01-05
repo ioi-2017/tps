@@ -1,0 +1,54 @@
+@subtask samples
+manual 01.in
+
+@subtask c2
+gen 1 c2 1
+gen 1 c2 2
+gen 1 c2 3
+gen 1 c2 4
+special 1 c2 1 s
+special 1 c2 2 s
+
+@subtask c3
+@include c2
+gen 1 c3 1
+gen 1 c3 2
+gen 1 c3 3
+gen 1 c3 4
+gen 1 c3 5
+special 1 c3 1 s
+special 1 c3 2 s
+
+@subtask k64
+gen 64 std 1
+gen 64 std 2
+gen 64 std 3
+gen 64 std 4
+gen 64 std 5
+gen 64 std 6
+special 64 std 1 s
+special 64 std 2 s
+
+@subtask k8
+@include k64
+special 8 std 1 s
+special 8 std 2 s
+gen 8 std 1
+gen 8 std 2
+gen 8 std 3
+gen 8 std 4
+
+@subtask k1
+@include k8 c3
+gen 1 std 1
+gen 1 std 2
+gen 1 std 3
+gen 1 std 4
+gen 1 std 5
+gen 1 std 6
+gen 1 std 7
+gen 1 std 8
+special 1 std 1 s
+special 1 std 2 s
+special 1 std 3 s
+special 1 std 4 s

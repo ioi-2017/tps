@@ -1,0 +1,29 @@
+@subtask subtask01
+gencode 16 16 10
+
+@subtask subtask02
+gencode 64 64 0
+
+@subtask subtask03
+gencode 64 64 8
+
+@subtask subtask04
+gencode 256 256 0
+
+@subtask subtask05
+gencode 256 256 9
+
+@subtask subtask06
+gencode 64 1024 12
+
+@subtask subtask07
+gencode 1024 128 13
+
+@subtask subtask08
+gencode 1024 1024 15
+
+@subtask subtask09
+gencode 1024 1024 20
+
+@subtask subtask10
+gencode 1024 1024 25

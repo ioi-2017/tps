@@ -1,0 +1,9 @@
+{
+    "name": "wiring",
+    "code": "wiring",
+    "title": "Wiring",
+    "type": "Batch",
+    "time_limit": 1.0,
+    "memory_limit": 256,
+    "description": "Red Blue"
+}

@@ -1,0 +1,9 @@
+{
+	"name": "cup",
+	"code": "cup",
+	"title": "Cup of Jamshid",
+	"memory_limit": 256,
+	"time_limit": 1.0,
+	"type": "Batch",
+	"description": "problem of finding jamshid's cup"
+}

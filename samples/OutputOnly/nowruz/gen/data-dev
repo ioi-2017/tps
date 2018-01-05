@@ -1,0 +1,56 @@
+@subtask samples
+gencode	64		64		0
+gencode 65		65		0
+gencode 66		66		0
+gencode 67		67		0
+gencode	64		64		10
+gencode	64		64		15
+gencode	64		64		20
+gencode	64		64		25
+gencode	64		64		30
+gencode	64		64		35
+gencode	100		100		0
+gencode	100		100		0
+gencode	100		100		0
+gencode	1000	1000	0
+gencode	1000	1000	10
+gencode	1000	1000	20
+gencode	1023	767		0
+gencode	1023	767		5
+gencode	1023	767		10
+gencode	1023	767		13
+gencode	1023	767		17
+gencode	1023	767		20
+gencode 1000	1000	0
+gencode 1001	1001	0
+gencode 1002	1002	0
+
+@subtask subtask01
+gencode 16 16 5
+
+@subtask subtask02
+gencode 67 67 0
+
+@subtask subtask03
+gencode 64 64 10
+
+@subtask subtask04
+gencode 256 256 0
+
+@subtask subtask05
+gencode 256 256 20
+
+@subtask subtask06
+gencode 64 1024 10
+
+@subtask subtask07
+gencode 1024 128 10
+
+@subtask subtask08
+gencode 1024 1024 5
+
+@subtask subtask09
+gencode 1024 1024 15
+
+@subtask subtask10
+gencode 1024 1024 25

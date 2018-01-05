@@ -1,0 +1,9 @@
+{
+	"name": "coins",
+	"code": "coins",
+	"title": "Coins",
+	"time_limit": 1.0,
+	"memory_limit": 256,
+	"type": "TwoSteps",
+	"description": "Find the evil coin"
+}

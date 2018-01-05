@@ -1,0 +1,35 @@
+{
+	"global_validators": ["validator.cpp"],
+	"subtasks": {
+		"samples": {
+			"index": 0,
+			"score": 0,
+			"validators": []
+		},
+		"slow": {
+			"index": 1,
+			"score": 7,
+			"validators": ["validator-slow.cpp"]
+		},
+		"redsfirst": {
+			"index": 2,
+			"score": 13,
+			"validators": ["validator-redsfirst.cpp"]
+		},
+		"smallblocks": {
+			"index": 3,
+			"score": 10,
+			"validators": ["validator-smallblocks.cpp"]
+		},
+		"consecutive": {
+			"index": 4,
+			"score": 25,
+			"validators": ["validator-consecutive.cpp"]
+		},
+		"full": {
+			"index": 5,
+			"score": 45,
+			"validators": []
+		}
+	}
+}

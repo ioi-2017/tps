@@ -1,0 +1,74 @@
+{
+	"newnewlog.cpp": {
+		"verdict": "model_solution"
+	},
+	"log.cpp": {
+		"verdict": "incorrect"
+	},
+	"cup.java": {
+		"verdict": "correct"
+	},
+	"cup1.cpp": {
+		"verdict": "correct"
+	},
+	"cup.pas": {
+		"verdict": "correct"
+	},
+	"2log.cpp": {
+		"verdict": "incorrect"
+	},
+	"3log.cpp": {
+		"verdict": "incorrect"
+	},
+	"newlog.cpp": {
+		"verdict": "incorrect"
+	},
+	"Q1000.cpp": {
+		"verdict": "correct"
+	},
+	"Q1001.cpp": {
+		"verdict": "correct"
+	},
+	"Q103.cpp": {
+		"verdict": "correct"
+	},
+	"Q104.cpp": {
+		"verdict": "correct"
+	},
+	"Q105.cpp": {
+		"verdict": "correct"
+	},
+	"Q32.cpp": {
+		"verdict": "correct"
+	},
+	"Q33.cpp": {
+		"verdict": "correct"
+	},
+	"Q34.cpp": {
+		"verdict": "correct"
+	},
+	"Q36.cpp": {
+		"verdict": "correct"
+	},
+	"Q38.cpp": {
+		"verdict": "correct"
+	},
+	"Q39.cpp": {
+		"verdict": "correct"
+	},
+	"Q40.cpp": {
+		"verdict": "correct"
+	},
+	"Q69.cpp": {
+		"verdict": "correct"
+	},
+	"Q70.cpp": {
+		"verdict": "correct"
+	},
+	"Q71.cpp": {
+		"verdict": "correct"
+	},
+	"Q999.cpp": {
+		"verdict": "correct"
+	}
+}

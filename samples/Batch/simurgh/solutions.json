@@ -1,0 +1,32 @@
+	{
+	"optimal.cpp": {
+		"verdict": "model_solution"
+	},
+	"optimal.java": {
+		"verdict": "correct"
+	},
+	"simurgh.pas": {
+		"verdict": "correct"
+	},
+	"ask-all-edges.cpp": {
+		"verdict": "incorrect"
+	},
+	"brute-force-all-trees.cpp": {
+		"verdict": "failed",
+		"except": {
+			"n7": "correct"
+		}
+	},
+	"brute_force.java": {
+		"verdict": "failed",
+		"except": {
+			"n7": "correct"
+		}
+	},
+	"complete-graph.cpp": {
+		"verdict": "incorrect"
+	},
+	"increamental-tree.cpp": {
+		"verdict": "runtime_error"
+	}
+}

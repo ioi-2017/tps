@@ -1,0 +1,15 @@
+{
+	"maxleaves-malek-v4.cpp": {"verdict": "model_solution" },
+	"maxleaves-malek-v3.cpp": { "verdict": "partially_correct" },
+	"maxleaves-malek-v2.cpp": {"verdict": "partially_correct" },
+	"maxleaves-malek-v1.cpp": {"verdict": "partially_correct" },
+	"snail.cpp": { "verdict": "incorrect" },
+	"dfs.cpp": { "verdict": "incorrect" },
+	"multi_dfs.cpp": { "verdict": "partially_correct" },
+	"haircomb.cpp": { "verdict": "incorrect" },
+	"addleaves.cpp": { "verdict": "incorrect" },
+	"addleaves_rand.cpp": { "verdict": "partially_correct" },
+	"notree.cpp": { "verdict": "incorrect" },
+	"oneleaf.cpp": { "verdict": "incorrect" },
+	"amd-v1.cpp": { "verdict": "incorrect" }
+}

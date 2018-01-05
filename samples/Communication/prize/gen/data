@@ -1,0 +1,115 @@
+@subtask samples
+manual sample-1.in
+
+@subtask v2
+gencode_v2 plain	200000 2 max random	hamed
+gencode_v2 plain	200000 2 max random	kian
+gencode_v2 plain	200000 2 max pakhsh4	jabbarzade
+gencode_v2 plain	200000 2 max notuniform	mammad
+gencode_v2 plain	200000 2 max middle	mohtashami
+gencode_v2 plain	200000 2 max notuniform	ganje
+gencode_v2 plain	200000 2 max pakhsh	haghani
+gencode_v2 plain	200000 2 max pakhshl	roghani
+gencode_v2 plain	200000 2 max pakhshr	shokri
+gencode_v2 adversary	200000 2 max	flatron
+
+@subtask no_limit
+#test v=2
+gencode_no_limit plain	200000 2 max random	hamed
+gencode_no_limit plain	200000 2 max random	kian
+gencode_no_limit plain	200000 2 max pakhsh4	jabbarzade
+gencode_no_limit plain	200000 2 max notuniform	mammad
+gencode_no_limit plain	200000 2 max middle	mohtashami
+gencode_no_limit plain	200000 2 max notuniform	ganje
+gencode_no_limit plain	200000 2 max pakhsh	haghani
+gencode_no_limit plain	200000 2 max pakhshl	roghani
+gencode_no_limit plain	200000 2 max pakhshr	shokri
+gencode_no_limit adversary	200000 2 max	flatron
+# test v>2
+gencode_no_limit plain	200000 5 min pakhsh	maleki
+gencode_no_limit plain	200000 5 min pakhshl	ilchi
+gencode_no_limit plain	200000 5 min pakhshr	saleh
+gencode_no_limit plain	21000 5 random random	morteza
+gencode_no_limit plain	200000 3 max pakhsh	sharifi
+gencode_no_limit plain	200000 5 max pakhsh	aabaam
+gencode_no_limit plain	200000 5 max pakhshl	zarabizade
+gencode_no_limit plain	200000 5 max pakhshr	reza
+gencode_no_limit plain	200000 5 random pakhshl	soltani
+gencode_no_limit plain	100000 5 random pakhsh	kamran
+gencode_no_limit plain	200000 4 max pakhsh4	bahjati
+gencode_no_limit plain	200000 4 random pakhsh4	dara
+gencode_no_limit plain	199989 4 min pakhsh	rahbardoost
+gencode_no_limit plain	200000 5 min random	eilbeigi
+gencode_no_limit plain	200000 5 max random	parsa
+gencode_no_limit plain	200000 5 max random	soroush
+gencode_no_limit plain	200000 4 min random	ebadian
+gencode_no_limit plain	200000 4 max random	amin
+gencode_no_limit plain	200000 5 random random	khodaii
+gencode_no_limit plain	200000 4 max pakhshr	razor
+gencode_no_limit plain	200000 4 max pakhshl	axe
+gencode_no_limit plain	200000 5 min pakhsh4	viper
+gencode_no_limit plain	100 4 max random	benyamin
+gencode_no_limit plain	200000 5 max pakhsh4	sadegh
+gencode_no_limit plain	200000 3 random random	bashari
+gencode_no_limit plain	200000 5 random pakhsh4	messi
+gencode_no_limit plain	200000 5 min random	taremi
+gencode_no_limit plain	200000 4 min pakhshl	chaosknight
+gencode_no_limit plain	200000 4 max pakhsh	adelkhah
+gencode_no_limit plain	200000 5 random pakhshr	bavar
+gencode_no_limit plain	200000 5 max middle	hamid
+gencode_no_limit plain	200000 5 max middle 	hashemi
+gencode_no_limit plain	200000 5 random middle	nima
+gencode_no_limit plain	200000 5 max pakhsh4	mojtabavi
+gencode_no_limit plain	200000 5 max random	nima
+gencode_no_limit plain	200000 5 max pakhshl	alireza
+gencode_no_limit plain	200000 5 max random	nadafian
+gencode_no_limit plain	200000 5 max pakhsh	ahmadreza
+gencode_no_limit plain	200000 5 max pakhsh4	abolfazl
+gencode_no_limit plain	200000 5 max pakhshr	asadi
+gencode_no_limit plain	200000 5 max pakhsh4	salar
+gencode_no_limit plain	200000 5 max pakhsh	norozi
+gencode_no_limit plain	200000 4 min pakhsh4	rahimi
+gencode_no_limit plain	200000 4 max pakhsh4	jebek
+gencode_no_limit plain	200000 5 max pakhshl	java
+gencode_no_limit plain	199998 5 max pakhshr	kiarash
+gencode_no_limit plain	200000 4 max pakhsh4	peyman
+gencode_no_limit plain	200000 5 max pakhsh4	vahedi
+gencode_no_limit plain	199999 5 max middle	sajjad
+gencode_no_limit plain	199999 4 max middle	arman
+gencode_no_limit plain	199999 4 min pakhshr	karimi
+gencode_no_limit plain	199999 4 min pakhshl	hossein
+gencode_no_limit plain	199999 4 min pakhshr	rasoul
+gencode_no_limit plain	199999 4 min middle	payan
+gencode_no_limit plain	200000 5 min notuniform	sony
+gencode_no_limit plain	200000 5 max notuniform	hp
+gencode_no_limit plain	200000 4 max notuniform	linkinpark
+gencode_no_limit plain	200000 3 max notuniform	imaginedragons
+gencode_no_limit plain	200000 5 max notuniform	scorpions
+gencode_no_limit plain	200000 5 random notuniform	files
+gencode_no_limit adversary 		200000 5 max 	Lucky
+gencode_no_limit adversary 		200000 5 min	codejam
+gencode_no_limit adversary 		200000 5 random ownery
+gencode_no_limit adversary 		200000 4 max 	sharif
+gencode_no_limit adversary 		200000 4 min 	of
+gencode_no_limit adversary 		200000 4 random	lenovo
+gencode_no_limit adversary_random 	200000 5 max 	coca
+gencode_no_limit adversary_random 	200000 5 min 	print
+gencode_no_limit adversary_random 	200000 5 random	vintage
+gencode_no_limit adversary_random 	200000 5 max	superday
+gencode_no_limit adversary_random 	200000 5 max	ce
+gencode_no_limit adversary_random 	200000 4 max 	university
+gencode_no_limit adversary_random 	200000 4 min 	technology
+gencode_no_limit adversary_random 	200000 4 random	jbl
+gencode_no_limit adversary_random 	200000 5 max	mirjalali
+gencode_no_limit adversary_antirandom		200000 5 max 	Hello
+gencode_no_limit adversary_antirandom		200000 5 min	Hotel
+gencode_no_limit adversary_antirandom 		200000 5 random Parisienne
+gencode_no_limit adversary_antirandom 		200000 4 max 	Moonlight
+gencode_no_limit adversary_antirandom 		200000 4 min 	Counting
+gencode_no_limit adversary_antirandom 		200000 4 random	Stars
+gencode_no_limit adversary_antirandom 		200000 3 max	ioi2017iran
+gencode_no_limit adversary_betterantirandom	200000 5 max 	naturalbridge
+gencode_no_limit adversary_betterantirandom	200000 5 max	miladtower
+gencode_no_limit adversary_betterantirandom	200000 5 max	evin
+gencode_no_limit adversary_betterantirandom	200000 4 max 	parsian
+gencode_no_limit adversary_betterantirandom	200000 3 max	miniature

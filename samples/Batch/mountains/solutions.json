@@ -1,0 +1,47 @@
+{
+	"mountains-haghani-solution.cpp": {
+		"verdict": "model_solution"
+	},
+	"mountain.cpp": {
+		"verdict": "correct"
+	},
+	"mountains.pas": {
+		"verdict": "correct"
+	},
+	"mountains-haghani-solution.java": {
+		"verdict": "correct"
+	},
+	"greedy.cpp": {
+		"verdict": "incorrect"
+	},
+	"mountains-haghani-bug.cpp": {
+		"verdict": "incorrect"
+	},
+	"naive.cpp": {
+		"verdict": "incorrect"
+	},
+	"sub1_solution.java": {
+		"verdict": "incorrect",
+		"except": {
+			"2^n": "correct"
+		}
+	},
+	"wrong1.cpp": {
+		"verdict": "incorrect"
+	},
+	"bt-optimized.cpp": {
+		"verdict": "time_limit"
+	},
+	"bt-optimized-id.cpp": {
+		"verdict": "time_limit"
+	},
+	"n3.cpp": {
+		"verdict": "time_limit",
+		"except": {
+			"2^n": "correct",
+			"bt": "correct",
+			"n3": "correct"
+		}
+	}
+}
+

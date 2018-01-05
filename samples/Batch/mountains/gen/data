@@ -1,0 +1,100 @@
+@subtask samples
+manual sample-1.in
+manual sample-2.in
+
+@subtask 2^n
+gencode random 1
+gencode random 2
+gencode random 3
+gencode random 4
+gencode random 10
+gencode random 19 sadfa
+gencode random 19 frewf
+gencode random 19 reger
+gencode random 19 qwefc
+gencode zigzag 18
+gencode envlope 19
+gencode slow_up 19 asdgs
+gencode slow_up 19 sfgrev
+gencode wall-envlope 19
+gencode semi-manual 19
+gencode magic 19
+
+@subtask bt
+@include 2^n
+gencode random 40
+gencode random 40 sadfa
+gencode random 40 qwetf
+gencode random 40 ergds
+gencode sqr 40 cefut
+gencode sqr 40 eiwur
+gencode sqr 40 roubg
+gencode sqr 40 rgonb
+gencode sqr 40 nymup
+gencode sqr 40 waneegbt
+gencode bpc 40 waneegbt
+gencode inc 40 ygttyfttmfttm
+gencode inc 40 bwaneeegbtgqw
+gencode inc 40 ils
+gencode inc 40 irls
+gencode inc 40 irvls
+gencode envlope 39
+gencode slow_up 40 asdgs
+gencode slow_up 40 sfgrev
+gencode wall-envlope 40
+gencode semi-manual 40
+gencode magic 40
+
+@subtask n3
+@include bt
+gencode random 200
+gencode random 300 dsaf
+gencode random 300 wets
+gencode random 300 dfss
+gencode random 300 ewcx
+gencode random 300 rete
+gencode sqr 300 cefut
+gencode sqr 300 eiwur
+gencode sqr 300 roubg
+gencode sqr 300 rgonb
+gencode sqr 300 nymup
+gencode sqr 300 waneegbt
+gencode bpc 300 waneegbt
+gencode inc 300 ygttyfttmfttm
+gencode inc 300 bwaneeegbtg
+gencode inc 300 ils
+gencode inc 300 irls
+gencode inc 300 irvls
+gencode envlope 299
+gencode slow_up 300 asdgs
+gencode slow_up 300 sfgrev
+gencode wall-envlope 300
+gencode magic 300
+
+@subtask full
+@include n3
+gencode random 1000 ovuef
+gencode random 2000 ocewu
+gencode random 2000 coeub
+gencode random 2000 cefut
+gencode random 2000 csadf
+gencode random 2000 cwqer
+gencode random 2000 certs
+gencode random 2000 iykhn
+gencode sqr 2000 cefut
+gencode sqr 2000 eiwur
+gencode sqr 2000 roubg
+gencode sqr 2000 rgonb
+gencode sqr 2000 nymup
+gencode sqr 2000 waneegbt
+gencode bpc 2000 waneegbt
+gencode inc 2000 ygttyfttmfttm
+gencode inc 2000 bwaneeegbtg
+gencode inc 2000 ils
+gencode inc 2000 irls
+gencode inc 2000 irvls
+gencode envlope 1999
+gencode slow_up 2000 asdgs
+gencode slow_up 2000 sfgrev
+gencode wall-envlope 2000
+gencode magic 2000

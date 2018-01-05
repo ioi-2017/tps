@@ -1,0 +1,9 @@
+{
+	"name": "prize",
+	"code": "prize",
+	"title": "The Big Prize",
+	"type": "Communication",
+	"time_limit": 1.0,
+	"memory_limit": 1024,
+	"description": "Frogs, The Big Prize"
+}

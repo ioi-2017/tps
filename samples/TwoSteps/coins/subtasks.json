@@ -1,0 +1,35 @@
+{
+	"global_validators": ["validator.cpp"],
+	"subtasks": {
+		"samples": {
+			"index": 0,
+			"score": 0,
+			"validators": []
+		},
+		"c2": {
+			"index": 1,
+			"score": 10,
+			"validators": ["val-c2.cpp"]
+		},
+		"c3": {
+			"index": 2,
+			"score": 15,
+			"validators": ["val-c3.cpp"]
+		},
+		"k64": {
+			"index": 3,
+			"score": 10,
+			"validators": ["val-k64.cpp"]
+		},
+		"k8": {
+			"index": 4,
+			"score": 15,
+			"validators": ["val-k8.cpp"]
+		},
+		"k1": {
+			"index": 5,
+			"score": 50,
+			"validators": []
+		}
+	}
+}

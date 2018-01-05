@@ -1,0 +1,9 @@
+{
+	"name": "sudoku",
+	"code": "sudoku",
+	"title": "Sudoku",
+	"memory_limit": 256,
+	"time_limit": 10.0,
+	"type": "OutputOnly",
+	"description": "fill a partially filled sudoku"
+}

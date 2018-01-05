@@ -1,0 +1,16 @@
+public cpp/compile_cpp.sh
+public cpp/PROBLEM_NAME_PLACE_HOLDER.cpp
+grader cpp/PROBLEM_NAME_PLACE_HOLDER.h
+public cpp/grader.cpp
+
+public pas/compile_pas.sh
+public pas/PROBLEM_NAME_PLACE_HOLDER.pas
+public pas/grader.pas
+public pas/graderlib.pas
+
+public java/compile_java.sh
+public java/PROBLEM_NAME_PLACE_HOLDER.java
+public java/grader.java
+public java/run_java.sh
+
+public examples/01.in

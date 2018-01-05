@@ -1,0 +1,9 @@
+{
+	"name": "nowruz",
+	"code": "nowruz",
+	"title": "Nowruz",
+	"type": "OutputOnly",
+	"time_limit": 100.0,
+	"memory_limit": 256,
+	"description": "maze"
+}
