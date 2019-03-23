@@ -8,6 +8,7 @@ public pas/PROBLEM_NAME_PLACE_HOLDER.pas
 grader pas/grader.pas
 
 public java/compile_java.sh
+public java/run_java.sh
 public java/PROBLEM_NAME_PLACE_HOLDER.java
 grader java/grader.java
 
