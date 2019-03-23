@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python
 
 import json
 import os
@@ -90,9 +90,11 @@ def load_data(json_file, required_keys=()):
         return None
     return data
 
+def is_ignored(file_name):
+    return file_name.endswith('.exe') or file_name.endswith('~')
 
 def get_list_of_files(directory):
-    return [file for file in set(os.listdir(directory)) - {'testlib.h', 'Makefile'} if not file.endswith('.exe')]
+    return [file for file in os.listdir(directory) if not is_ignored(file)]
 
 
 def verify_problem():
@@ -165,7 +167,7 @@ def verify_subtasks():
     if subtasks_data is None:
         return None
 
-    validators = get_list_of_files(os.path.join(BASE_DIR, 'validator/'))
+    validators = list(set(get_list_of_files(os.path.join(BASE_DIR, 'validator/'))) - {'testlib.h', 'Makefile'})
     used_validators = set()
 
     if not isinstance(subtasks_data['global_validators'], list):
