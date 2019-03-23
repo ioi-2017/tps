@@ -18,6 +18,7 @@ function gen_input {
     else
         "${GEN_DIR}/${command}.exe" ${args} > "${input}"
     fi
+    dos2unix "${input}"
 }
 
 function gen_output {
