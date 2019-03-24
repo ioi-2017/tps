@@ -1,3 +1,3 @@
 
-tps_url="https://tps.ioi2017.org"
+tps_url="http://tps.ioi2019.az/tps"
 
