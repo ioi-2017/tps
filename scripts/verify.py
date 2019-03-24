@@ -12,6 +12,10 @@ HAS_GRADER = os.environ.get('HAS_GRADER')
 HAS_MANAGER = os.environ.get('HAS_MANAGER')
 WEB_TERMINAL = os.environ.get('WEB_TERMINAL')
 
+#TODO read these 2 variables from problem.json
+java_enabled = True
+pascal_enabled = False
+
 valid_problem_types = ('Batch', 'Communication', 'OutputOnly', 'TwoSteps')
 model_solution_verdict = 'model_solution'
 valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error', 'partially_correct')
@@ -20,9 +24,15 @@ necessary_files = (
     'validator/testlib.h', 'validator/Makefile',
     'gen/testlib.h', 'gen/Makefile', 'gen/data',
 )
-grader_necessary_files = (
-    'grader/cpp/%s.h' % PROBLEM_NAME, 'grader/cpp/grader.cpp', 'grader/pas/grader.pas', 'grader/java/grader.java',
-)
+
+grader_necessary_files = [
+    'grader/cpp/%s.h' % PROBLEM_NAME, 'grader/cpp/grader.cpp',
+]
+if java_enabled:
+    grader_necessary_files.append('grader/java/grader.java')
+if pascal_enabled:
+    grader_necessary_files.append('grader/pas/grader.pas')
+
 manager_necessary_files = (
     'grader/Makefile', 'grader/manager.cpp'
 )
