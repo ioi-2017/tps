@@ -298,6 +298,10 @@ function check_file_exists {
     fi
 }
 
+function command_exists {
+    command -v "$1" >/dev/null 2>&1
+}
+
 function invalid_arg {
     errcho "Error at argument '${curr}': " "$@"
     usage

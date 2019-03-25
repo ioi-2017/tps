@@ -86,6 +86,8 @@ fi
 
 sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
+command_exists dos2unix || cecho yellow "WARNING: dos2unix is not available. Line endings might be incorrect."
+
 export SENSITIVE_RUN SINGULAR_TEST SOLE_TEST_NAME SKIP_GEN SKIP_SOL SKIP_VAL
 
 
