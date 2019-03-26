@@ -7,16 +7,16 @@ source "${INTERNALS}/util.sh"
 test_name="$1"; shift
 
 input="${TESTS_DIR}/${test_name}.in"
-answer="${TESTS_DIR}/${test_name}.out"
+judge_answer="${TESTS_DIR}/${test_name}.out"
 sol_output="${SANDBOX}/${test_name}.out"
 
 function run_solution {
     tlog_file="$(job_tlog_file "${sol_job}")"
-    python "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${SCRIPTS}/run.sh" < "${input}" > "${sol_output}"
+    python "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input}" "${sol_output}"
 }
 
 function run_checker {
-    "${CHECKER_DIR}/checker.exe" "${input}" "${answer}" "${sol_output}"
+    bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input}" "${judge_answer}" "${sol_output}"
 }
 
 
