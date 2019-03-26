@@ -15,9 +15,19 @@ function extension {
 	echo "${file##*.}"
 }
 
+function variable_exists {
+	varname=$1
+	[ -n "${!varname+x}" ]
+}
+
+function variable_not_exists {
+	varname=$1
+	[ -z "${!varname+x}" ]
+}
+
 function check_variable {
 	varname=$1
-	if [ -z ${!varname+x} ]; then
+	if variable_not_exists "${varname}" ; then
 		errcho "Error: Variable '${varname}' is not set."
 		exit 1
 	fi
@@ -53,14 +63,14 @@ function sensitive {
 }
 
 function is_windows {
-    if [ -z "${OS+x}" ]; then
+    if variable_not_exists "OS" ; then
         return 1
     fi
     echo "${OS}" | grep -iq "windows"
 }
 
 function is_web {
-    if [ -z "${WEB_TERMINAL+x}" ]; then
+    if variable_not_exists "WEB_TERMINAL" ; then
         return 1
     fi
     [ "${WEB_TERMINAL}" == "true" ]
@@ -119,7 +129,7 @@ function boxed_echo {
     cecho "${color}" -n "$1"
     echo -n "]"
 
-    if [ ! -z "${BOX_PADDING+x}" ]; then
+    if variable_exists "BOX_PADDING" ; then
         pad=$((BOX_PADDING - ${#1}))
         hspace "${pad}"
     fi

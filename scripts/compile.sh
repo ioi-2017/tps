@@ -41,7 +41,7 @@ function handle_option {
 }
 
 function handle_positional_arg {
-    if [ -z "${SOLUTION+x}" ]; then
+    if variable_not_exists "SOLUTION" ; then
         SOLUTION="${curr}"
         return
     fi
@@ -50,7 +50,7 @@ function handle_positional_arg {
 
 argument_parser "handle_positional_arg" "handle_option" "$@"
 
-if [ -z "${SOLUTION+x}" ]; then
+if variable_not_exists "SOLUTION" ; then
     errcho "Solution is not specified."
     usage
     exit 2
@@ -71,8 +71,8 @@ cp "${SOLUTION}" "${SANDBOX}/${prog}"
 
 pushd "${SANDBOX}" > /dev/null
 if [ "${ext}" == "cpp" ] ; then
-    [ -z "${CPP_STD_OPT+x}" ] && CPP_STD_OPT="--std=gnu++14"
-    [ -z "${CPP_OPTS+x}" ] && CPP_OPTS="-DEVAL ${CPP_STD_OPT} -Wall -Wextra -Wshadow -O2"
+    variable_not_exists "CPP_STD_OPT" && CPP_STD_OPT="--std=gnu++14"
+    variable_not_exists "CPP_OPTS" && CPP_OPTS="-DEVAL ${CPP_STD_OPT} -Wall -Wextra -Wshadow -O2"
     if "${HAS_GRADER}"; then
         cp "${GRADER_LANG_DIR}/${PROBLEM_NAME}.h" "${GRADER_LANG_DIR}/grader.cpp" "${SANDBOX}"
         g++ ${CPP_OPTS} -c "grader.cpp" -o "grader.o"
@@ -82,7 +82,7 @@ if [ "${ext}" == "cpp" ] ; then
         g++ ${CPP_OPTS} "${prog}" -o "${PROBLEM_NAME}.exe"
     fi
 elif [ "${ext}" == "pas" ] ; then
-    [ -z "${PAS_OPTS+x}" ] && PAS_OPTS="-dEVAL -XS -O2"
+    variable_not_exists "PAS_OPTS" && PAS_OPTS="-dEVAL -XS -O2"
     if "${HAS_GRADER}"; then
         cp "${GRADER_LANG_DIR}/grader.pas" "${SANDBOX}"
         [ -f "${GRADER_LANG_DIR}/graderlib.pas" ] && cp "${GRADER_LANG_DIR}/graderlib.pas" "${SANDBOX}"
@@ -91,7 +91,7 @@ elif [ "${ext}" == "pas" ] ; then
         fpc ${PAS_OPTS} "${prog}" "-o${PROBLEM_NAME}.exe"
     fi
 elif [ "${ext}" == "java" ] ; then
-    [ -z "${JAVAC_OPTS+x}" ] && JAVAC_OPTS=""
+    variable_not_exists "JAVAC_OPTS" && JAVAC_OPTS=""
     if "${HAS_GRADER}"; then
         cp "${GRADER_LANG_DIR}/grader.java" "${SANDBOX}"
         javac ${JAVAC_OPTS} "grader.java" "${prog}"

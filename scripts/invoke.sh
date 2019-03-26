@@ -78,7 +78,7 @@ function handle_option {
 }
 
 function handle_positional_arg {
-    if [ -z "${solution+x}" ]; then
+    if variable_not_exists "solution" ; then
         solution="${curr}"
         return
     fi
@@ -87,7 +87,7 @@ function handle_positional_arg {
 
 argument_parser "handle_positional_arg" "handle_option" "$@"
 
-if [ -z "${solution+x}" ]; then
+if variable_not_exists "solution" ; then
     errcho "Solution is not specified."
     usage
     exit 2
@@ -99,7 +99,7 @@ if ! python -c "import psutil" >/dev/null 2>/dev/null; then
     exit 1
 fi
 
-if [ -z "${SOFT_TL+x}" ]; then
+if variable_not_exists "SOFT_TL" ; then
     SOFT_TL="$(get_time_limit)"
 fi
 
@@ -109,7 +109,7 @@ if ! check_float "${SOFT_TL}"; then
     exit 2
 fi
 
-if [ -z "${HARD_TL+x}" ]; then
+if variable_not_exists "HARD_TL" ; then
     HARD_TL="$(python -c "print(${SOFT_TL} + 2)")"
 fi
 
