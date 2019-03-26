@@ -3,16 +3,13 @@
 set -euo pipefail
 
 source "${INTERNALS}/util.sh"
-source "${TEMPLATES}/tps_variables.sh"
-
-check_variable tps_url
 
 problem_code=$(sensitive python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "code")
-
+tps_web_url=$(sensitive python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "tps_web_url")
 
 commit=$(git log --pretty=format:'%H' -n 1)
 
-analysis_url="${tps_url}/problem/${problem_code}/${commit}/analysis"
+analysis_url="${tps_web_url}/problem/${problem_code}/${commit}/analysis"
 
 echo "Openning address: '${analysis_url}'"
 
