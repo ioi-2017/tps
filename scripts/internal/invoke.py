@@ -11,7 +11,7 @@ SOLE_TEST_NAME = os.environ.get('SOLE_TEST_NAME')
 
 
 class InvokingVisitor(DataVisitor):
-    def on_test(self, testset_name, test_name, line):
+    def on_test(self, testset_name, test_name, line, line_number):
         if SINGULAR_TEST == "false" or test_name == SOLE_TEST_NAME:
             command = [
                 'bash',

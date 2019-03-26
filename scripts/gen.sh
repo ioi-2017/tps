@@ -125,7 +125,7 @@ if ! "${SKIP_GEN}"; then
 fi
 
 ret=0
-python "${INTERNALS}/gen.py" "${MAPPING_FILE}" < "${gen_data_file}" || ret=$?
+python "${INTERNALS}/gen.py" "${MAPPING_FILE}" "${GEN_SUMMARY_FILE}" < "${gen_data_file}" || ret=$?
 
 
 echo

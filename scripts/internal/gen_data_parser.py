@@ -15,16 +15,16 @@ class DataVisitor:
     def __init__(self):
         pass
 
-    def on_include(self, testset_name, included_testset):
+    def on_include(self, testset_name, included_testset, line_number):
         pass
 
-    def on_test(self, testset_name, test_name, line):
+    def on_test(self, testset_name, test_name, line, line_number):
         pass
 
-    def on_testset(self, testset_name):
+    def on_testset(self, testset_name, line_number):
         pass
 
-    def on_subtask(self, subtask_name):
+    def on_subtask(self, subtask_name, line_number):
         pass
 
 
@@ -36,7 +36,8 @@ def parse_data(data, visitor):
     subtask_index, subtask_counter = -1, -1
     test_index, test_offset = 1, -1
 
-    for line in data:
+    for line0 in data:
+        line = line0.strip('\n')
         line_number += 1
 
         if len(line.strip()) == 0 or line.strip().startswith("#"):
@@ -50,9 +51,9 @@ def parse_data(data, visitor):
                 test_offset = 1
                 testset_index += 1
                 testset_name = args[0]
-                visitor.on_testset(testset_name)
+                visitor.on_testset(testset_name, line_number)
                 if command == "@subtask":
-                    visitor.on_subtask(testset_name)
+                    visitor.on_subtask(testset_name, line_number)
                     subtask_counter += 1
                     subtask_index = subtask_counter
                 else:
@@ -62,7 +63,7 @@ def parse_data(data, visitor):
                     data_parse_error("No subtask/testset is defined.")
 
                 for included_testset in args:
-                    visitor.on_include(testset_name, included_testset)
+                    visitor.on_include(testset_name, included_testset, line_number)
             else:
                 data_parse_error("Unknown command %s" % command)
         else:
@@ -78,7 +79,7 @@ def parse_data(data, visitor):
                 line=line,
             )
 
-            visitor.on_test(testset_name, test_name, line)
+            visitor.on_test(testset_name, test_name, line, line_number)
 
             test_index += 1
             test_offset += 1
@@ -89,7 +90,7 @@ class TestsVisitor(DataVisitor):
         DataVisitor.__init__(self)
         self.tests = set()
 
-    def on_test(self, testset_name, test_name, line):
+    def on_test(self, testset_name, test_name, line, line_number):
         self.tests.add(test_name)
 
     def has_test(self, test_name):
