@@ -25,11 +25,20 @@ python -m pip install psutil
 ```
 
 The `dos2unix` utility is required for making public directories (task attachments).
-You may install it in OS/X using following command:
+It is also suggested to be available when generating tests using `tps gen`. 
+You may install it in linux using following command:
+
+```
+sudo apt install dos2unix
+```
+
+and in OS/X using following command:
 
 ```
 brew install dos2unix
 ```
+
+You can install `dos2unix` for windows from GnuWin32 packages.
 
 The system should support `make` command (for Makefiles).
 
@@ -49,6 +58,8 @@ cd tps
 ```
 
 Windows users can run `install-tps.bat`.
+It assumes you have `msys` installed and have `C:\msys\scripts` in your PATH.
+Command completion is not supported in windows. 
 
 
 # Task Directory Structure
@@ -76,6 +87,8 @@ This file contains the general description of the task. It has several attribute
 
 `description`: An optional description of the task.
 
+`tps_web_url`: Optional URL as a base for TPS web URL of the same task.
+
 Below is a sample `problem.json`:
 
 ```
@@ -86,7 +99,8 @@ Below is a sample `problem.json`:
     "memory_limit": 256,
     "time_limit": 1.0,
     "type": "Batch",
-    "description": "Find maximum number of Deevs"
+    "description": "Find maximum number of Deevs",
+    "tps_web_url": "https://tps.ioi2017.org/tps"
 }
 ```
 
@@ -225,7 +239,45 @@ it will look in this directory for `mycommand.sh`, `mycommand.py`, and `mycomman
 
 ## public/
 
-All the public graders, example test data, sample source codes and compile scripts to be given to the contestant are stored here.
+All the public graders, example test data, sample source codes and compile scripts to be given to the contestants are stored here.
+The public package of task files is created using `tps make-public` according to file `public/files`.
+
+
+## public/files
+
+This file defines how the public package of task files given to the contestants is prepared.
+Every file that is going to be put in the archive should be explicitly mentioned in this file.
+The following commands can be used to add a file:
+ 
+`public <public-file-path>`: The same file in the `public` directory is used after some fixing (dos2unix).
+
+`grader <grader-file-path>`: The grader from `grader` directory is used after removing the secret parts.
+
+
+Example:
+
+```
+public cpp/compile_cpp.sh
+public cpp/PROBLEM_NAME_PLACE_HOLDER.cpp
+grader cpp/PROBLEM_NAME_PLACE_HOLDER.h
+grader cpp/grader.cpp
+
+public pas/compile_pas.sh
+public pas/PROBLEM_NAME_PLACE_HOLDER.pas
+grader pas/grader.pas
+
+public java/compile_java.sh
+public java/run_java.sh
+public java/PROBLEM_NAME_PLACE_HOLDER.java
+grader java/grader.java
+
+public examples/01.in
+public examples/01.out
+public examples/02.in
+public examples/02.out
+```
+
+ 
 
 ## tests/
 
@@ -312,10 +364,10 @@ This command is quite basic. Naturally, you should use the `invoke` command inst
 
 ## make-public
 
-Updates the public directory that is given to the contestant.
+Updates the `public` directory and provides the package that is given to the contestants.
 It contains the public graders for each language, example test data, sample solution, the compile scripts, and input tests for the output-only tasks.
-The script finally creates a file `attachment.zip` which can be directly put in CMS.
-The behavior of the script is specified per file in `scripts/templates/public.files`.
+The script finally creates a zip file which can be shared with the contestants during the contest (directly put in CMS, etc).
+The behavior of the script is specified per file in `public/files`.
 
 ## verify
 
