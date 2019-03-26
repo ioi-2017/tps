@@ -8,7 +8,7 @@ grader="${GRADER_DIR}"
 public="${PUBLIC_DIR}"
 
 attachment_name="${PROBLEM_NAME}.zip"
-public_files="${TEMPLATES}/public.files"
+public_files="${PUBLIC_DIR}/files"
 
 function fix() {
 	cecho yellow -n "fix: "
