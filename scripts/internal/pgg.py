@@ -1,4 +1,8 @@
 #!python
+
+# Public Grader Generator
+# Script to generate public graders from judge graders by removing the private lines
+
 import sys
 
 lineNo = 0
