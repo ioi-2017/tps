@@ -32,7 +32,7 @@ It helps a lot in detecting changes and conflicts.
 
 Documentation
 -------------
-A detailed documentation is provided in the [`docs`](https://github.com/ioi-2017/tps/tree/master/docs) directory.
+A detailed documentation is provided in the [`docs`](docs) directory.
 
 
 License
