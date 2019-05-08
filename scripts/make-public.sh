@@ -50,7 +50,38 @@ while read raw_line; do
 	if [ -z "${line}" -o "${line:0:1}" == "#" ]; then
 		continue
 	fi
+
 	args=($line)
+	
+	if [ "${args[0]}" == "copy_test_inputs" ]; then
+		gen_data_file=${BASE_DIR}/${args[1]}
+		relative_public_tests_dir=${args[2]}
+		relative_generated_tests_dir=${args[3]}
+		generated_tests_dir=${BASE_DIR}/${relative_generated_tests_dir}
+		sensitive check_file_exists "Generation data file" "${gen_data_file}"
+		#function is needed as "sensitive" does not work with multiple lines
+		function check_tests_exist {
+			python "${INTERNALS}/list_tests.py" < "${gen_data_file}" | while read test_name ; do
+				generated_input=${generated_tests_dir}/${test_name}.in
+				sensitive check_file_exists "input file" "${generated_input}"
+			done
+		}
+		sensitive check_tests_exist
+		cecho yellow "Copying inputs in '${relative_generated_tests_dir}' to '$(basename ${public})/${relative_public_tests_dir}'; assuming data to be up to date."
+		absolute_public_tests_dir=${PUBLIC_DIR}/${relative_public_tests_dir}
+		recreate_dir "${absolute_public_tests_dir}"
+		python "${INTERNALS}/list_tests.py" < "${gen_data_file}" | while read test_name ; do
+			generated_input=${generated_tests_dir}/${test_name}.in
+			relative_public_input=${relative_public_tests_dir}/${test_name}.in
+			absolute_public_input=${PUBLIC_DIR}/${relative_public_input}
+			cecho yellow -n "copy: "
+			echo "${relative_public_input}"
+			cp "${generated_input}" "${absolute_public_input}"
+			dos2unix -q "${absolute_public_input}" > /dev/null
+		done
+		continue
+	fi
+	
 	file=${args[1]}
 	make_${line}
 	if grep -iq secret "${file}"; then
@@ -66,9 +97,21 @@ while read raw_line; do
 	if [ -z "${line}" -o "${line:0:1}" == "#" ]; then
 		continue
 	fi
+
 	args=($line)
+	
+	if [ "${args[0]}" == "copy_test_inputs" ]; then
+		gen_data_file=${BASE_DIR}/${args[1]}
+		relative_public_tests_dir=${args[2]}
+		python "${INTERNALS}/list_tests.py" < "${gen_data_file}" | while read test_name ; do
+			relative_public_input=${relative_public_tests_dir}/${test_name}.in
+			echo "${relative_public_input}"
+		done
+		continue
+	fi
+
 	file=${args[1]}
-	echo "$file"
+	echo "${file}"
 done < $public_files | zip -@ "${attachment_name}"
 
 popd > /dev/null
