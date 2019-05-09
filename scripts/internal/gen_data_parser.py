@@ -28,7 +28,12 @@ class DataVisitor:
         pass
 
 
-def parse_data(data, visitor):
+'''
+gen_data: list of lines in a gen/data file
+task_data: json of problem.json
+visitor: an instance of DataVisitor
+'''
+def parse_data(gen_data, task_data, visitor):
     global line_number
     line_number = 0
 
@@ -36,7 +41,7 @@ def parse_data(data, visitor):
     subtask_index, subtask_counter = -1, -1
     test_index, test_offset = 1, -1
 
-    for line0 in data:
+    for line0 in gen_data:
         line = line0.strip('\n')
         line_number += 1
 
@@ -71,12 +76,13 @@ def parse_data(data, visitor):
                 data_parse_error("No subtask/testset is defined.")
 
             test_name = get_test_name(
+                task_data=task_data,
                 testset_name=testset_name,
                 testset_index=testset_index,
                 subtask_index=subtask_index,
                 test_index=test_index,
                 test_offset=test_offset,
-                line=line,
+                gen_line=line,
             )
 
             visitor.on_test(testset_name, test_name, line, line_number)
@@ -97,9 +103,9 @@ class TestsVisitor(DataVisitor):
         return test_name in self.tests
 
 
-def check_test_exists(gen_data, test_name):
+def check_test_exists(gen_data, task_data, test_name):
     tests_visitor = TestsVisitor()
-    parse_data(gen_data, tests_visitor)
+    parse_data(gen_data, task_data, tests_visitor)
     if not tests_visitor.has_test(test_name):
         sys.stderr.write("Invalid test name '%s'\n" % test_name)
         exit(2)

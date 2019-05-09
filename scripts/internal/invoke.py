@@ -2,9 +2,10 @@ import os
 import sys
 
 from gen_data_parser import DataVisitor, parse_data, check_test_exists
-from util import run_bash_command
+from util import load_json, run_bash_command
 
 
+PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
 INTERNALS_DIR = os.environ.get('INTERNALS')
 SINGULAR_TEST = os.environ.get('SINGULAR_TEST')
 SOLE_TEST_NAME = os.environ.get('SOLE_TEST_NAME')
@@ -21,9 +22,10 @@ class InvokingVisitor(DataVisitor):
             run_bash_command(command)
 
 if __name__ == '__main__':
+    task_data = load_json(PROBLEM_JSON)
     gen_data = sys.stdin.readlines()
 
     if SINGULAR_TEST == "true":
-        check_test_exists(gen_data, SOLE_TEST_NAME)
+        check_test_exists(gen_data, task_data, SOLE_TEST_NAME)
 
-    parse_data(gen_data, InvokingVisitor())
+    parse_data(gen_data, task_data, InvokingVisitor())

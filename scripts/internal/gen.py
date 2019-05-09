@@ -2,8 +2,10 @@ import os
 import sys
 from collections import defaultdict
 from gen_data_parser import DataVisitor, parse_data, data_parse_error, check_test_exists
-from util import run_bash_command
+from util import load_json, run_bash_command
 
+
+PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
 SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 INTERNALS_DIR = os.environ.get('INTERNALS')
 SINGULAR_TEST = os.environ.get('SINGULAR_TEST')
@@ -70,19 +72,20 @@ class GeneratingVisitor(DataVisitor):
 
 
 if __name__ == '__main__':
+    task_data = load_json(PROBLEM_JSON)
     gen_data = sys.stdin.readlines()
 
     if SINGULAR_TEST == "true":
-        check_test_exists(gen_data, SOLE_TEST_NAME)
+        check_test_exists(gen_data, task_data, SOLE_TEST_NAME)
 
     summary_visitor = SummaryVisitor()
-    parse_data(gen_data, summary_visitor)
+    parse_data(gen_data, task_data, summary_visitor)
     with open(sys.argv[2], 'w') as f:
         summary_visitor.print_summary(f)
     
     mapping_visitor = MappingVisitor()
-    parse_data(gen_data, mapping_visitor)
+    parse_data(gen_data, task_data, mapping_visitor)
     with open(sys.argv[1], 'w') as f:
         mapping_visitor.print_mapping(f)
 
-    parse_data(gen_data, GeneratingVisitor())
+    parse_data(gen_data, task_data, GeneratingVisitor())
