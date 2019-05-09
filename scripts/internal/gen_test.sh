@@ -72,6 +72,23 @@ gen_status=$(job_status "${gen_job}")
 echo_status "${gen_status}"
 
 
+echo -n "val"
+val_job="${test_name}.val"
+
+if ! "${SKIP_VAL}" && ! is_in "${gen_status}" "FAIL"; then
+    insensitive guard "${val_job}" validate
+    ret=$(job_ret "${val_job}")
+
+    if [ ${ret} -ne 0 ]; then
+        final_ret=${ret}
+        failed_jobs="${failed_jobs} ${val_job}"
+    fi
+fi
+
+val_status=$(job_status "${val_job}")
+echo_status "${val_status}"
+
+
 echo -n "sol"
 sol_job="${test_name}.sol"
 
@@ -88,22 +105,6 @@ fi
 sol_status=$(job_status "${sol_job}")
 echo_status "${sol_status}"
 
-
-echo -n "val"
-val_job="${test_name}.val"
-
-if ! "${SKIP_VAL}" && ! is_in "${gen_status}" "FAIL"; then
-    insensitive guard "${val_job}" validate
-    ret=$(job_ret "${val_job}")
-
-    if [ ${ret} -ne 0 ]; then
-        final_ret=${ret}
-        failed_jobs="${failed_jobs} ${val_job}"
-    fi
-fi
-
-val_status=$(job_status "${val_job}")
-echo_status "${val_status}"
 
 echo
 
