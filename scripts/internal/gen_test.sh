@@ -15,12 +15,12 @@ output="${TESTS_DIR}/${test_name}.out"
 function gen_input {
     temp_input=${input}.tmp
     if [ "${command}" == "manual" ]; then
-        cp "${GEN_DIR}/manual/${args}" "${temp_input}"
+        cp "${GEN_DIR}/manual/${args}" "${temp_input}" || return $?
     else
-        "${GEN_DIR}/${command}.exe" ${args} > "${temp_input}"
+        "${GEN_DIR}/${command}.exe" ${args} > "${temp_input}" || return $?
     fi
     if command_exists dos2unix ; then
-        dos2unix "${temp_input}"
+        dos2unix "${temp_input}" >/dev/null 2>&1
     fi
     mv "${temp_input}" "${input}"
 }
@@ -31,7 +31,7 @@ function gen_output {
         return 4
     fi
     temp_output=${output}.tmp
-    bash "${SCRIPTS}/run.sh" < "${input}" > "${temp_output}"
+    bash "${SCRIPTS}/run.sh" < "${input}" > "${temp_output}" || return $?
     mv "${temp_output}" "${output}"
 }
 
