@@ -19,6 +19,21 @@ function gen_input {
     else
         "${GEN_DIR}/${command}.exe" ${args} > "${temp_input}" || return $?
     fi
+    
+    header_file=${GEN_DIR}/input.header
+    footer_file=${GEN_DIR}/input.footer
+    if [ -f "${header_file}" -o -f "${footer_file}" ]; then
+        temp_input2=${input}.tmp2
+        if [ -f "${header_file}" -a -f "${footer_file}" ]; then
+            cat "${header_file}" "${temp_input}" "${footer_file}" > "${temp_input2}"
+        elif [ -f "${header_file}" ]; then
+            cat "${header_file}" "${temp_input}" > "${temp_input2}"
+        elif [ -f "${footer_file}" ]; then
+            cat "${temp_input}" "${footer_file}" > "${temp_input2}"
+        fi
+        mv "${temp_input2}" "${temp_input}"
+    fi
+    
     if command_exists dos2unix ; then
         dos2unix "${temp_input}" >/dev/null 2>&1
     fi
