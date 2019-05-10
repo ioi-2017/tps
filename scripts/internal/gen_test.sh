@@ -13,14 +13,16 @@ input="${TESTS_DIR}/${test_name}.in"
 output="${TESTS_DIR}/${test_name}.out"
 
 function gen_input {
+    temp_input=${input}.tmp
     if [ "${command}" == "manual" ]; then
-        cat "${GEN_DIR}/manual/${args}" > "${input}"
+        cp "${GEN_DIR}/manual/${args}" "${temp_input}"
     else
-        "${GEN_DIR}/${command}.exe" ${args} > "${input}"
+        "${GEN_DIR}/${command}.exe" ${args} > "${temp_input}"
     fi
     if command_exists dos2unix ; then
-        dos2unix "${input}"
+        dos2unix "${temp_input}"
     fi
+    mv "${temp_input}" "${input}"
 }
 
 function gen_output {
@@ -28,7 +30,9 @@ function gen_output {
         errcho "input file ${test_name}.in is not available"
         return 4
     fi
-    bash "${SCRIPTS}/run.sh" < "${input}" > "${output}"
+    temp_output=${output}.tmp
+    bash "${SCRIPTS}/run.sh" < "${input}" > "${temp_output}"
+    mv "${temp_output}" "${output}"
 }
 
 function validate {
