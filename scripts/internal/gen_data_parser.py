@@ -94,13 +94,17 @@ def parse_data(gen_data, task_data, visitor):
 class TestsVisitor(DataVisitor):
     def __init__(self):
         DataVisitor.__init__(self)
-        self.tests = set()
+        self.tests = []
 
     def on_test(self, testset_name, test_name, line, line_number):
-        self.tests.add(test_name)
+        self.tests.append(test_name)
 
     def has_test(self, test_name):
         return test_name in self.tests
+
+    def print_tests(self, stream):
+        for test in self.tests:
+            stream.write("%s\n" % test)
 
 
 def check_test_exists(gen_data, task_data, test_name):
