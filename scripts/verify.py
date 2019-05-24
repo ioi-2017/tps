@@ -192,10 +192,13 @@ def verify_subtasks():
                 used_validators.add(validator)
 
     subtasks = subtasks_data['subtasks']
+    hasSamples = False
     try:
-        check_keys(subtasks, ['samples'])
+        if problem['type'] != 'OutputOnly':
+            check_keys(subtasks, ['samples'])
+            hasSamples = True
     except KeyError:
-        return None
+        pass
 
     indexes = set()
     score_sum = 0
@@ -237,8 +240,9 @@ def verify_subtasks():
 
     if score_sum != 100:
         error('sum of scores is {}'.format(score_sum))
+
     for i in range(len(subtasks)):
-        if i not in indexes:
+        if i+(0 if hasSamples else 1) not in indexes:
             error('missing index {} in subtask indexes'.format(i))
 
     return subtasks
@@ -314,7 +318,8 @@ def verify_existence(files):
 def verify():
     global namespace
     namespace = 'problem.json'
-    verify_problem()
+    global problem
+    problem = verify_problem()
 
     namespace = 'subtasks.json'
     subtasks = verify_subtasks()
