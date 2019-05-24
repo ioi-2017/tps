@@ -13,7 +13,8 @@ function usage {
 	errcho -e "  -s, --sensitive"
 	errcho -e "\tTerminates on the first error."
 	errcho -e "  -m, --model-solution=<model-solution-path>"
-	errcho -e "  -t, --test=<test-name>"
+	errcho -e "  -t, --test=<test-name-pattern>"
+	errcho -e "\tGenerates only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
 	errcho -e "  -d, --gen-data=<gen-data-file>"
 	errcho -e "      --no-gen"
 	errcho -e "      --no-sol"
@@ -25,8 +26,8 @@ function usage {
 model_solution=""
 gen_data_file="${GEN_DIR}/data"
 SENSITIVE_RUN="false"
-SINGULAR_TEST="false"
-SOLE_TEST_NAME=""
+SPECIFIC_TESTS="false"
+SPECIFIED_TESTS_PATTERN=""
 SKIP_GEN="false"
 SKIP_SOL="false"
 SKIP_VAL="false"
@@ -40,8 +41,8 @@ function handle_option {
             exit 0
             ;;
         -t|--test=*)
-            fetch_arg_value "SOLE_TEST_NAME" "-t" "--test" "test name"
-            SINGULAR_TEST="true"
+            fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
+            SPECIFIC_TESTS="true"
             ;;
         -m|--model-solution=*)
             fetch_arg_value "model_solution" "-m" "--model-solution" "solution path"
@@ -88,7 +89,7 @@ sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
 command_exists dos2unix || cecho yellow "WARNING: dos2unix is not available. Line endings might be incorrect."
 
-export SENSITIVE_RUN SINGULAR_TEST SOLE_TEST_NAME SKIP_GEN SKIP_SOL SKIP_VAL
+export SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_GEN SKIP_SOL SKIP_VAL
 
 
 recreate_dir "${LOGS_DIR}"

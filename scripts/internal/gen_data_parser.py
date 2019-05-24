@@ -1,5 +1,6 @@
 import os
 import sys
+import fnmatch
 from test_name import get_test_name
 
 line_number = 0
@@ -113,3 +114,18 @@ def check_test_exists(gen_data, task_data, test_name):
     if not tests_visitor.has_test(test_name):
         sys.stderr.write("Invalid test name '%s'\n" % test_name)
         exit(2)
+
+
+
+def test_name_matches_pattern(test_name, pattern):
+    return fnmatch.fnmatchcase(test_name, pattern)
+
+
+
+def check_test_pattern_exists(gen_data, task_data, test_pattern):
+    tests_visitor = TestsVisitor()
+    parse_data(gen_data, task_data, tests_visitor)
+    if not [test_name for test_name in tests_visitor.tests if test_name_matches_pattern(test_name, test_pattern)]:
+        sys.stderr.write("No test name matches the pattern '%s'\n" % test_pattern)
+        exit(2)
+

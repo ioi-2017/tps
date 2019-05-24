@@ -1,15 +1,15 @@
 import os
 import sys
 from collections import defaultdict
-from gen_data_parser import DataVisitor, parse_data, data_parse_error, check_test_exists
+from gen_data_parser import DataVisitor, parse_data, data_parse_error, check_test_pattern_exists, test_name_matches_pattern
 from util import load_json, run_bash_command
 
 
 PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
 SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 INTERNALS_DIR = os.environ.get('INTERNALS')
-SINGULAR_TEST = os.environ.get('SINGULAR_TEST')
-SOLE_TEST_NAME = os.environ.get('SOLE_TEST_NAME')
+SPECIFIC_TESTS = os.environ.get('SPECIFIC_TESTS')
+SPECIFIED_TESTS_PATTERN = os.environ.get('SPECIFIED_TESTS_PATTERN')
 
 
 class SummaryVisitor(DataVisitor):
@@ -61,7 +61,7 @@ class MappingVisitor(DataVisitor):
 
 class GeneratingVisitor(DataVisitor):
     def on_test(self, testset_name, test_name, line, line_number):
-        if SINGULAR_TEST == "false" or test_name == SOLE_TEST_NAME:
+        if SPECIFIC_TESTS == "false" or test_name_matches_pattern(test_name, SPECIFIED_TESTS_PATTERN):
             command = [
                 'bash',
                 os.path.join(INTERNALS_DIR, 'gen_test.sh'),
@@ -75,8 +75,8 @@ if __name__ == '__main__':
     task_data = load_json(PROBLEM_JSON)
     gen_data = sys.stdin.readlines()
 
-    if SINGULAR_TEST == "true":
-        check_test_exists(gen_data, task_data, SOLE_TEST_NAME)
+    if SPECIFIC_TESTS == "true":
+        check_test_pattern_exists(gen_data, task_data, SPECIFIED_TESTS_PATTERN)
 
     summary_visitor = SummaryVisitor()
     parse_data(gen_data, task_data, summary_visitor)

@@ -14,7 +14,8 @@ function usage {
 	errcho -e "\tTerminates on the first error."
 	errcho -e "  -r, --show-reason"
 	errcho -e "\tDisplays the reason for not being accepted, e.g. checker output"
-	errcho -e "  -t, --test=<test-name>"
+	errcho -e "  -t, --test=<test-name-pattern>"
+	errcho -e "\tInvokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
 	errcho -e "  -d, --gen-data=<gen-data-file>"
 	errcho -e "      --no-check"
 	errcho -e "      --no-sol-compile"
@@ -30,8 +31,8 @@ function usage {
 gen_data_file="${GEN_DIR}/data"
 SHOW_REASON="false"
 SENSITIVE_RUN="false"
-SINGULAR_TEST="false"
-SOLE_TEST_NAME=""
+SPECIFIC_TESTS="false"
+SPECIFIED_TESTS_PATTERN=""
 SKIP_CHECK="false"
 skip_compile_sol="false"
 
@@ -44,8 +45,8 @@ function handle_option {
             exit 0
             ;;
         -t|--test=*)
-            fetch_arg_value "SOLE_TEST_NAME" "-t" "--test" "test name"
-            SINGULAR_TEST="true"
+            fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
+            SPECIFIC_TESTS="true"
             ;;
         -s|--sensitive)
             SENSITIVE_RUN="true"
@@ -123,7 +124,7 @@ sensitive check_file_exists "Solution file" "${solution}"
 
 sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
-export SHOW_REASON SENSITIVE_RUN SINGULAR_TEST SOLE_TEST_NAME SKIP_CHECK SOFT_TL HARD_TL
+export SHOW_REASON SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_CHECK SOFT_TL HARD_TL
 
 
 recreate_dir "${LOGS_DIR}"
