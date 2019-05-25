@@ -15,6 +15,7 @@ function usage {
 	errcho -e "  -m, --model-solution=<model-solution-path>"
 	errcho -e "  -t, --test=<test-name-pattern>"
 	errcho -e "\tGenerates only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
+	errcho -e "\tNote: Use quotation marks when using wildcards in the pattern to prevent bash expansion."
 	errcho -e "  -d, --gen-data=<gen-data-file>"
 	errcho -e "      --no-gen"
 	errcho -e "      --no-sol"

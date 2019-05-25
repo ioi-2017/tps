@@ -16,6 +16,7 @@ function usage {
 	errcho -e "\tDisplays the reason for not being accepted, e.g. checker output"
 	errcho -e "  -t, --test=<test-name-pattern>"
 	errcho -e "\tInvokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
+	errcho -e "\tNote: Use quotation marks when using wildcards in the pattern to prevent bash expansion."
 	errcho -e "  -d, --gen-data=<gen-data-file>"
 	errcho -e "      --no-check"
 	errcho -e "      --no-sol-compile"
