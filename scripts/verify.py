@@ -101,7 +101,7 @@ def load_data(json_file, required_keys=()):
     return data
 
 def is_ignored(file_name):
-    return file_name.endswith('.exe') or file_name.endswith('~')
+    return any(file_name.endswith(ending) for ending in ['.exe', '.class', '~']) 
 
 def get_list_of_files(directory):
     return [file for file in os.listdir(directory) if not is_ignored(file)]
