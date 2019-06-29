@@ -55,14 +55,13 @@ function validate {
         errcho "input file ${test_name}.in is not available"
         return 4
     fi
-
-    validators="$(get_test_validator_executables "${test_name}")" || return $?
-    echo "${validators}" | while read validator; do
-        [ -z "${validator}" ] && continue
-        errcho "started $(basename ${validator}):"
-        "${validator}" < "${input}" || return $?
+	
+	get_test_validator_commands "${test_name}" | while read validator_command; do
+        [ -z "${validator_command}" ] && continue
+        errcho "starting validator command: ${validator_command}"
+        eval "${validator_command}" < "${input}" || return $?
         errcho "OK"
-    done
+    done || return $?
 }
 
 

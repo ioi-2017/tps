@@ -8,10 +8,10 @@ SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 
 
 def usage():
-    sys.stderr.write('Usage: python get_test_validators.py <test-name> <mapping-file>')
+    sys.stderr.write('Usage: python get_test_validators.py <test-name> <mapping-file>\n')
 
 
-def get_test_subtasks(mapping_file, target_test_name):
+def get_test_subtasks(target_test_name, mapping_file):
     check_file_exists(mapping_file)
     subtasks = []
     with open(mapping_file, 'r') as f:
@@ -22,29 +22,41 @@ def get_test_subtasks(mapping_file, target_test_name):
     return subtasks
 
 
-if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        usage()
 
-    test_name = sys.argv[1]
-    mapping_file = sys.argv[2]
-
-    test_subtasks = get_test_subtasks(mapping_file, test_name)
+def get_test_validators(test_name, mapping_file):
+    test_subtasks = get_test_subtasks(test_name, mapping_file)
 
     if len(test_subtasks) == 0:
         log_warning("Test '%s' is in no subtasks." % test_name)
 
     data = load_json(SUBTASKS_JSON)
-    test_validators = data.get('global_validators', [])
-
-    if len(test_validators) == 0:
+    
+    global_validators = data.get('global_validators', [])
+    
+    if len(global_validators) == 0:
         log_warning("There is no global validator for the problem.")
-
+    
+    test_validators = list(global_validators)
     for subtask in test_subtasks:
         test_validators += navigate_json(data, 'subtasks/%s' % subtask, SUBTASKS_JSON).get('validators', [])
 
-    seen = set()
+    def unify_list(l):
+        seen = []
+        for e in l:
+            if e not in seen:
+                seen.append(e)
+        return seen
+    
+    return unify_list(test_validators)
+
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        usage()
+        exit(2)
+    
+    test_validators = get_test_validators(test_name = sys.argv[1], mapping_file = sys.argv[2])
+
     for validator in test_validators:
-        if validator not in seen:
-            seen.add(validator)
-            print(validator)
+        print(validator)

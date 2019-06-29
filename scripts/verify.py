@@ -173,23 +173,40 @@ def verify_problem():
 
 
 def verify_subtasks():
-    subtasks_data = load_data(os.path.join(BASE_DIR, 'subtasks.json'), ['global_validators', 'subtasks'])
+    subtasks_data = load_data(os.path.join(BASE_DIR, 'subtasks.json'), ['subtasks'])
+    
     if subtasks_data is None:
         return None
 
-    validators = list(set(get_list_of_files(os.path.join(BASE_DIR, 'validator/'))) - {'testlib.h', 'Makefile'})
+    k_glob = 'global_validators'
+    if (k_glob not in subtasks_data):
+        error('"{}" is not present in "{}".'.format(k_glob, 'subtasks.json'))
+        return None
+    
+    validator_files = list(set(get_list_of_files(os.path.join(BASE_DIR, 'validator/'))) - {'testlib.h', 'Makefile'})
     used_validators = set()
 
-    if not isinstance(subtasks_data['global_validators'], list):
-        error('global validators is not an array')
-    else:
-        for index, validator in enumerate(subtasks_data['global_validators']):
-            if not isinstance(validator, string_types):
-                error('global validator #{} is not a string'.format(index))
-            elif validator not in validators:
-                error('{} does not exists'.format(validator))
-            else:
-                used_validators.add(validator)
+    def check_validator_key(parent, key, name, parName=None):
+        if key not in parent:
+            return
+        validators_list=parent[key]
+        parLoc = '' if parName is None else ' in "{}"'.format(parName)
+        if not isinstance(validators_list, list):
+            error('"{}" is not an array{}'.format(key, parLoc))
+            return
+        for index, validator_cmd_line in enumerate(validators_list):
+            if not isinstance(validator_cmd_line, string_types):
+                error('{} validator #{} is not a string{}'.format(name, index+1, parLoc))
+                continue
+            validator_cmd = validator_cmd_line.split(' ')[0]
+            if '.' in validator_cmd:
+                if validator_cmd not in validator_files:
+                    error('File not found for {} validator "{}"{}'.format(name, validator_cmd, parLoc))
+                else:
+                    used_validators.add(validator_cmd)
+
+    
+    check_validator_key(subtasks_data, k_glob, 'global')
 
     subtasks = subtasks_data['subtasks']
     hasSamples = False
@@ -223,20 +240,10 @@ def verify_subtasks():
         else:
             score_sum += data['score']
 
-        if 'validators' in data:
-            if not isinstance(data['validators'], list):
-                error('validators is not an array in subtask {}'.format(name))
-            else:
-                for index, validator in enumerate(data['validators']):
-                    if not isinstance(validator, string_types):
-                        error('validator #{} is not a string in subtask {}'.format(index, name))
-                    elif validator not in validators:
-                        error('{} does not exists'.format(validator))
-                    else:
-                        used_validators.add(validator)
+        check_validator_key(data, 'validators', 'subtask', name)
 
-    for unused_validator in set(validators) - used_validators:
-        warning('unused validator {}'.format(unused_validator))
+    for unused_validator in set(validator_files) - used_validators:
+        warning('Unused validator file "{}"'.format(unused_validator))
 
     if score_sum != 100:
         error('sum of scores is {}'.format(score_sum))

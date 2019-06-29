@@ -308,6 +308,17 @@ function check_file_exists {
     fi
 }
 
+function check_executable_exists {
+    file_type="$1"
+    file_path="$2"
+
+    if [ ! -x "${file_path}" ]; then
+		errcho "${file_type} '$(basename "${file_path}")' not found or not executable."
+        errcho "Given address: '${file_path}'"
+        return 4
+    fi
+}
+
 function command_exists {
     command -v "$1" >/dev/null 2>&1
 }
