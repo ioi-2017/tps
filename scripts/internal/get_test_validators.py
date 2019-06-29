@@ -32,12 +32,30 @@ def get_test_validators(test_name, mapping_file):
     data = load_json(SUBTASKS_JSON)
     
     global_validators = data.get('global_validators', [])
+    subtask_sensitive_validators = data.get('subtask_sensitive_validators', [])
     
-    if len(global_validators) == 0:
-        log_warning("There is no global validator for the problem.")
+    if len(global_validators)+len(subtask_sensitive_validators) == 0:
+        log_warning("There is no global/subtask_sensitive validator for the problem.")
+    
+    def check_subtask_sensitive_validators(subtask_sensitive_validators):
+        subtask_placeholder_var = "subtask"
+        subtask_placeholder_test_substitute = "___SUBTASK_PLACEHOLDER_SUBSTITUTE___"
+        for subtask_sensitive_validator in subtask_sensitive_validators:
+            try:
+                subtask_validator_substituted = subtask_sensitive_validator.format(**{
+                        subtask_placeholder_var : subtask_placeholder_test_substitute
+                    })
+            except KeyError as e:
+                sys.stderr.write('Subtask-sensitive validator "{}" contains unknown placeholder {{{}}}.\n'.format(subtask_sensitive_validator, e.args[0]))
+                exit(3)
+            else:
+                if subtask_placeholder_test_substitute not in subtask_validator_substituted:
+                    log_warning('Subtask-sensitive validator "{}" does not contain the subtask placeholder {{{}}}.'.format(subtask_sensitive_validator, subtask_placeholder_var))
+    check_subtask_sensitive_validators(subtask_sensitive_validators)
     
     test_validators = list(global_validators)
     for subtask in test_subtasks:
+        test_validators += [validator.format(subtask=subtask) for validator in subtask_sensitive_validators]
         test_validators += navigate_json(data, 'subtasks/%s' % subtask, SUBTASKS_JSON).get('validators', [])
 
     def unify_list(l):

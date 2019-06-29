@@ -179,8 +179,9 @@ def verify_subtasks():
         return None
 
     k_glob = 'global_validators'
-    if (k_glob not in subtasks_data):
-        error('"{}" is not present in "{}".'.format(k_glob, 'subtasks.json'))
+    k_sub = 'subtask_sensitive_validators'
+    if (k_glob not in subtasks_data) and (k_sub not in subtasks_data):
+        error('Neither "{}" nor "{}" is present in "{}".'.format(k_glob, k_sub, 'subtasks.json'))
         return None
     
     validator_files = list(set(get_list_of_files(os.path.join(BASE_DIR, 'validator/'))) - {'testlib.h', 'Makefile'})
@@ -207,6 +208,21 @@ def verify_subtasks():
 
     
     check_validator_key(subtasks_data, k_glob, 'global')
+    check_validator_key(subtasks_data, k_sub, 'subtask-sensitive')
+    
+    subtask_placeholder_var = "subtask"
+    subtask_placeholder_substitute = "___SUBTASK_PLACEHOLDER_SUBSTITUTE___"
+    for subtask_sensitive_validator in subtasks_data.get(k_sub, []):
+        try:
+            subtask_validator_substituted = subtask_sensitive_validator.format(**{
+                    subtask_placeholder_var : subtask_placeholder_substitute
+                })
+        except KeyError as e:
+            error('Subtask-sensitive validator "{}" contains unknown placeholder {{{}}}.'.format(subtask_sensitive_validator, e.args[0]))
+        else:
+            if subtask_placeholder_substitute not in subtask_validator_substituted:
+                error('Subtask-sensitive validator "{}" does not contain the subtask placeholder {{{}}}.'.format(subtask_sensitive_validator, subtask_placeholder_var))
+    
 
     subtasks = subtasks_data['subtasks']
     hasSamples = False
