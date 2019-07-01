@@ -3,6 +3,7 @@
 --model-solution=
 --test=
 --gen-data=
+--update
 --no-gen
 --no-sol
 --no-val

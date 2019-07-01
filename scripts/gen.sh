@@ -17,12 +17,18 @@ function usage {
 	errcho -e "\tGenerates test outputs using the given solution."
 	errcho -e "  -t, --test=<test-name-pattern>"
 	errcho -e "\tGenerates only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
-	errcho -e "\tNote: Use quotation marks when using wildcards in the pattern to prevent bash expansion."
+	errcho -e "\tNote: Use quotation marks when using wildcards in the pattern to prevent shell expansion."
 	errcho -e "  -d, --gen-data=<gen-data-file>"
-	errcho -e "\tSpecifies the location of test generation meta-data file to be used instead of its default location."
+	errcho -e "\tOverrides the location of meta-data file used for test generation."
+	errcho -e "  -u, --update"
+	errcho -e "\tUpdates the existing set of tests."
+	errcho -e "\tPrevents the initial cleanup of the tests directory."
+	errcho -e "\tUsed when a subset of test data needs to be generated again."
+	errcho -e "\tWarning: Use this feature only when the other tests are not needed or already generated correctly."
 	errcho -e "      --no-gen"
 	errcho -e "\tSkips running the generators for generating test inputs."
-	errcho -e "\tIt's mainly used when test inputs are already thoroughly generated and only test outputs need to be generated."
+	errcho -e "\tPrevents the initial cleanup of the tests directory."
+	errcho -e "\tUsed when test inputs are already thoroughly generated and only test outputs need to be generated."
 	errcho -e "      --no-sol"
 	errcho -e "\tSkips running the model solution for generating test outputs."
 	errcho -e "      --no-val"
@@ -36,6 +42,7 @@ function usage {
 model_solution=""
 gen_data_file="${GEN_DIR}/data"
 SENSITIVE_RUN="false"
+UPDATE_MODE="false"
 SPECIFIC_TESTS="false"
 SPECIFIED_TESTS_PATTERN=""
 SKIP_GEN="false"
@@ -59,6 +66,9 @@ function handle_option {
             ;;
         -s|--sensitive)
             SENSITIVE_RUN="true"
+            ;;
+        -u|--update)
+            UPDATE_MODE="true"
             ;;
         -d|--gen-data=*)
             fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
@@ -99,7 +109,7 @@ sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
 command_exists dos2unix || cecho yellow "WARNING: dos2unix is not available. Line endings might be incorrect."
 
-export SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_GEN SKIP_SOL SKIP_VAL
+export SENSITIVE_RUN UPDATE_MODE SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_GEN SKIP_SOL SKIP_VAL
 
 
 recreate_dir "${LOGS_DIR}"
@@ -130,8 +140,9 @@ else
 fi
 echo
 
-# TODO confirm
-if ! "${SKIP_GEN}"; then
+if "${UPDATE_MODE}" || "${SKIP_GEN}"; then
+	cecho yellow "Warning: tests directory is not cleared."
+else
     recreate_dir "${TESTS_DIR}"
 fi
 
