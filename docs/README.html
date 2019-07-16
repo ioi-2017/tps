@@ -3,32 +3,92 @@
 <head>
   <meta charset="utf-8"/>
   <title>Markdown Viewer</title>
-  <meta name="version" content="7.1">
+  <meta name="version" content="8.0">
   <link rel="stylesheet" href="assets/style.css">
   <script type="text/javascript" src="assets/libs.js"></script>
   <script type="text/javascript" src="assets/w3.js"></script>
-  <script type="text/javascript" src="prop.js"></script>
 </head>
 <body>
 
     <footer>
-  	<p id="copyright">@copyright IOI 2017</p>
-	<div class="credit" id="credit-container">
-		<div style="text-align:center;width:40%;margin-top:20px;"><a href="http://ioi2017.org/" target="_blank"><img src="assets/IOI-2017.svg" width="90%"/></a></div>
-		<div style="width:60%;">
-			<p style="font-size:14px;padding:0 15px;text-align:left;"> Credits:
-			<br /><a href="http://ioi2017.org/" target="_blank" style="font-size:20px;">IOI 2017 Iran</a>
-			<br /><span style="font-size:16px;">Host Technical Committee</span>
-			<br />Hamid Zarrabi-Zadeh<br />Ali Yadegari<br />Kian Mirjalali<br />Navid Saleh</p>
-
+		<!-- COPYRIGHT SECTION BEGIN -->
+	    <!-- 
+	    IMPORTANT:
+	    Please, do not modify the copyright section.
+	    The copyright parts of the markdown viewer software is about the technical software itself, not the markdown contents that it renders.
+	    (The copyright fragments are not rendered in printing mode.)
+		As the credit goes to the team who have put time/effort to develop the tool, their names should not be removed.
+		Based on the license, the tool can be used/distributed while respecting the copyright notice.
+		More people/organization names may be added if they also have a contribution on this tool.
+		Development repository: https://github.com/ioi-2017/markdown-viewer
+	    -->
+	  	<p id="copyright">@copyright IOI 2017</p>
+		<div class="credit" id="credit-container">
+			<div style="text-align:center;width:40%;margin-top:20px;"><a href="http://ioi2017.org/" target="_blank"><img src="assets/IOI-2017.svg" width="90%"/></a></div>
+			<div style="width:60%;">
+				<p style="font-size:14px;padding:0 15px;text-align:left;"> Credits:
+				<br /><a href="http://ioi2017.org/" target="_blank" style="font-size:20px;">IOI 2017 Iran</a>
+				<br /><span style="font-size:16px;">Host Technical Committee</span>
+				<br/>Hamid Zarrabi-Zadeh<br />Ali Yadegari<br />Kian Mirjalali<br />Navid Saleh</p>
+			</div>
 		</div>
-	    </div>
+		<!-- COPYRIGHT SECTION END -->
     </footer>
 
     <div id="main" class="markdown-body pdf">
         <div w3-include-html="header.html"></div>
         <div id="content" class="rendered_content" dir="ltr" lang="en"></div>
-	<div id="error-message" style="display: none;text-align: center; font-size: 24px;"></div>
+		<div id="error-message" style="display: none;text-align: center; font-size: 24px;">
+
+# Sorry!
+
+File "`__MD_PLACEHOLDER__`" is not available.
+
+It is either not found in the current directory or could not be opened.
+Local HTML file cannot access the markdown file (or any other files in the same directory) in modern browsers due to security reasons.
+This was possible in Firefox versions below 68. 
+
+There are now two methods to handle this:
+
+## The secure method: HTTP server setup
+
+Run a minimal HTTP server:
+
+* Using node:
+    * Install [node](https://nodejs.org).
+    * Install `http-server` by running "`npm install -g http-server`".
+    * Start the HTTP server by executing "`http-server -p 8000`" in the directory of markdown viewer.
+
+* Using python:
+    * Install [python 3](https://www.python.org/).
+    * Start the HTTP server by executing "`python -m http.server 8000`" in the directory of markdown viewer.
+  
+Then, open the markdown viewer HTML file using URL "`http://localhost:8000/__DOC_NAME_PLACEHOLDER__.html`".
+You can replace 8000 with other available port numbers.
+Note that a port number cannot be used more than once simultaneously in different servers.
+If it is not pleasant 
+  to run multiple HTTP servers with separate port numbers for rendering different markdown files in several directories,
+  you can run the HTTP server in a common parent directory,
+   and open the markdown viewer files with relative addresses,
+    e.g. "`http://localhost:8000/common/parent/path/to/__DOC_NAME_PLACEHOLDER__.html`".
+
+You can also use browser extensions like 
+  [Web Server for Chrome](https://chrome.google.com/webstore/detail/web-server-for-chrome/ofhbbkphhbklhfoeikjpcbhemlocgigb).
+  
+## The insecure method: Allow accessing local files
+
+** Warning: **
+This method makes you vulnerable to attacks from downloaded HTML documents.
+
+** Firefox: ** 
+Open "`about:config`" and accept the risk to edit the configurations.
+Search for "`privacy.file_unique_origin`" and set its value to `false`.
+
+Other work-around ideas are welcome.
+
+Contact through the issues in [the development repository](https://github.com/ioi-2017/markdown-viewer/).
+
+		</div>
     	<div w3-include-html="footer.html"></div>
     </div>
   <script>
@@ -96,18 +156,26 @@
 	var md = docName + ".md";
 	var json_ = docName + ".json";
 	
-	function readTextFile(file){
+	function renderMarkdownText(text) {
+		document.getElementById('content').innerHTML = marked(text);
+		renderMathInElement(document.getElementById('content'));
+	}
+	
+	function readTextFile(file, allowingEnv){
 	    var rawFile = new XMLHttpRequest();
 	    rawFile.open("GET", file, true);
 	    rawFile.onreadystatechange = function (){
-			if(rawFile.readyState === 4){
-			    if(rawFile.status === 200){
-			        var allText = rawFile.responseText;
-					document.getElementById('content').innerHTML = marked(allText);
-					renderMathInElement(document.getElementById('content'));
-			    }else{
-					document.getElementById("error-message").style.display = "block";
+			if (rawFile.readyState === 4) {
+			    if (rawFile.status === 200) {
+			        renderMarkdownText(rawFile.responseText);
+			    } else if (allowingEnv || (rawFile.status === 404)) {
+			    	document.getElementById("error-message").style.display = "block";
 					document.getElementById("error-message").textContent = "'" +  md + "' not found";
+				} else {
+					var message = document.getElementById("error-message").textContent;
+					message = message.replace(/__MD_PLACEHOLDER__/g, md);
+					message = message.replace(/__DOC_NAME_PLACEHOLDER__/g, docName);
+					renderMarkdownText(message);
 				}
 			}
 	    }
@@ -155,16 +223,30 @@
 		else
 			toggleCredit();
 	}, false);
-
-	//if is firefox
-	if(typeof InstallTrigger !== 'undefined'){
-		readTextFile(md);
-	}else{
-		document.getElementById("error-message").style.display = "block";
-		document.getElementById("error-message").textContent = "It only works in firefox";
+	
+	
+	function isOldFirefox() {
+		var ua = window.navigator.userAgent;
+		if (ua.toLowerCase().indexOf('firefox') <= -1)
+			return false;
+		var uamatch = ua.match(/Firefox\/([0-9]+)\./);
+		var ver = uamatch ? parseInt(uamatch[1]) : 0;
+		return (ver < 68);
 	}
+	
+	function isLocalFile() {
+		var url = window.location.href.split("/")[0];
+		return (url == "file:");
+	}
+	
+	readTextFile(md, !isLocalFile() || isOldFirefox());
 	
 	readJsonProp(json_);
   </script>
 </body>
+
+<!-- 
+
+
+ -->
 </html>
