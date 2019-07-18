@@ -34,9 +34,6 @@ def get_test_validators(test_name, mapping_file):
     global_validators = data.get('global_validators', [])
     subtask_sensitive_validators = data.get('subtask_sensitive_validators', [])
     
-    if len(global_validators)+len(subtask_sensitive_validators) == 0:
-        log_warning("There is no global/subtask_sensitive validator for the problem.")
-    
     def check_subtask_sensitive_validators(subtask_sensitive_validators):
         subtask_placeholder_var = "subtask"
         subtask_placeholder_test_substitute = "___SUBTASK_PLACEHOLDER_SUBSTITUTE___"
@@ -57,7 +54,10 @@ def get_test_validators(test_name, mapping_file):
     for subtask in test_subtasks:
         test_validators += [validator.format(subtask=subtask) for validator in subtask_sensitive_validators]
         test_validators += navigate_json(data, 'subtasks/%s' % subtask, SUBTASKS_JSON).get('validators', [])
-
+    
+    if len(test_validators) == 0:
+        log_warning("There is no validator for test {}.".format(test_name))
+    
     def unify_list(l):
         seen = []
         for e in l:
