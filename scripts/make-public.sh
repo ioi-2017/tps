@@ -88,6 +88,9 @@ while read raw_line; do
 		errcho "Secret found in '${file}'"
 		exit 1
 	fi
+	if [ "${file: -3}" == ".sh" ]; then
+		chmod +x "${file}"
+	fi
 done < "${public_files}"
 
 rm -f "${attachment_name}"
