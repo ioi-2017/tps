@@ -96,9 +96,9 @@ if ! is_in "${sol_status}" "FAIL" "SKIP"; then
             verdict="Judge Failure"
             reason="checker exited with code ${ret}"
         else
-            score="$(sed -n 1p "${LOGS_DIR}/${check_job}.out")"
-            verdict="$(sed -n 1p "${LOGS_DIR}/${check_job}.err")"
-            reason="$(sed -n 2p "${LOGS_DIR}/${check_job}.err")"
+        	checker_stdout="${LOGS_DIR}/${check_job}.out"
+        	checker_stderr="${LOGS_DIR}/${check_job}.err"
+        	source "${TEMPLATES}/checker_result.sh"
         fi
     fi
 fi
