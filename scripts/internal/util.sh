@@ -375,7 +375,7 @@ function argument_parser {
             "${handle_option_callback}"
         elif [[ "${curr}" == -* ]]; then
             if [ "${#curr}" == 1 ]; then
-                invalid_argument "invalid argument"
+                invalid_arg "invalid argument"
             else
                 temp="${curr#-}"
                 while [ ! -z "${temp}" ]; do
