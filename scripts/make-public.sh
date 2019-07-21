@@ -121,7 +121,7 @@ done < $public_files | zip -@ "${attachment_name}"
 
 popd > /dev/null
 
-mv "${PUBLIC_DIR}/${attachment_name}" .
+mv "${PUBLIC_DIR}/${attachment_name}" "${BASE_DIR}/"
 
 cecho yellow "Created attachment '${attachment_name}'."
 
