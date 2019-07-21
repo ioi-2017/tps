@@ -43,6 +43,8 @@ function replace_tokens {
 	sed -e "s/PROBLEM_NAME_PLACE_HOLDER/${PROBLEM_NAME}/g"
 }
 
+sensitive check_file_exists "Public package description file" "${public_files}"
+
 pushd "${PUBLIC_DIR}" > /dev/null
 
 while read raw_line; do
