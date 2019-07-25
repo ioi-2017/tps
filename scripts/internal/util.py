@@ -1,18 +1,15 @@
 import sys
 import os
 import json
-import subprocess
 
 
-def run_bash_command(command):
-    p = None
+def wait_process_success(proc):
     try:
-        p = subprocess.Popen(' '.join(command), shell=True)
-        ret = p.wait()
+        ret = proc.wait()
         if ret != 0:
             exit(ret)
     except KeyboardInterrupt:
-        p.terminate()
+        proc.terminate()
         sys.stderr.write('[Interrupted]\n')
         exit(130)
 

@@ -1,7 +1,8 @@
 import sys
 import os
+import subprocess
 
-from util import load_json, run_bash_command
+from util import load_json, wait_process_success
 from gen_data_parser import DataVisitor, parse_data, check_test_pattern_exists, test_name_matches_pattern
 
 
@@ -19,7 +20,7 @@ class InvokingVisitor(DataVisitor):
                 os.path.join(INTERNALS_DIR, 'invoke_test.sh'),
                 test_name,
             ]
-            run_bash_command(command)
+            wait_process_success(subprocess.Popen(command))
 
 if __name__ == '__main__':
     task_data = load_json(PROBLEM_JSON)

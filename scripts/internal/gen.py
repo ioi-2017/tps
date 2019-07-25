@@ -1,8 +1,9 @@
 import sys
 import os
 from collections import defaultdict
+import subprocess
 
-from util import load_json, run_bash_command
+from util import load_json, wait_process_success
 from gen_data_parser import DataVisitor, parse_data, data_parse_error, check_test_pattern_exists, test_name_matches_pattern
 
 
@@ -63,13 +64,13 @@ class MappingVisitor(DataVisitor):
 class GeneratingVisitor(DataVisitor):
     def on_test(self, testset_name, test_name, line, line_number):
         if SPECIFIC_TESTS == "false" or test_name_matches_pattern(test_name, SPECIFIED_TESTS_PATTERN):
-            command = [
-                'bash',
-                os.path.join(INTERNALS_DIR, 'gen_test.sh'),
-                test_name,
-                line,
-            ]
-            run_bash_command(command)
+            command = ' '.join([
+                        'bash',
+                        os.path.join(INTERNALS_DIR, 'gen_test.sh'),
+                        test_name,
+                        line,
+                    ])
+            wait_process_success(subprocess.Popen(command, shell=True))
 
 
 if __name__ == '__main__':
