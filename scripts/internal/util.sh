@@ -263,27 +263,45 @@ function hspace {
     printf "%$1s" ""
 }
 
-function check_file_exists {
-    file_type="$1"
-    file_path="$2"
 
-    if [ ! -f "${file_path}" ]; then
-        errcho "${file_type} '$(basename "${file_path}")' not found."
+function check_any_type_file_exists {
+    test_flag="$1"; shift
+    the_problem="$1"; shift
+    file_title="$1"; shift
+    file_path="$1"; shift
+    error_prefix=""
+    if [[ "$#" > 0 ]] ; then
+		error_prefix="$1"; shift
+	fi
+
+    if [ ! -e "${file_path}" ]; then
+    	errcho -ne "${error_prefix}"
+        errcho "${file_title} '$(basename "${file_path}")' not found."
         errcho "Given address: '${file_path}'"
         return 4
     fi
+    
+    if [ ! "$test_flag" "${file_path}" ]; then
+    	errcho -n "${error_prefix}"
+        errcho "${file_title} '$(basename "${file_path}")' ${the_problem}."
+        errcho "Given address: '${file_path}'"
+        return 4
+    fi
+}
+
+#usage: check_file_exists <file-title> <file-path> [<error-prefix>]
+function check_file_exists {
+	check_any_type_file_exists -f "is not a regular file" "$@"
+}
+
+function check_directory_exists {
+	check_any_type_file_exists -d "is not a directory" "$@"
 }
 
 function check_executable_exists {
-    file_type="$1"
-    file_path="$2"
-
-    if [ ! -x "${file_path}" ]; then
-		errcho "${file_type} '$(basename "${file_path}")' not found or not executable."
-        errcho "Given address: '${file_path}'"
-        return 4
-    fi
+	check_any_type_file_exists -x "is not executable" "$@"
 }
+
 
 function command_exists {
     command -v "$1" >/dev/null 2>&1
