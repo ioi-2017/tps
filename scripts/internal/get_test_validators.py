@@ -9,6 +9,7 @@ SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 
 def usage():
     sys.stderr.write('Usage: python get_test_validators.py <test-name> <mapping-file>\n')
+    exit(2)
 
 
 def get_test_subtasks(target_test_name, mapping_file):
