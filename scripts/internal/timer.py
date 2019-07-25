@@ -20,11 +20,6 @@ def kill_proc_tree(pid, including_parent=True):
     psutil.wait_procs(procs, timeout=1)
 
 
-def usage():
-    sys.stderr.write('Usage: python timer.py <soft-time-limit> <hard-time-limit> <output-file> <command...>\n')
-    exit(2)
-
-
 def terminate(data):
     data["terminated"] = True
     kill_proc_tree(data["process"].pid)
@@ -51,9 +46,11 @@ def timer(time_limit, command):
 
     return data
 
+
 if __name__ == '__main__':
     if len(sys.argv) < 5:
-        usage()
+        from util import simple_usage_message
+        simple_usage_message("<soft-time-limit> <hard-time-limit> <output-file> <command...>")
 
     soft_time_limit = float(sys.argv[1])
     hard_time_limit = float(sys.argv[2])

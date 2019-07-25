@@ -8,11 +8,6 @@ from json_extract import navigate_json
 SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 
 
-def usage():
-    sys.stderr.write('Usage: python get_test_validators.py <test-name> <mapping-file>\n')
-    exit(2)
-
-
 def get_test_subtasks(target_test_name, mapping_file):
     check_file_exists(mapping_file)
     subtasks = []
@@ -73,8 +68,8 @@ def get_test_validators(test_name, mapping_file):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        usage()
-        exit(2)
+        from util import simple_usage_message
+        simple_usage_message("<test-name> <mapping-file>")
     
     test_validators = get_test_validators(test_name = sys.argv[1], mapping_file = sys.argv[2])
 

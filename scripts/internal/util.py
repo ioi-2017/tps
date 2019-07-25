@@ -3,6 +3,11 @@ import os
 import json
 
 
+def simple_usage_message(arguments_text):
+    sys.stderr.write('Usage: python {} {}\n'.format(os.path.basename(sys.argv[0]), arguments_text))
+    exit(2)
+
+
 def wait_process_success(proc):
     try:
         ret = proc.wait()

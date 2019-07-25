@@ -4,11 +4,6 @@ import os
 from util import load_json
 
 
-def usage():
-    sys.stderr.write('Usage: python json_extract.py <json-file> <json-path>\n')
-    exit(2)
-
-
 def navigate_json(data, path, json_file_name):
     for part in path.split('/'):
         if part == '.':
@@ -32,7 +27,8 @@ def navigate_json_file(file, path):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        usage()
+        from util import simple_usage_message
+        simple_usage_message("<json-file> <json-path>")
 
     json_file = sys.argv[1]
     json_path = sys.argv[2]

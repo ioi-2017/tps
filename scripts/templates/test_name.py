@@ -9,9 +9,9 @@ def get_test_name(task_data, testset_name, testset_index, subtask_index, test_in
 
 if __name__ == '__main__':
     if len(sys.argv) < 8:
-        sys.stderr.write("Usage: python test_name.py <task_data file (problem.json)> <testset_name> " +
+        from util import simple_usage_message
+        simple_usage_message("<task_data file (problem.json)> <testset_name> " +
                          "<testset_index> <subtask_index> <test_index> <test_offset> <gen_arguments...>")
-        exit(2)
 
     from util import load_json
     task_data = load_json(sys.argv[1])
