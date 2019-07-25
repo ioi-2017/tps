@@ -63,10 +63,12 @@ class MappingVisitor(DataVisitor):
 
 class GeneratingVisitor(DataVisitor):
     def on_test(self, testset_name, test_name, line, line_number):
+        global tests_dir
         if SPECIFIC_TESTS == "false" or test_name_matches_pattern(test_name, SPECIFIED_TESTS_PATTERN):
             command = ' '.join([
                         'bash',
                         os.path.join(INTERNALS_DIR, 'gen_test.sh'),
+                        tests_dir,
                         test_name,
                         line,
                     ])
@@ -74,6 +76,16 @@ class GeneratingVisitor(DataVisitor):
 
 
 if __name__ == '__main__':
+    
+    if len(sys.argv) != 4:
+        from util import simple_usage_message
+        simple_usage_message("<tests-dir> <mapping-file> <gen-summary-file>")
+    
+    global tests_dir
+    tests_dir = sys.argv[1]
+    mapping_file = sys.argv[2]
+    gen_summary_file = sys.argv[3]
+    
     task_data = load_json(PROBLEM_JSON)
     gen_data = sys.stdin.readlines()
 
@@ -82,12 +94,12 @@ if __name__ == '__main__':
 
     summary_visitor = SummaryVisitor()
     parse_data(gen_data, task_data, summary_visitor)
-    with open(sys.argv[2], 'w') as f:
+    with open(gen_summary_file, 'w') as f:
         summary_visitor.print_summary(f)
     
     mapping_visitor = MappingVisitor()
     parse_data(gen_data, task_data, mapping_visitor)
-    with open(sys.argv[1], 'w') as f:
+    with open(mapping_file, 'w') as f:
         mapping_visitor.print_mapping(f)
 
     parse_data(gen_data, task_data, GeneratingVisitor())

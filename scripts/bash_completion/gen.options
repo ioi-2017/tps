@@ -1,9 +1,10 @@
 --help
 --sensitive
---model-solution=
---test=
---gen-data=
 --update
+--test=
+--model-solution=
+--gen-data=
+--tests-dir=
 --no-gen
 --no-sol
 --no-val

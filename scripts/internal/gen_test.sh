@@ -5,12 +5,13 @@ set -euo pipefail
 source "${INTERNALS}/util.sh"
 source "${INTERNALS}/problem_util.sh"
 
+tests_dir="$1"; shift
 test_name="$1"; shift
 command="$1"; shift
 args="$@"
 
-input="${TESTS_DIR}/${test_name}.in"
-output="${TESTS_DIR}/${test_name}.out"
+input="${tests_dir}/${test_name}.in"
+output="${tests_dir}/${test_name}.out"
 
 function gen_input {
     temp_input=${input}.tmp
@@ -56,7 +57,7 @@ function validate {
         return 4
     fi
 	
-	get_test_validator_commands "${test_name}" | while read validator_command; do
+	get_test_validator_commands "${tests_dir}" "${test_name}" | while read validator_command; do
         [ -z "${validator_command}" ] && continue
         errcho "starting validator command: ${validator_command}"
         eval "${validator_command}" < "${input}" || return $?

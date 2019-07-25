@@ -9,26 +9,40 @@ source "${INTERNALS}/problem_util.sh"
 function usage {
 	errcho "Usage: <invoke> [options] <solution-path>"
 	errcho "Options:"
+
 	errcho -e "  -h, --help"
+
 	errcho -e "  -s, --sensitive"
 	errcho -e "\tTerminates on the first error."
+
 	errcho -e "  -r, --show-reason"
 	errcho -e "\tDisplays the reason for not being accepted, e.g. checker output"
+
 	errcho -e "  -t, --test=<test-name-pattern>"
 	errcho -e "\tInvokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
 	errcho -e "\tNote: Use quotation marks when using wildcards in the pattern to prevent bash expansion."
+
 	errcho -e "  -d, --gen-data=<gen-data-file>"
+
+	errcho -e "      --tests-dir=<tests-directory-path>"
+	errcho -e "\tOverrides the location of the tests directory"
+
 	errcho -e "      --no-check"
+
 	errcho -e "      --no-sol-compile"
+
 	errcho -e "      --no-tle"
+
 	errcho -e "      --time-limit=<time-limit>"
 	errcho -e "\tGiven in seconds, e.g. --time-limit=1.2 means 1.2 seconds"
+
 	errcho -e "      --hard-time-limit=<hard-time-limit>"
 	errcho -e "\tSolution code will be killed after <hard-time-limit> seconds,"
 	errcho -e "\t\tdefaults to <time-limit> + 2"
 }
 
 
+tests_dir="${TESTS_DIR}"
 gen_data_file="${GEN_DIR}/data"
 SHOW_REASON="false"
 SENSITIVE_RUN="false"
@@ -45,33 +59,36 @@ function handle_option {
             usage
             exit 0
             ;;
-        -t|--test=*)
-            fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
-            SPECIFIC_TESTS="true"
-            ;;
         -s|--sensitive)
             SENSITIVE_RUN="true"
-            ;;
-        -d|--gen-data=*)
-            fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
             ;;
         -r|--show-reason)
             SHOW_REASON="true"
             ;;
-        --no-sol-compile)
-            skip_compile_sol="true"
+        -t|--test=*)
+            fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
+            SPECIFIC_TESTS="true"
+            ;;
+        -d|--gen-data=*)
+            fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
+            ;;
+        --tests-dir=*)
+            fetch_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
             ;;
         --no-check)
             SKIP_CHECK="true"
+            ;;
+        --no-sol-compile)
+            skip_compile_sol="true"
+            ;;
+        --no-tle)
+            SOFT_TL=$((24*60*60))
             ;;
         --time-limit=*)
             fetch_arg_value "SOFT_TL" "-@" "--time-limit" "soft time limit"
             ;;
         --hard-time-limit=*)
             fetch_arg_value "HARD_TL" "-@" "--hard-time-limit" "hard time limit"
-            ;;
-        --no-tle)
-            SOFT_TL=$((24*60*60))
             ;;
         *)
             invalid_arg "undefined option"
@@ -122,8 +139,8 @@ if ! check_float "${HARD_TL}"; then
 fi
 
 sensitive check_file_exists "Solution file" "${solution}"
-
 sensitive check_file_exists "Generation data file" "${gen_data_file}"
+sensitive check_directory_exists "Tests directory" "${tests_dir}"
 
 export SHOW_REASON SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_CHECK SOFT_TL HARD_TL
 
@@ -149,7 +166,7 @@ fi
 echo
 
 ret=0
-python "${INTERNALS}/invoke.py" < "${gen_data_file}" || ret=$?
+python "${INTERNALS}/invoke.py" "${tests_dir}" < "${gen_data_file}" || ret=$?
 
 
 echo

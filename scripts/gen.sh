@@ -9,30 +9,43 @@ source "${INTERNALS}/problem_util.sh"
 function usage {
 	errcho "Usage: <gen> [options]"
 	errcho "Options:"
+
 	errcho -e "  -h, --help"
 	errcho -e "\tShows this help."
+
 	errcho -e "  -s, --sensitive"
 	errcho -e "\tTerminates on the first error."
-	errcho -e "  -m, --model-solution=<model-solution-path>"
-	errcho -e "\tGenerates test outputs using the given solution."
-	errcho -e "  -t, --test=<test-name-pattern>"
-	errcho -e "\tGenerates only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
-	errcho -e "\tNote: Use quotation marks when using wildcards in the pattern to prevent shell expansion."
-	errcho -e "  -d, --gen-data=<gen-data-file>"
-	errcho -e "\tOverrides the location of meta-data file used for test generation."
+
 	errcho -e "  -u, --update"
 	errcho -e "\tUpdates the existing set of tests."
 	errcho -e "\tPrevents the initial cleanup of the tests directory."
 	errcho -e "\tUsed when a subset of test data needs to be generated again."
 	errcho -e "\tWarning: Use this feature only when the other tests are not needed or already generated correctly."
+
+	errcho -e "  -t, --test=<test-name-pattern>"
+	errcho -e "\tGenerates only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
+	errcho -e "\tNote: Use quotation marks when using wildcards in the pattern to prevent shell expansion."
+
+	errcho -e "  -m, --model-solution=<model-solution-path>"
+	errcho -e "\tGenerates test outputs using the given solution."
+
+	errcho -e "  -d, --gen-data=<gen-data-file>"
+	errcho -e "\tOverrides the location of meta-data file used for test generation."
+
+	errcho -e "      --tests-dir=<tests-directory-path>"
+	errcho -e "\tOverrides the location of the tests directory"
+
 	errcho -e "      --no-gen"
 	errcho -e "\tSkips running the generators for generating test inputs."
 	errcho -e "\tPrevents the initial cleanup of the tests directory."
 	errcho -e "\tUsed when test inputs are already thoroughly generated and only test outputs need to be generated."
+
 	errcho -e "      --no-sol"
 	errcho -e "\tSkips running the model solution for generating test outputs."
+
 	errcho -e "      --no-val"
 	errcho -e "\tSkips validating test inputs."
+
 	errcho -e "      --no-sol-compile"
 	errcho -e "\tSkips compiling the model solution."
 	errcho -e "\tUses the solution already compiled and available in the sandbox."
@@ -40,6 +53,7 @@ function usage {
 
 
 model_solution=""
+tests_dir="${TESTS_DIR}"
 gen_data_file="${GEN_DIR}/data"
 SENSITIVE_RUN="false"
 UPDATE_MODE="false"
@@ -57,6 +71,12 @@ function handle_option {
             usage
             exit 0
             ;;
+        -s|--sensitive)
+            SENSITIVE_RUN="true"
+            ;;
+        -u|--update)
+            UPDATE_MODE="true"
+            ;;
         -t|--test=*)
             fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
             SPECIFIC_TESTS="true"
@@ -64,17 +84,11 @@ function handle_option {
         -m|--model-solution=*)
             fetch_arg_value "model_solution" "-m" "--model-solution" "solution path"
             ;;
-        -s|--sensitive)
-            SENSITIVE_RUN="true"
-            ;;
-        -u|--update)
-            UPDATE_MODE="true"
-            ;;
         -d|--gen-data=*)
             fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
             ;;
-        --no-sol-compile)
-            skip_compile_sol="true"
+        --tests-dir=*)
+            fetch_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
             ;;
         --no-gen)
             SKIP_GEN="true"
@@ -84,6 +98,9 @@ function handle_option {
             ;;
         --no-val)
             SKIP_VAL="true"
+            ;;
+        --no-sol-compile)
+            skip_compile_sol="true"
             ;;
         *)
             invalid_arg "undefined option"
@@ -104,6 +121,10 @@ if ! "${SKIP_SOL}"; then
 
 	sensitive check_file_exists "Solution file" "${model_solution}"
 fi
+
+
+gen_summary_file="${tests_dir}/${GEN_SUMMARY_FILE_NAME}"
+mapping_file="${tests_dir}/${MAPPING_FILE_NAME}"
 
 sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
@@ -143,11 +164,11 @@ echo
 if "${UPDATE_MODE}" || "${SKIP_GEN}"; then
 	cecho yellow "Warning: tests directory is not cleared."
 else
-    recreate_dir "${TESTS_DIR}"
+    recreate_dir "${tests_dir}"
 fi
 
 ret=0
-python "${INTERNALS}/gen.py" "${MAPPING_FILE}" "${GEN_SUMMARY_FILE}" < "${gen_data_file}" || ret=$?
+python "${INTERNALS}/gen.py" "${tests_dir}" "${mapping_file}" "${gen_summary_file}" < "${gen_data_file}" || ret=$?
 
 
 echo

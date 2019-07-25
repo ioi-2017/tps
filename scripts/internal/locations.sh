@@ -16,8 +16,8 @@ GEN_DIR="${BASE_DIR}/gen"
 GEN_DATA="${GEN_DIR}/data"
 
 TESTS_DIR="${BASE_DIR}/tests"
-MAPPING_FILE="${TESTS_DIR}/mapping"
-GEN_SUMMARY_FILE="${TESTS_DIR}/gen_summary"
+MAPPING_FILE_NAME="mapping"
+GEN_SUMMARY_FILE_NAME="gen_summary"
 
 VALIDATOR_DIR="${BASE_DIR}/validator"
 CHECKER_DIR="${BASE_DIR}/checker"

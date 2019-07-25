@@ -4,10 +4,11 @@ set -euo pipefail
 
 source "${INTERNALS}/util.sh"
 
+tests_dir="$1"; shift
 test_name="$1"; shift
 
-input="${TESTS_DIR}/${test_name}.in"
-judge_answer="${TESTS_DIR}/${test_name}.out"
+input="${tests_dir}/${test_name}.in"
+judge_answer="${tests_dir}/${test_name}.out"
 sol_output="${SANDBOX}/${test_name}.out"
 
 function run_solution {
