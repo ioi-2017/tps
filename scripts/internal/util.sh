@@ -76,50 +76,16 @@ function is_web {
     [ "${WEB_TERMINAL}" == "true" ]
 }
 
-function term_color_support {
-    test -t 1 || return 1
-    ncolors=$(tput colors)
-    test -n "${ncolors}" || return 1
-    test ${ncolors} -ge 8 || return 1
-}
-
-term_color_reset="\033[00m"
-term_color_green="\033[32m"
-term_color_red="\033[31m"
-term_color_yellow="\033[033m"
-term_color_purple="\033[35m"
-term_color_blue="\033[34m"
-term_color_gray="\033[02;37m"
-
-function linux_cecho {
-	color="$1"
-	shift
-	if term_color_support || is_web; then
-	    color_var="term_color_${color}"
-	    echo -en "${!color_var}"
-	    echo "$@"
-	    echo -en "${term_color_reset}"
-	else
-	    echo "$@"
-	fi
-}
-
-function win_cecho {
-    color="$1"; shift
-    echo "$@"
-}
 
 #'echo's with the given color
 #examples:
 # cecho green this is a text
+# cecho warn this is a text with semantic color 'warn'
 # cecho red -n this is a text with no new line
 
 function cecho {
-    if is_windows; then
-        win_cecho "$@"
-    else
-        linux_cecho "$@"
-    fi
+    color="$1"; shift
+    echo "$@" | python "${INTERNALS}/colored_cat.py" "${color}"
 }
 
 function boxed_echo {
@@ -139,11 +105,11 @@ function echo_status {
     status="$1"
 
     case "${status}" in
-        OK) color=green ;;
-        FAIL) color=red ;;
-        WARN) color=yellow ;;
-        SKIP) color=gray ;;
-        *) color=purple ;;
+        OK) color=ok ;;
+        FAIL) color=fail ;;
+        WARN) color=warn ;;
+        SKIP) color=skipped ;;
+        *) color=other ;;
     esac
 
     boxed_echo "${color}" "${status}"
@@ -153,12 +119,12 @@ function echo_verdict {
     verdict="$1"
 
     case "${verdict}" in
-        Correct) color=green ;;
-        Partial*) color=yellow ;;
-        Wrong*|Runtime*) color=red ;;
+        Correct) color=ok ;;
+        Partial*) color=warn ;;
+        Wrong*|Runtime*) color=error ;;
         Time*) color=blue ;;
-        Unknown) color=gray ;;
-        *) color=purple ;;
+        Unknown) color=ignored ;;
+        *) color=other ;;
     esac
 
     boxed_echo "${color}" "${verdict}"

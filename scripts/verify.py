@@ -5,6 +5,7 @@ import os
 import json
 import subprocess
 
+from color_util import colored, cprint, colors
 
 BASE_DIR = os.environ.get('BASE_DIR')
 PROBLEM_NAME = os.environ.get('PROBLEM_NAME')
@@ -42,22 +43,17 @@ if sys.version_info >= (3,):
 else:
     string_types = (str, unicode)
 
-GREEN = '\033[32m'
-YELLOW = '\033[33m'
-RED = '\033[31m'
-ENDC = '\033[00m'
-
 errors = []
 warnings = []
 namespace = ''
 
 
 def error(description):
-    errors.append(RED + 'ERROR: {} - {}'.format(namespace, description) + ENDC)
+    errors.append('ERROR: {} - {}'.format(namespace, description))
 
 
 def warning(description):
-    warnings.append(YELLOW + 'WARNING: {} - {}'.format(namespace, description) + ENDC)
+    warnings.append('WARNING: {} - {}'.format(namespace, description))
 
 
 def check_keys(data, required_keys, json_name=None):
@@ -358,16 +354,16 @@ def verify():
         verify_existence(manager_necessary_files)
 
     for error in errors:
-        sys.stdout.write("%s\n" % error)
+        cprint(colors.ERROR, error)
 
     if not errors:
         if warnings:
-            sys.stdout.write("%sverified %sbut there are some warnings\n" % (YELLOW, ENDC))
+            print(colored(colors.WARN, "verified,") + " but there are some warnings.")
         else:
-            sys.stdout.write("%sverified.%s\n" % (GREEN, ENDC))
+            cprint(colors.OK, "verified.")
 
     for warning in warnings:
-        sys.stdout.write("%s\n" % warning)
+        cprint(colors.WARN, warning)
 
 
 if __name__ == "__main__":
