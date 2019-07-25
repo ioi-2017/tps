@@ -17,6 +17,9 @@ WEB_TERMINAL = os.environ.get('WEB_TERMINAL')
 java_enabled = True
 pascal_enabled = False
 
+git_enabled = True
+git_remote_name = "origin"
+
 valid_problem_types = ('Batch', 'Communication', 'OutputOnly', 'TwoSteps')
 model_solution_verdict = 'model_solution'
 valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error', 'partially_correct')
@@ -108,15 +111,38 @@ def verify_problem():
     if problem is None:
         return problem
 
-    if not isinstance(problem['name'], string_types):
-        error('name is not a string')
-    elif WEB_TERMINAL is None or WEB_TERMINAL != "true":
-        # TODO check if git is available
-        # TODO handle it with less bash
-        git_origin_name = subprocess.check_output('bash -c "basename $(git config --local remote.origin.url)"', shell=True).strip().decode('utf-8')[:-4]
-        if problem['name'] != git_origin_name:
+    def check_problem_name(prob_name):
+        if not isinstance(prob_name, string_types):
+            error('name is not a string')
+            return
+        if not git_enabled or WEB_TERMINAL == "true":
+            return
+        try:
+            subprocess.check_output(["git", "--version"], stderr=subprocess.STDOUT)
+        except:
+            warning('git command is not available')
+            return
+        try:
+            subprocess.check_output(["git", "status"], stderr=subprocess.STDOUT)
+        except:
+            warning('not a git repository')
+            return
+        try:
+            git_main_remote_url = subprocess.check_output(["git", "config", "--local", "remote.{}.url".format(git_remote_name)], stderr=subprocess.STDOUT).strip().decode('utf-8')
+            if '/' not in git_main_remote_url:
+                warning('invalid syntax in git remote url: "{}"'.format(git_main_remote_url))
+                return
+            git_main_remote_name = os.path.basename(git_main_remote_url)
+            if git_main_remote_name.endswith(".git"):
+                git_main_remote_name = git_main_remote_name[:-4]
+        except:
+            warning('could not get git remote url for "{}"'.format(git_remote_name))
+            return
+        if prob_name != git_main_remote_name:
             warning('problem name and git project name are not the same')
-
+    
+    check_problem_name(problem['name'])
+    
     if not isinstance(problem['title'], string_types):
         error('title is not a string')
 
