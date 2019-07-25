@@ -1,8 +1,9 @@
-import os
 import sys
+import os
 
-from json_extract import navigate_json
 from util import check_file_exists, load_json, log_warning
+from json_extract import navigate_json
+
 
 SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 

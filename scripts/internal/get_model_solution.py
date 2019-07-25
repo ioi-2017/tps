@@ -1,7 +1,8 @@
-import os
 import sys
+import os
 
 from util import load_json
+
 
 SOLUTIONS_JSON = os.environ.get('SOLUTIONS_JSON')
 

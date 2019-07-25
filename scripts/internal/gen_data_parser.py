@@ -1,7 +1,9 @@
-import os
 import sys
+import os
 import fnmatch
+
 from test_name import get_test_name
+
 
 line_number = 0
 

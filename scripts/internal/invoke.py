@@ -1,8 +1,8 @@
-import os
 import sys
+import os
 
-from gen_data_parser import DataVisitor, parse_data, check_test_pattern_exists, test_name_matches_pattern
 from util import load_json, run_bash_command
+from gen_data_parser import DataVisitor, parse_data, check_test_pattern_exists, test_name_matches_pattern
 
 
 PROBLEM_JSON = os.environ.get('PROBLEM_JSON')

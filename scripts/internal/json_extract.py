@@ -1,5 +1,5 @@
-import os
 import sys
+import os
 
 from util import load_json
 

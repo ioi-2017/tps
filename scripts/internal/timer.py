@@ -1,8 +1,9 @@
+import sys
+import os
 import datetime
 import subprocess
-import sys
 from threading import Timer
-import os
+
 
 try:
     import psutil

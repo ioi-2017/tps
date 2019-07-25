@@ -1,7 +1,9 @@
-import os
 import sys
+import os
+
 from util import load_json
 from gen_data_parser import TestsVisitor, parse_data 
+
 
 PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
 

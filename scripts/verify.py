@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-import json
+import sys
 import os
+import json
 import subprocess
 
-import sys
 
 BASE_DIR = os.environ.get('BASE_DIR')
 PROBLEM_NAME = os.environ.get('PROBLEM_NAME')

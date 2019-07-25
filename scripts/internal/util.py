@@ -1,8 +1,7 @@
-import json
-import os
-import subprocess
-
 import sys
+import os
+import json
+import subprocess
 
 
 def run_bash_command(command):
