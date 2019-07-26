@@ -8,9 +8,12 @@ source "${INTERNALS}/util.sh"
 function usage {
     errcho "Usage: <compile> [options] <solution-path>"
     errcho "Options:"
+
     errcho -e "  -h, --help"
+	errcho -e "\tShows this help."
+
     errcho -e "  -p, --public"
-    errcho -e "\tCompile using public graders"
+    errcho -e "\tUses the public graders for compiling the solution."
 }
 
 if "${HAS_GRADER}"; then

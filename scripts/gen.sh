@@ -14,7 +14,7 @@ function usage {
 	errcho -e "\tShows this help."
 
 	errcho -e "  -s, --sensitive"
-	errcho -e "\tTerminates on the first error."
+	errcho -e "\tTerminates on the first error and shows the error details."
 
 	errcho -e "  -u, --update"
 	errcho -e "\tUpdates the existing set of tests."
@@ -24,7 +24,7 @@ function usage {
 
 	errcho -e "  -t, --test=<test-name-pattern>"
 	errcho -e "\tGenerates only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
-	errcho -e "\tNote: Use quotation marks when using wildcards in the pattern to prevent shell expansion."
+	errcho -e "\tNote: Use quotation marks or escaping (with '\\') when using wildcards in the pattern to prevent shell expansion."
 
 	errcho -e "  -m, --model-solution=<model-solution-path>"
 	errcho -e "\tGenerates test outputs using the given solution."
@@ -33,7 +33,7 @@ function usage {
 	errcho -e "\tOverrides the location of meta-data file used for test generation."
 
 	errcho -e "      --tests-dir=<tests-directory-path>"
-	errcho -e "\tOverrides the location of the tests directory"
+	errcho -e "\tOverrides the location of the tests directory."
 
 	errcho -e "      --no-gen"
 	errcho -e "\tSkips running the generators for generating test inputs."

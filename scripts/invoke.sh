@@ -11,32 +11,40 @@ function usage {
 	errcho "Options:"
 
 	errcho -e "  -h, --help"
+	errcho -e "\tShows this help."
 
 	errcho -e "  -s, --sensitive"
-	errcho -e "\tTerminates on the first error."
+	errcho -e "\tTerminates on the first error and shows the error details."
 
 	errcho -e "  -r, --show-reason"
-	errcho -e "\tDisplays the reason for not being accepted, e.g. checker output"
+	errcho -e "\tDisplays the reason for not being correct."
+	errcho -e "\tThe checker message is written in the case of wrong answer."
 
 	errcho -e "  -t, --test=<test-name-pattern>"
 	errcho -e "\tInvokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
-	errcho -e "\tNote: Use quotation marks when using wildcards in the pattern to prevent bash expansion."
+	errcho -e "\tNote: Use quotation marks or escaping (with '\\') when using wildcards in the pattern to prevent shell expansion."
 
 	errcho -e "      --tests-dir=<tests-directory-path>"
 	errcho -e "\tOverrides the location of the tests directory"
 
 	errcho -e "      --no-check"
+	errcho -e "\tSkips running the checker on solution outputs."
 
 	errcho -e "      --no-sol-compile"
+	errcho -e "\tSkips compiling the solution."
+	errcho -e "\tUses the solution already compiled and available in the sandbox."
 
 	errcho -e "      --no-tle"
+	errcho -e "\tRemoves the default time limit on the execution of the solution."
+	errcho -e "\tActually, a limit of 24 hours is applied."
 
 	errcho -e "      --time-limit=<time-limit>"
+	errcho -e "\tOverrides the time limit on the solution execution."
 	errcho -e "\tGiven in seconds, e.g. --time-limit=1.2 means 1.2 seconds"
 
 	errcho -e "      --hard-time-limit=<hard-time-limit>"
-	errcho -e "\tSolution code will be killed after <hard-time-limit> seconds,"
-	errcho -e "\t\tdefaults to <time-limit> + 2"
+	errcho -e "\tSolution process will be killed after <hard-time-limit> seconds."
+	errcho -e "\tDefaults to <time-limit> + 2."
 }
 
 
