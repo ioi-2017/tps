@@ -19,9 +19,13 @@ def wait_process_success(proc):
         exit(130)
 
 
-def check_file_exists(file_path):
+def check_file_exists(file_path, error_prefix=""):
     if not os.path.isfile(file_path):
-        sys.stderr.write("File '%s' not found\n" % file_path)
+        dir = os.path.dirname(file_path)
+        if not dir:
+            dir = "."
+        sys.stderr.write("{}File '{}' not found in directory '{}'.\n"
+                         .format(error_prefix, os.path.basename(file_path), dir))
         exit(4)
 
 

@@ -2,41 +2,44 @@ import sys
 import os
 import subprocess
 
-from util import load_json, wait_process_success
-from gen_data_parser import DataVisitor, parse_data, check_test_pattern_exists, test_name_matches_pattern
+from util import check_file_exists, wait_process_success
+from gen_data_parser import check_test_pattern_exists_in_list, test_name_matches_pattern
 
 
-PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
 INTERNALS_DIR = os.environ.get('INTERNALS')
 SPECIFIC_TESTS = os.environ.get('SPECIFIC_TESTS')
 SPECIFIED_TESTS_PATTERN = os.environ.get('SPECIFIED_TESTS_PATTERN')
 
 
-class InvokingVisitor(DataVisitor):
-    def on_test(self, testset_name, test_name, line, line_number):
-        global tests_dir
-        if SPECIFIC_TESTS == "false" or test_name_matches_pattern(test_name, SPECIFIED_TESTS_PATTERN):
-            command = [
-                'bash',
-                os.path.join(INTERNALS_DIR, 'invoke_test.sh'),
-                tests_dir,
-                test_name,
-            ]
-            wait_process_success(subprocess.Popen(command))
-
 if __name__ == '__main__':
     
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         from util import simple_usage_message
-        simple_usage_message("<tests-dir>")
-        
-    global tests_dir
+        simple_usage_message("<tests-dir> <gen-summary-file>")
+
     tests_dir = sys.argv[1]
+    gen_summary_file = sys.argv[2]
     
-    task_data = load_json(PROBLEM_JSON)
-    gen_data = sys.stdin.readlines()
-
+    if not os.path.isdir(tests_dir):
+        sys.stderr.write("The tests directory not found or not a valid directory: {}.\n".format(tests_dir))
+        exit(4)
+    check_file_exists(gen_summary_file, "The tests are not correctly generated.\n")
+    
+    with open(gen_summary_file) as gsf:
+        test_name_list = [line.split()[0] 
+                            for line in map(str.strip, gsf.readlines())
+                            if line and not line.startswith("#")]
+    
     if SPECIFIC_TESTS == "true":
-        check_test_pattern_exists(gen_data, task_data, SPECIFIED_TESTS_PATTERN)
+        check_test_pattern_exists_in_list(test_name_list, SPECIFIED_TESTS_PATTERN)
+        test_name_list = filter(lambda test_name : test_name_matches_pattern(test_name, SPECIFIED_TESTS_PATTERN), test_name_list)
 
-    parse_data(gen_data, task_data, InvokingVisitor())
+    for test_name in test_name_list:
+        command = [
+            'bash',
+            os.path.join(INTERNALS_DIR, 'invoke_test.sh'),
+            tests_dir,
+            test_name,
+        ]
+        wait_process_success(subprocess.Popen(command))
+

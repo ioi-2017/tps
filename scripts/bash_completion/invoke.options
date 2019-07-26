@@ -2,7 +2,6 @@
 --sensitive
 --show-reason
 --test=
---gen-data=
 --tests-dir=
 --no-check
 --no-sol-compile

@@ -22,8 +22,6 @@ function usage {
 	errcho -e "\tInvokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
 	errcho -e "\tNote: Use quotation marks when using wildcards in the pattern to prevent bash expansion."
 
-	errcho -e "  -d, --gen-data=<gen-data-file>"
-
 	errcho -e "      --tests-dir=<tests-directory-path>"
 	errcho -e "\tOverrides the location of the tests directory"
 
@@ -43,7 +41,6 @@ function usage {
 
 
 tests_dir="${TESTS_DIR}"
-gen_data_file="${GEN_DIR}/data"
 SHOW_REASON="false"
 SENSITIVE_RUN="false"
 SPECIFIC_TESTS="false"
@@ -68,9 +65,6 @@ function handle_option {
         -t|--test=*)
             fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
             SPECIFIC_TESTS="true"
-            ;;
-        -d|--gen-data=*)
-            fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
             ;;
         --tests-dir=*)
             fetch_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
@@ -138,9 +132,11 @@ if ! check_float "${HARD_TL}"; then
     exit 2
 fi
 
+gen_summary_file="${tests_dir}/${GEN_SUMMARY_FILE_NAME}"
+
 sensitive check_file_exists "Solution file" "${solution}"
-sensitive check_file_exists "Generation data file" "${gen_data_file}"
 sensitive check_directory_exists "Tests directory" "${tests_dir}"
+sensitive check_file_exists "Test generation summary file" "${gen_summary_file}" "Tests are not correctly generated.\n"
 
 export SHOW_REASON SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_CHECK SOFT_TL HARD_TL
 
@@ -166,7 +162,7 @@ fi
 echo
 
 ret=0
-python "${INTERNALS}/invoke.py" "${tests_dir}" < "${gen_data_file}" || ret=$?
+python "${INTERNALS}/invoke.py" "${tests_dir}" "${gen_summary_file}" || ret=$?
 
 
 echo

@@ -123,11 +123,14 @@ def test_name_matches_pattern(test_name, pattern):
     return fnmatch.fnmatchcase(test_name, pattern)
 
 
+def check_test_pattern_exists_in_list(test_names_list, test_pattern):
+    if not any(test_name_matches_pattern(test_name, test_pattern) for test_name in test_names_list):
+        sys.stderr.write("No test name matches the pattern '%s'\n" % test_pattern)
+        exit(2)
+
 
 def check_test_pattern_exists(gen_data, task_data, test_pattern):
     tests_visitor = TestsVisitor()
     parse_data(gen_data, task_data, tests_visitor)
-    if not [test_name for test_name in tests_visitor.tests if test_name_matches_pattern(test_name, test_pattern)]:
-        sys.stderr.write("No test name matches the pattern '%s'\n" % test_pattern)
-        exit(2)
+    check_test_pattern_exists_in_list(tests_visitor.tests, test_pattern)
 
