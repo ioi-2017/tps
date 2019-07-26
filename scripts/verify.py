@@ -99,11 +99,17 @@ def load_data(json_file, required_keys=()):
         return None
     return data
 
+
+def has_ending(file_name, endings):
+    if isinstance(endings, string_types):
+        endings = [ endings ]
+    return any(file_name.endswith(ending) for ending in endings) 
+
 def is_ignored(file_name):
-    return any(file_name.endswith(ending) for ending in ['.exe', '.class', '~']) 
+    return has_ending(file_name, ['.exe', '.class', '~']) 
 
 def get_list_of_files(directory):
-    return [file for file in os.listdir(directory) if not is_ignored(file)]
+    return list(os.listdir(directory))
 
 
 def verify_problem():
@@ -206,7 +212,7 @@ def verify_subtasks():
         error('Neither "{}" nor "{}" is present in "{}".'.format(k_glob, k_sub, 'subtasks.json'))
         return None
     
-    validator_files = list(set(get_list_of_files(os.path.join(BASE_DIR, 'validator/'))) - {'testlib.h', 'Makefile'})
+    validator_files = get_list_of_files(os.path.join(BASE_DIR, 'validator/'))
     used_validators = set()
 
     def check_validator_key(parent, key, name, parName=None):
@@ -280,8 +286,9 @@ def verify_subtasks():
 
         check_validator_key(data, 'validators', 'subtask', name)
 
-    for unused_validator in set(validator_files) - used_validators:
-        warning('Unused validator file "{}"'.format(unused_validator))
+    for unused_validator in set(validator_files) - used_validators - {'Makefile'}:
+        if not is_ignored(unused_validator) and not has_ending(unused_validator, [".h"]):
+            warning('Unused validator file "{}"'.format(unused_validator))
 
     if score_sum != 100:
         error('sum of scores is {}'.format(score_sum))
@@ -313,13 +320,14 @@ def verify_solutions(subtasks):
         return solutions
 
     model_solution = None
-    solution_files = set(get_list_of_files(os.path.join(BASE_DIR, 'solution/')))
+    solution_files = get_list_of_files(os.path.join(BASE_DIR, 'solution/'))
+    used_solutions = set()
 
     for solution in solutions:
         if solution not in solution_files:
             error('{} does not exists'.format(solution))
             continue
-        solution_files.remove(solution)
+        used_solutions.add(solution)
 
         data = solutions[solution]
 
@@ -348,8 +356,9 @@ def verify_solutions(subtasks):
     if model_solution is None:
         error('there is no model solution')
 
-    for solution in solution_files:
-        error('{} is not represented'.format(solution))
+    for unused_solution in set(solution_files) - used_solutions:
+        if not is_ignored(unused_solution):
+            error('{} is not represented'.format(unused_solution))
 
     return solutions
 
