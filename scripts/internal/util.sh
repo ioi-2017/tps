@@ -88,6 +88,12 @@ function cecho {
     echo "$@" | python "${INTERNALS}/colored_cat.py" "${color}"
 }
 
+#colored errcho
+function cerrcho {
+	>&2 cecho "$@"
+}
+
+
 function boxed_echo {
     color="$1"; shift
 
