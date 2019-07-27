@@ -170,7 +170,9 @@ elif [ "${LANG}" == "pas" ] ; then
         vrun fpc ${PAS_OPTS} "${prog}" "-o${exe_file}"
     fi
 elif [ "${LANG}" == "java" ] ; then
-    variable_not_exists "JAVAC_OPTS" && JAVAC_OPTS=""
+    variable_not_exists "JAVAC_WARNING_OPTS" && JAVAC_WARNING_OPTS="-Xlint:all"
+    vecho "JAVAC_WARNING_OPTS='${JAVAC_WARNING_OPTS}'"
+    variable_not_exists "JAVAC_OPTS" && JAVAC_OPTS="${JAVAC_WARNING_OPTS}"
     vecho "JAVAC_OPTS='${JAVAC_OPTS}'"
 	jar_file="${PROBLEM_NAME}.jar"
     if "${HAS_GRADER}"; then
