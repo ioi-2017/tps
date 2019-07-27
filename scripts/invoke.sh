@@ -45,6 +45,7 @@ function usage {
 	errcho -e "      --hard-time-limit=<hard-time-limit>"
 	errcho -e "\tSolution process will be killed after <hard-time-limit> seconds."
 	errcho -e "\tDefaults to <time-limit> + 2."
+	errcho -e "\tNote: The hard time limit must be greater than the (soft) time limit."
 }
 
 
@@ -140,6 +141,12 @@ fi
 
 if ! check_float "${HARD_TL}"; then
     errcho "Provided hard time limit '${HARD_TL}' is not a positive real number."
+    usage
+    exit 2
+fi
+
+if python -c "exit(0 if ${HARD_TL} <= ${SOFT_TL} else 1)"; then
+    errcho "Provided hard time limit (${HARD_TL}) is not greater than the soft time limit (${SOFT_TL})."
     usage
     exit 2
 fi
