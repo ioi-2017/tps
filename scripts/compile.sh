@@ -202,7 +202,11 @@ popd > /dev/null
 
 function replace_tokens {
 	the_file="$1"
-    vrun sed -i'' -e "s/PROBLEM_NAME_PLACE_HOLDER/${PROBLEM_NAME}/g" "${the_file}"
+	# Do not try to delete the backup removal code by omitting '.bak'.
+	# Implementation of 'sed' in GNU (Linux) is different from BSD (Mac).
+	# For any change of this code you have to test it both in Linux and Mac.
+    vrun sed -i.bak -e "s/PROBLEM_NAME_PLACE_HOLDER/${PROBLEM_NAME}/g" "${the_file}"
+    vrun rm "${the_file}.bak"
 }
 
 execsh_name="exec.sh"
