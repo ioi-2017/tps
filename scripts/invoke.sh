@@ -39,7 +39,7 @@ function usage {
 	errcho -e "\tActually, a limit of 24 hours is applied."
 
 	errcho -e "      --time-limit=<time-limit>"
-	errcho -e "\tOverrides the time limit on the solution execution."
+	errcho -e "\tOverrides the (soft) time limit on the solution execution."
 	errcho -e "\tGiven in seconds, e.g. --time-limit=1.2 means 1.2 seconds"
 
 	errcho -e "      --hard-time-limit=<hard-time-limit>"
@@ -115,8 +115,12 @@ if variable_not_exists "solution" ; then
 fi
 
 if ! python -c "import psutil" >/dev/null 2>/dev/null; then
-    errcho "Error: Package 'psutil' is not installed. You can install it using:"
-    errcho "pip install psutil"
+    cerrcho error -n "Error: "
+    errcho "Package 'psutil' is not installed."
+    errcho "You can install it using:"
+    errcho -e "\tpip install psutil"
+    errcho "or:"
+    errcho -e "\tpython -m pip install psutil"
     exit 1
 fi
 
@@ -125,7 +129,7 @@ if variable_not_exists "SOFT_TL" ; then
 fi
 
 if ! check_float "${SOFT_TL}"; then
-    errcho "Provided time limit '${SOFT_TL}' is not a positive real number"
+    errcho "Provided time limit '${SOFT_TL}' is not a positive real number."
     usage
     exit 2
 fi
@@ -135,7 +139,7 @@ if variable_not_exists "HARD_TL" ; then
 fi
 
 if ! check_float "${HARD_TL}"; then
-    errcho "Provided hard time limit '${HARD_TL}' is not a positive real number"
+    errcho "Provided hard time limit '${HARD_TL}' is not a positive real number."
     usage
     exit 2
 fi
@@ -176,9 +180,9 @@ python "${INTERNALS}/invoke.py" "${tests_dir}" "${gen_summary_file}" || ret=$?
 echo
 
 if [ ${ret} -eq 0 ]; then
-    cecho green "Finished."
+    cecho success "Finished."
 else
-    cecho red "Terminated."
+    cecho fail "Terminated."
 fi
 
 exit ${ret}

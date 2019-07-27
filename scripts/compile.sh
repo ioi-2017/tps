@@ -101,7 +101,7 @@ elif [ "${ext}" == "java" ] ; then
 	vecho "Detected language: Java"
 	LANG="java"
 else
-    cerrcho red -n "Error: "
+    cerrcho error -n "Error: "
     errcho "Unknown solution extension: ${ext}"
     exit 1
 fi
@@ -192,7 +192,8 @@ elif [ "${LANG}" == "java" ] ; then
 	vecho "Removing *.class files..."
     vrun rm *.class
 else
-    cerrcho red "Illegal state: unknown language: ${LANG}"
+    cerrcho error -n "Illegal state: "
+    errcho "unknown language: ${LANG}"
     exit 1
 fi
 
@@ -246,4 +247,4 @@ else
 	vecho "File ${post_compile_name} is not present in templates. Nothing more to do."
 fi
 
-cecho green OK
+cecho success OK

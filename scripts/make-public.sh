@@ -125,4 +125,4 @@ mv "${PUBLIC_DIR}/${attachment_name}" "${BASE_DIR}/"
 
 cecho yellow "Created attachment '${attachment_name}'."
 
-cecho green OK
+cecho success OK

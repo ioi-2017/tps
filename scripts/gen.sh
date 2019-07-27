@@ -174,9 +174,9 @@ python "${INTERNALS}/gen.py" "${tests_dir}" "${mapping_file}" "${gen_summary_fil
 echo
 
 if [ ${ret} -eq 0 ]; then
-    cecho green "Finished."
+    cecho success "Finished."
 else
-    cecho red "Terminated."
+    cecho fail "Terminated."
 fi
 
 exit ${ret}
