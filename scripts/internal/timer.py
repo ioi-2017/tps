@@ -1,21 +1,26 @@
 import sys
 import os
 import datetime
+import platform
+import signal
 import subprocess
 from threading import Timer
 
 
-try:
-    import psutil
-except ImportError as e:
-    sys.stderr.write('''\
-Package \'psutil\' is not installed.
+_is_windows = (platform.system()=="Windows")
+
+if not _is_windows:
+    try:
+        import psutil
+    except ImportError as e:
+        sys.stderr.write('''\
+Package \'psutil\' (required for non-windows platforms) is not installed.
 You can install it using:
     pip install psutil
 or
     python -m pip install psutil
 ''')
-    exit(1)
+        exit(1)
 
 
 def kill_proc_tree(pid, including_parent=True):
@@ -32,13 +37,19 @@ class Object:
 
 def terminate(data):
     data.terminated = True
-    kill_proc_tree(data.process.pid)
+    if _is_windows:
+        os.kill(data.process.pid, signal.CTRL_BREAK_EVENT)
+    else:
+        kill_proc_tree(data.process.pid)
 
 
 def timer(time_limit, command):
     start_time = datetime.datetime.now()
 
-    p = subprocess.Popen(command)
+    if _is_windows:
+        p = subprocess.Popen(command, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+    else:
+        p = subprocess.Popen(command)
 
     data = Object()
     data.process = p
