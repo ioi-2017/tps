@@ -135,6 +135,13 @@ if [ "${LANG}" == "cpp" ] ; then
     variable_not_exists "CPP_OPTS" && CPP_OPTS="-DEVAL ${CPP_STD_OPT} ${CPP_WARNING_OPTS} -O2"
     vecho "CPP_OPTS='${CPP_OPTS}'"
 	files_to_compile=("${prog}")
+	if is_windows; then
+    	vecho "It is Windows. Needed disabling runtime error dialog."
+		wrdd="win_rte_dialog_disabler.cpp"
+    	vecho "Copying '${wrdd}' to sandbox..."
+        vrun cp "${INTERNALS}/${wrdd}" "."
+	    files_to_compile+=("${wrdd}")
+	fi
     if "${HAS_GRADER}"; then
 	    grader_header="${PROBLEM_NAME}.h"
 	    grader_cpp="grader.cpp"
