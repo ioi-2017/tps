@@ -134,61 +134,71 @@ if [ "${LANG}" == "cpp" ] ; then
     vecho "CPP_WARNING_OPTS='${CPP_WARNING_OPTS}'"
     variable_not_exists "CPP_OPTS" && CPP_OPTS="-DEVAL ${CPP_STD_OPT} ${CPP_WARNING_OPTS} -O2"
     vecho "CPP_OPTS='${CPP_OPTS}'"
-	exe_file="${PROBLEM_NAME}.exe"
+	files_to_compile=("${prog}")
     if "${HAS_GRADER}"; then
 	    grader_header="${PROBLEM_NAME}.h"
 	    grader_cpp="grader.cpp"
     	vecho "Copying '${grader_header}' and '${grader_cpp}' to sandbox..."
-        vrun cp "${GRADER_LANG_DIR}/${grader_header}" "${GRADER_LANG_DIR}/${grader_cpp}" "${SANDBOX}"
+        vrun cp "${GRADER_LANG_DIR}/${grader_header}" "${GRADER_LANG_DIR}/${grader_cpp}" "."
     	vecho "Compiling grader..."
         vrun g++ ${CPP_OPTS} -c "${grader_cpp}" -o "grader.o"
     	vecho "Removing grader source..."
         vrun rm "${grader_cpp}"
-    	vecho "Compiling solution and linking with grader..."
-        vrun g++ ${CPP_OPTS} "grader.o" "${prog}" -o "${exe_file}"
-    else
-    	vecho "Compiling and linking..."
-        vrun g++ ${CPP_OPTS} "${prog}" -o "${exe_file}"
+		files_to_compile+=("grader.o")
+		vecho "Added grader object file to the list of files to compile."
     fi
+	vecho "files_to_compile: ${files_to_compile[@]}"
+	exe_file="${PROBLEM_NAME}.exe"
+    vecho "Compiling and linking..."
+    vrun g++ ${CPP_OPTS} "${files_to_compile[@]}" -o "${exe_file}"
 elif [ "${LANG}" == "pas" ] ; then
     variable_not_exists "PAS_OPTS" && PAS_OPTS="-dEVAL -XS -O2"
     vecho "PAS_OPTS='${PAS_OPTS}'"
-    exe_file="${PROBLEM_NAME}.exe"
+    files_to_compile=()
     if "${HAS_GRADER}"; then
 	    grader_pas="grader.pas"
     	vecho "Copying '${grader_pas}' to sandbox..."
-        vrun cp "${GRADER_LANG_DIR}/${grader_pas}" "${SANDBOX}"
+        vrun cp "${GRADER_LANG_DIR}/${grader_pas}" "."
 		graderlib="graderlib.pas"
         if [ -f "${GRADER_LANG_DIR}/${graderlib}" ] ; then
 	    	vecho "Copying '${graderlib}' to sandbox..."
-        	vrun cp "${GRADER_LANG_DIR}/${graderlib}" "${SANDBOX}"
+        	vrun cp "${GRADER_LANG_DIR}/${graderlib}" "."
         fi
-    	vecho "Compiling and linking..."
-        vrun fpc ${PAS_OPTS} "${grader_pas}" "-o${exe_file}"
+		files_to_compile+=("${grader_pas}")
     else
-    	vecho "Compiling and linking..."
-        vrun fpc ${PAS_OPTS} "${prog}" "-o${exe_file}"
+		files_to_compile+=("${prog}")
+    fi
+	vecho "files_to_compile: ${files_to_compile[@]}"
+    exe_file="${PROBLEM_NAME}.exe"
+    vecho "Compiling and linking..."
+    vrun fpc ${PAS_OPTS} "${files_to_compile[@]}" "-o${exe_file}"
+    if [ ! -x "${exe_file}" ]; then
+	    cerrcho error -n "Error: "
+    	errcho "Executable ${exe_file} is not created by the compiler."
+    	errcho "The source file was probably a UNIT instead of a PROGRAM."
+	    exit 1
     fi
 elif [ "${LANG}" == "java" ] ; then
     variable_not_exists "JAVAC_WARNING_OPTS" && JAVAC_WARNING_OPTS="-Xlint:all"
     vecho "JAVAC_WARNING_OPTS='${JAVAC_WARNING_OPTS}'"
     variable_not_exists "JAVAC_OPTS" && JAVAC_OPTS="${JAVAC_WARNING_OPTS}"
     vecho "JAVAC_OPTS='${JAVAC_OPTS}'"
-	jar_file="${PROBLEM_NAME}.jar"
+	files_to_compile=("${prog}")
     if "${HAS_GRADER}"; then
 		grader_java="grader.java"
     	vecho "Copying '${grader_java}' to sandbox..."
-        vrun cp "${GRADER_LANG_DIR}/${grader_java}" "${SANDBOX}"
-    	vecho "Compiling java sources..."
-        vrun javac ${JAVAC_OPTS} "${grader_java}" "${prog}"
-    	vecho "Creating the jar file..."
-        vrun jar cfe "${jar_file}" "grader" *.class
+        vrun cp "${GRADER_LANG_DIR}/${grader_java}" "."
+		files_to_compile+=("${grader_java}")
+		main_class="grader"
     else
-    	vecho "Compiling java sources..."
-        vrun javac ${JAVAC_OPTS} "${prog}"
-    	vecho "Creating the jar file..."
-        vrun jar cfe "${jar_file}" "${PROBLEM_NAME}" *.class
+		main_class="${PROBLEM_NAME}"
     fi
+	vecho "files_to_compile: ${files_to_compile[@]}"
+	vecho "Compiling java sources..."
+    vrun javac ${JAVAC_OPTS} "${files_to_compile[@]}"
+	jar_file="${PROBLEM_NAME}.jar"
+    vecho "Creating the jar file..."
+    vrun jar cfe "${jar_file}" "${main_class}" *.class
 	vecho "Removing *.class files..."
     vrun rm *.class
 else
