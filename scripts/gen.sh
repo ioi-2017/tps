@@ -149,7 +149,7 @@ printf "%-${STATUS_PAD}scompile" "solution"
 if "${SKIP_SOL}" || "${skip_compile_sol}";  then
     echo_status "SKIP"
 else
-    sensitive reporting_guard "solution.compile" bash "${SCRIPTS}/compile.sh" "${model_solution}"
+    sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${model_solution}"
 fi
 echo
 
