@@ -19,6 +19,7 @@
 # Behavior:
 #	* The script builds the solution in SANDBOX.
 #	* The exit code is non-zero in case of failure.
+#	* It also detects compile warnings if WARN_FILE is defined.
 
 
 set -euo pipefail
@@ -117,8 +118,38 @@ prog="${PROBLEM_NAME}.${LANG}"
 vecho "Copying solution '${SOLUTION}' to sandbox as '${prog}'..."
 vrun cp "${SOLUTION}" "${SANDBOX}/${prog}"
 
+
+coloring_enabled="false"
+if [ -t 2 ]; then
+	coloring_enabled="true"
+fi
+
+
 vecho "Entering the sandbox."
 pushd "${SANDBOX}" > /dev/null
+
+
+compiler_out="compile.outputs"
+
+function capture_compile {
+	"$@" 2>&1 | tee -i -a "${compiler_out}" 1>&2
+}
+
+function check_warning {
+    local warning_text_pattern="$1"
+    if variable_exists "WARN_FILE"; then
+    	vecho "WARN_FILE='${WARN_FILE}'"
+	    if grep -q "${warning_text_pattern}" "${compiler_out}"; then
+	    	vecho "Text pattern '${warning_text_pattern}' found in compiler outputs."
+	    	echo "Text pattern '${warning_text_pattern}' found in compiler outputs." >> "${WARN_FILE}"
+	    else
+	    	vecho "Text pattern '${warning_text_pattern}' not found in compiler outputs."
+	    fi
+	else
+    	vecho "variable WARN_FILE is not defined."
+    fi	
+}
+
 
 if [ "${LANG}" == "cpp" ] ; then
     variable_not_exists "CPP_STD_OPT" && CPP_STD_OPT="--std=gnu++14"
@@ -127,6 +158,11 @@ if [ "${LANG}" == "cpp" ] ; then
     vecho "CPP_WARNING_OPTS='${CPP_WARNING_OPTS}'"
     variable_not_exists "CPP_OPTS" && CPP_OPTS="-DEVAL ${CPP_STD_OPT} ${CPP_WARNING_OPTS} -O2"
     vecho "CPP_OPTS='${CPP_OPTS}'"
+    if "${coloring_enabled}" ; then
+    	coloring_flag="-fdiagnostics-color=always"
+    else
+    	coloring_flag="-fdiagnostics-color=never"
+    fi
 	files_to_compile=("${prog}")
 	if is_windows; then
     	vecho "It is Windows. Needed disabling runtime error dialog."
@@ -141,7 +177,7 @@ if [ "${LANG}" == "cpp" ] ; then
     	vecho "Copying '${grader_header}' and '${grader_cpp}' to sandbox..."
         vrun cp "${GRADER_LANG_DIR}/${grader_header}" "${GRADER_LANG_DIR}/${grader_cpp}" "."
     	vecho "Compiling grader..."
-        vrun g++ ${CPP_OPTS} -c "${grader_cpp}" -o "grader.o"
+        vrun capture_compile g++ ${CPP_OPTS} -c "${grader_cpp}" -o "grader.o" "${coloring_flag}"
     	vecho "Removing grader source..."
         vrun rm "${grader_cpp}"
 		files_to_compile+=("grader.o")
@@ -150,7 +186,8 @@ if [ "${LANG}" == "cpp" ] ; then
 	vecho "files_to_compile: ${files_to_compile[@]}"
 	exe_file="${PROBLEM_NAME}.exe"
     vecho "Compiling and linking..."
-    vrun g++ ${CPP_OPTS} "${files_to_compile[@]}" -o "${exe_file}"
+    vrun capture_compile g++ ${CPP_OPTS} "${files_to_compile[@]}" -o "${exe_file}" "${coloring_flag}"
+    check_warning "warning:"
 elif [ "${LANG}" == "pas" ] ; then
     variable_not_exists "PAS_OPTS" && PAS_OPTS="-dEVAL -XS -O2"
     vecho "PAS_OPTS='${PAS_OPTS}'"
@@ -171,12 +208,13 @@ elif [ "${LANG}" == "pas" ] ; then
 	vecho "files_to_compile: ${files_to_compile[@]}"
     exe_file="${PROBLEM_NAME}.exe"
     vecho "Compiling and linking..."
-    vrun fpc ${PAS_OPTS} "${files_to_compile[@]}" "-o${exe_file}"
+    vrun capture_compile fpc ${PAS_OPTS} "${files_to_compile[@]}" "-o${exe_file}"
     if [ ! -x "${exe_file}" ]; then
     	error_echo "Executable ${exe_file} is not created by the compiler."
     	errcho "The source file was probably a UNIT instead of a PROGRAM."
 	    exit 1
     fi
+    check_warning "Warning:"
 elif [ "${LANG}" == "java" ] ; then
     variable_not_exists "JAVAC_WARNING_OPTS" && JAVAC_WARNING_OPTS="-Xlint:all"
     vecho "JAVAC_WARNING_OPTS='${JAVAC_WARNING_OPTS}'"
@@ -194,12 +232,13 @@ elif [ "${LANG}" == "java" ] ; then
     fi
 	vecho "files_to_compile: ${files_to_compile[@]}"
 	vecho "Compiling java sources..."
-    vrun javac ${JAVAC_OPTS} "${files_to_compile[@]}"
+    vrun capture_compile javac ${JAVAC_OPTS} "${files_to_compile[@]}"
 	jar_file="${PROBLEM_NAME}.jar"
     vecho "Creating the jar file..."
-    vrun jar cfe "${jar_file}" "${main_class}" *.class
+    vrun capture_compile jar cfe "${jar_file}" "${main_class}" *.class
 	vecho "Removing *.class files..."
     vrun rm *.class
+    check_warning "warning:"
 else
     error_echo "Illegal state; unknown language: ${LANG}"
     exit 1

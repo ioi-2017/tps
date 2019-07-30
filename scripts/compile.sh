@@ -65,13 +65,19 @@ if variable_not_exists "SOLUTION" ; then
     exit 2
 fi
 
-export VERBOSE GRADER_TYPE
+WARN_FILE="${SANDBOX}/compile.warn"
+
+export VERBOSE GRADER_TYPE WARN_FILE
 ret=0
 bash "${INTERNALS}/compile_solution.sh" "${SOLUTION}" || ret=$?
 
 
 if [ ${ret} -eq 0 ]; then
-   	cecho success "OK"
+	if [ -s "${WARN_FILE}" ] ; then
+    	cecho warn "OK, but with warnings"
+	else
+    	cecho success "OK"
+	fi
 else
     cecho fail "FAILED."
 fi
