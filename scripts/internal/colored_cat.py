@@ -19,3 +19,6 @@ if __name__ == '__main__':
     except InvalidColorNameException:
         sys.stderr.write('Invalid color name: {}\n'.format(color_name))
         exit(4)
+    except KeyboardInterrupt:
+        sys.stdout.write(colors.RESET)
+        exit(1)
