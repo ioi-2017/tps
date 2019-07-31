@@ -141,7 +141,7 @@ printf "%-${STATUS_PAD}scompile" "generator"
 if "${SKIP_GEN}"; then
     echo_status "SKIP"
 else
-    sensitive reporting_guard "generators.compile" make -C "${GEN_DIR}"
+    sensitive reporting_guard "generators.compile" build_with_make "${GEN_DIR}"
 fi
 echo
 
@@ -157,7 +157,7 @@ printf "%-${STATUS_PAD}scompile" "validator"
 if "${SKIP_VAL}"; then
     echo_status "SKIP"
 else
-    sensitive reporting_guard "validators.compile" make -C "${VALIDATOR_DIR}"
+    sensitive reporting_guard "validators.compile" build_with_make "${VALIDATOR_DIR}"
 fi
 echo
 

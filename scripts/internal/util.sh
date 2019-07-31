@@ -255,6 +255,42 @@ function reporting_guard {
     return ${ret}
 }
 
+
+WARNING_TEXT_PATTERN_FOR_CPP="warning:"
+WARNING_TEXT_PATTERN_FOR_PAS="Warning:"
+WARNING_TEXT_PATTERN_FOR_JAVA="warning:"
+
+function build_with_make {
+	local make_dir="$1"; shift
+	make -j4 -C "${make_dir}" || return $?
+    if variable_exists "WARN_FILE"; then
+    	local compile_outputs_list_target="compile_outputs_list"
+		if compile_outputs_list=$(make --quiet -C "${make_dir}" "${compile_outputs_list_target}"); then
+    		for compile_output in ${compile_outputs_list}; do
+    			if [[ "${compile_output}" == *.cpp.* ]] || [[ "${compile_output}" == *.cc.* ]]; then
+	    			local warning_text_pattern="${WARNING_TEXT_PATTERN_FOR_CPP}"
+    			elif [[ "${compile_output}" == *.pas.* ]]; then
+	    			local warning_text_pattern="${WARNING_TEXT_PATTERN_FOR_PAS}"
+    			elif [[ "${compile_output}" == *.java.* ]]; then
+	    			local warning_text_pattern="${WARNING_TEXT_PATTERN_FOR_JAVA}"
+    			else
+    				errcho "Could not detect the type of compile output '${compile_output}'."
+    				continue
+    			fi
+			    if grep -q "${warning_text_pattern}" "${make_dir}/${compile_output}"; then
+					echo "Text pattern '${warning_text_pattern}' found in compile output '${compile_output}':" >> "${WARN_FILE}"
+					cat "${make_dir}/${compile_output}" >> "${WARN_FILE}"
+					echo "----------------------------------------------------------------------" >> "${WARN_FILE}"
+			    fi
+			done
+    	else
+    		echo "Makefile does not have target '${compile_outputs_list_target}'." >> "${WARN_FILE}"
+		fi
+    fi	
+
+}
+
+
 function is_in {
     key="$1"; shift
     for item in "$@"; do

@@ -176,7 +176,7 @@ printf "%-${STATUS_PAD}scompile" "checker"
 if "${SKIP_CHECK}"; then
     echo_status "SKIP"
 else
-    sensitive reporting_guard "checker.compile" make -C "${CHECKER_DIR}"
+    sensitive reporting_guard "checker.compile" build_with_make "${CHECKER_DIR}"
 fi
 echo
 

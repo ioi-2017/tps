@@ -62,7 +62,7 @@ SOLUTION="$1"; shift
 
 if variable_not_exists "VERBOSE" ; then
     VERBOSE="false"
-elif [ "${VERBOSE}" != "true" -a "${VERBOSE}" != "false" ] ; then
+elif ! is_in "${VERBOSE}" "true" "false" ; then
 	error_echo "Invalid value for variable VERBOSE: ${VERBOSE}"
 	exit 1
 fi
@@ -86,7 +86,7 @@ sensitive check_file_exists "Solution file" "${SOLUTION}"
 
 ext="$(extension "${SOLUTION}")"
 
-if [ "${ext}" == "cpp" -o "${ext}" == "cc" ] ; then
+if is_in "${ext}" "cpp" "cc" ; then
 	vecho "Detected language: C++"
 	LANG="cpp"
 elif [ "${ext}" == "pas" ] ; then
@@ -187,7 +187,7 @@ if [ "${LANG}" == "cpp" ] ; then
 	exe_file="${PROBLEM_NAME}.exe"
     vecho "Compiling and linking..."
     vrun capture_compile g++ ${CPP_OPTS} "${files_to_compile[@]}" -o "${exe_file}" "${coloring_flag}"
-    check_warning "warning:"
+    check_warning "${WARNING_TEXT_PATTERN_FOR_CPP}"
 elif [ "${LANG}" == "pas" ] ; then
     variable_not_exists "PAS_OPTS" && PAS_OPTS="-dEVAL -XS -O2"
     vecho "PAS_OPTS='${PAS_OPTS}'"
@@ -214,7 +214,7 @@ elif [ "${LANG}" == "pas" ] ; then
     	errcho "The source file was probably a UNIT instead of a PROGRAM."
 	    exit 1
     fi
-    check_warning "Warning:"
+    check_warning "${WARNING_TEXT_PATTERN_FOR_PAS}"
 elif [ "${LANG}" == "java" ] ; then
     variable_not_exists "JAVAC_WARNING_OPTS" && JAVAC_WARNING_OPTS="-Xlint:all"
     vecho "JAVAC_WARNING_OPTS='${JAVAC_WARNING_OPTS}'"
@@ -238,7 +238,7 @@ elif [ "${LANG}" == "java" ] ; then
     vrun capture_compile jar cfe "${jar_file}" "${main_class}" *.class
 	vecho "Removing *.class files..."
     vrun rm *.class
-    check_warning "warning:"
+    check_warning "${WARNING_TEXT_PATTERN_FOR_JAVA}"
 else
     error_echo "Illegal state; unknown language: ${LANG}"
     exit 1
