@@ -100,6 +100,10 @@ if ! is_in "${sol_status}" "FAIL" "SKIP"; then
         	checker_stdout="${LOGS_DIR}/${check_job}.out"
         	checker_stderr="${LOGS_DIR}/${check_job}.err"
         	source "${TEMPLATES}/checker_result.sh"
+        	if has_sensitive_warnings "${check_job}"; then
+	            final_ret=${warn_status}
+	            failed_jobs="${failed_jobs} ${check_job}"
+        	fi
         fi
     fi
 fi

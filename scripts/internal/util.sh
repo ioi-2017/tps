@@ -136,12 +136,20 @@ function echo_verdict {
     boxed_echo "${color}" "${verdict}"
 }
 
+
+function has_warnings {
+    local job="$1"
+    local WARN_FILE="${LOGS_DIR}/${job}.warn"
+    [ -s "${WARN_FILE}" ]
+}
+
 skip_status=1000
 abort_status=1001
+warn_status=250
 
 function job_ret {
-    job="$1"
-    ret_file="${LOGS_DIR}/${job}.ret"
+    local job="$1"
+    local ret_file="${LOGS_DIR}/${job}.ret"
     if [ -f "${ret_file}" ]; then
         cat "${ret_file}"
     else
@@ -149,22 +157,43 @@ function job_ret {
     fi
 }
 
+function is_warning_sensitive {
+	variable_exists "WARNING_SENSITIVE_RUN" && "${WARNING_SENSITIVE_RUN}"
+}
+
+function has_sensitive_warnings {
+	is_warning_sensitive && has_warnings "$1"
+}
+
+function warning_aware_job_ret {
+    local job="$1"
+    local ret="$(job_ret "${job}")"
+    if [ ${ret} -ne 0 ]; then
+    	echo ${ret}
+    elif has_sensitive_warnings "${job}"; then
+    	echo ${warn_status}
+	else
+		echo 0
+	fi
+}
+
+
 function check_float {
     echo "$1" | grep -Eq '^[0-9]+\.?[0-9]*$'
 }
 
 function job_tlog_file {
-    job="$1"
+    local job="$1"
     echo "${LOGS_DIR}/${job}.tlog"
 }
 
 function job_tlog {
-    job="$1"; shift
-    key="$1"
-    tlog_file="$(job_tlog_file "${job}")"
+    local job="$1"; shift
+    local key="$1"
+    local tlog_file="$(job_tlog_file "${job}")"
     if [ -f "${tlog_file}" ]; then
-        ret=0
-        line="$(grep "^${key} " "${tlog_file}")" || ret=$?
+        local ret=0
+        local line="$(grep "^${key} " "${tlog_file}")" || ret=$?
         if [ ${ret} -ne 0 ]; then
             errcho "tlog file '${tlog_file}' does not contain key '${key}'"
             exit 1
@@ -176,15 +205,9 @@ function job_tlog {
     fi
 }
 
-function has_warnings {
-    job="$1"
-    WARN_FILE="${LOGS_DIR}/${job}.warn"
-    [ -s "${WARN_FILE}" ]
-}
-
 function job_status {
-    job="$1"
-    ret="$(job_ret "${job}")"
+    local job="$1"
+    local ret="$(job_ret "${job}")"
 
     if [ "${ret}" -eq 0 ]; then
         if has_warnings "${job}"; then
@@ -200,15 +223,15 @@ function job_status {
 }
 
 function guard {
-    job="$1"; shift
-    outlog="${LOGS_DIR}/${job}.out"
-    errlog="${LOGS_DIR}/${job}.err"
-    retlog="${LOGS_DIR}/${job}.ret"
+    local job="$1"; shift
+    local outlog="${LOGS_DIR}/${job}.out"
+    local errlog="${LOGS_DIR}/${job}.err"
+    local retlog="${LOGS_DIR}/${job}.ret"
     export WARN_FILE="${LOGS_DIR}/${job}.warn"
 
     echo "${abort_status}" > "${retlog}"
 
-    ret=0
+    local ret=0
     "$@" > "${outlog}" 2> "${errlog}" || ret=$?
     echo "${ret}" > "${retlog}"
 
@@ -220,14 +243,14 @@ function insensitive {
 }
 
 function boxed_guard {
-    job="$1"
+    local job="$1"
 
     insensitive guard "$@"
     echo_status "$(job_status "${job}")"
 }
 
 function execution_report {
-    job="$1"
+    local job="$1"
 
     cecho yellow -n "exit-code: "
     echo "$(job_ret "${job}")"
@@ -242,10 +265,11 @@ function execution_report {
 }
 
 function reporting_guard {
-    job="$1"
+    local job="$1"
 
     boxed_guard "$@"
-    ret="$(job_ret "${job}")"
+
+    local ret="$(warning_aware_job_ret "${job}")"
 
     if [ "${ret}" -ne 0 ]; then
         echo

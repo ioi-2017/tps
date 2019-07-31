@@ -16,6 +16,9 @@ function usage {
 	errcho -e "  -s, --sensitive"
 	errcho -e "\tTerminates on the first error and shows the error details."
 
+	errcho -e "  -w, --warning-sensitive"
+	errcho -e "\tTerminates on the first warning or error and shows the details."
+
 	errcho -e "  -r, --show-reason"
 	errcho -e "\tDisplays the reason for not being correct."
 	errcho -e "\tThe checker message is written in the case of wrong answer."
@@ -52,6 +55,7 @@ function usage {
 tests_dir="${TESTS_DIR}"
 SHOW_REASON="false"
 SENSITIVE_RUN="false"
+WARNING_SENSITIVE_RUN="false"
 SPECIFIC_TESTS="false"
 SPECIFIED_TESTS_PATTERN=""
 SKIP_CHECK="false"
@@ -67,6 +71,10 @@ function handle_option {
             ;;
         -s|--sensitive)
             SENSITIVE_RUN="true"
+            ;;
+        -w|--warning-sensitive)
+            SENSITIVE_RUN="true"
+            WARNING_SENSITIVE_RUN="true"
             ;;
         -r|--show-reason)
             SHOW_REASON="true"
@@ -157,7 +165,7 @@ sensitive check_file_exists "Solution file" "${solution}"
 sensitive check_directory_exists "Tests directory" "${tests_dir}"
 sensitive check_file_exists "Test generation summary file" "${gen_summary_file}" "Tests are not correctly generated.\n"
 
-export SHOW_REASON SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_CHECK SOFT_TL HARD_TL
+export SHOW_REASON SENSITIVE_RUN WARNING_SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_CHECK SOFT_TL HARD_TL
 
 
 recreate_dir "${LOGS_DIR}"

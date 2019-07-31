@@ -16,6 +16,9 @@ function usage {
 	errcho -e "  -s, --sensitive"
 	errcho -e "\tTerminates on the first error and shows the error details."
 
+	errcho -e "  -w, --warning-sensitive"
+	errcho -e "\tTerminates on the first warning or error and shows the details."
+
 	errcho -e "  -u, --update"
 	errcho -e "\tUpdates the existing set of tests."
 	errcho -e "\tPrevents the initial cleanup of the tests directory."
@@ -56,6 +59,7 @@ model_solution=""
 tests_dir="${TESTS_DIR}"
 gen_data_file="${GEN_DIR}/data"
 SENSITIVE_RUN="false"
+WARNING_SENSITIVE_RUN="false"
 UPDATE_MODE="false"
 SPECIFIC_TESTS="false"
 SPECIFIED_TESTS_PATTERN=""
@@ -73,6 +77,10 @@ function handle_option {
             ;;
         -s|--sensitive)
             SENSITIVE_RUN="true"
+            ;;
+        -w|--warning-sensitive)
+            SENSITIVE_RUN="true"
+            WARNING_SENSITIVE_RUN="true"
             ;;
         -u|--update)
             UPDATE_MODE="true"
@@ -130,7 +138,7 @@ sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
 command_exists dos2unix || cecho yellow "WARNING: dos2unix is not available. Line endings might be incorrect."
 
-export SENSITIVE_RUN UPDATE_MODE SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_GEN SKIP_SOL SKIP_VAL
+export SENSITIVE_RUN WARNING_SENSITIVE_RUN UPDATE_MODE SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_GEN SKIP_SOL SKIP_VAL
 
 
 recreate_dir "${LOGS_DIR}"

@@ -71,6 +71,15 @@ printf "%-${STATUS_PAD}s" "${test_name}"
 failed_jobs=""
 final_ret=0
 
+function verify_job_failure {
+	local job="$1"
+	local ret=$(warning_aware_job_ret "${job}")
+    if [ ${ret} -ne 0 ]; then
+        final_ret=${ret}
+        failed_jobs="${failed_jobs} ${job}"
+    fi
+}
+
 
 export BOX_PADDING=7
 
@@ -79,12 +88,7 @@ gen_job="${test_name}.gen"
 
 if ! "${SKIP_GEN}"; then
     insensitive guard "${gen_job}" gen_input
-    ret=$(job_ret "${gen_job}")
-
-    if [ ${ret} -ne 0 ]; then
-        final_ret=${ret}
-        failed_jobs="${failed_jobs} ${gen_job}"
-    fi
+    verify_job_failure "${gen_job}"
 fi
 
 gen_status=$(job_status "${gen_job}")
@@ -96,12 +100,7 @@ val_job="${test_name}.val"
 
 if ! "${SKIP_VAL}" && ! is_in "${gen_status}" "FAIL"; then
     insensitive guard "${val_job}" validate
-    ret=$(job_ret "${val_job}")
-
-    if [ ${ret} -ne 0 ]; then
-        final_ret=${ret}
-        failed_jobs="${failed_jobs} ${val_job}"
-    fi
+    verify_job_failure "${val_job}"
 fi
 
 val_status=$(job_status "${val_job}")
@@ -113,12 +112,7 @@ sol_job="${test_name}.sol"
 
 if ! "${SKIP_SOL}" && ! is_in "${gen_status}" "FAIL"; then
     insensitive guard "${sol_job}" gen_output
-    ret=$(job_ret "${sol_job}")
-
-    if [ ${ret} -ne 0 ]; then
-        final_ret=${ret}
-        failed_jobs="${failed_jobs} ${sol_job}"
-    fi
+    verify_job_failure "${sol_job}"
 fi
 
 sol_status=$(job_status "${sol_job}")

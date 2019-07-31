@@ -15,6 +15,9 @@ function usage {
     errcho -e "  -v, --verbose"
 	errcho -e "\tPrints verbose details on values, decisions, and commands being executed."
 
+	errcho -e "  -w, --warning-sensitive"
+	errcho -e "\tFails when there are warnings."
+
     errcho -e "  -p, --public"
     errcho -e "\tUses the public graders for compiling the solution."
 }
@@ -23,7 +26,8 @@ if "${HAS_GRADER}"; then
     GRADER_TYPE="judge"
 fi
 
-VERBOSE=false
+VERBOSE="false"
+WARNING_SENSITIVE_RUN="false"
 
 function handle_option {
     shifts=0
@@ -34,6 +38,9 @@ function handle_option {
             ;;
         -v|--verbose)
             VERBOSE=true
+            ;;
+        -w|--warning-sensitive)
+            WARNING_SENSITIVE_RUN="true"
             ;;
         -p|--public)
             if "${HAS_GRADER}"; then
@@ -74,7 +81,12 @@ bash "${INTERNALS}/compile_solution.sh" "${SOLUTION}" || ret=$?
 
 if [ ${ret} -eq 0 ]; then
 	if [ -s "${WARN_FILE}" ] ; then
-    	cecho warn "OK, but with warnings"
+		if is_warning_sensitive; then
+			ret="${warn_status}"
+			cecho fail "FAILED, due to sensitivity to warnings"
+		else
+    		cecho warn "OK, but with warnings"
+		fi
 	else
     	cecho success "OK"
 	fi
