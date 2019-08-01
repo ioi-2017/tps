@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
-source "scripts/internal/util.sh"
+export INTERNALS="scripts/internal"
+
+source "${INTERNALS}/util.sh"
 
 function usage {
 	errcho "Usage: upgrade-scripts.sh [options] <problem-dir>"
