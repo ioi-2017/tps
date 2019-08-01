@@ -1,46 +1,11 @@
 # Task Preparation System (TPS)
 
-Version 1.0
+Version 1.11
 
 Host Technical Committee, Host Scientific Committee
 
 IOI 2017, Tehran, Iran
 
-# Prerequisites
-
-It is recommended to install bash completion if it is not already installed (there is a manual for OS/X [here](http://davidalger.com/development/bash-completion-on-os-x-with-brew/)).
-
-TPS currently supports C++, Pascal and Java. The `gcc` compiler is mandatory, and `fpc` (free pascal) and java compilers are required if there are invocations of those languages.
-
-Python (2 or 3) is required. The module `psutil` should be installed. You can install it by running the following command on Linux and OS/X:
-
-```
-sudo pip install psutil
-```
-
-on Windows:
-
-```
-python -m pip install psutil
-```
-
-The `dos2unix` utility is required for making public directories (task attachments).
-It is also suggested to be available when generating tests using `tps gen`. 
-You may install it in linux using following command:
-
-```
-sudo apt install dos2unix
-```
-
-and in OS/X using following command:
-
-```
-brew install dos2unix
-```
-
-You can install `dos2unix` for windows from GnuWin32 packages.
-
-The system should support `make` command (for Makefiles).
 
 # TPS Interfaces
 
@@ -50,16 +15,62 @@ The following sections describe these interfaces.
 
 # Command-line interface
 
-To install the TPS command-line interface, clone the `tps` repository, and install it using the following commands:
+To install the TPS command-line interface, clone the `tps` repository,
+ and install it using the following commands (in Linux):
 
 ```
 cd tps
-./install-tps.sh
+sudo ./install-tps.sh
 ```
 
 Windows users can run `install-tps.bat`.
-It assumes you have `msys` installed and have `C:\msys\scripts` in your PATH.
-Command completion is not supported in windows. 
+The Windows installer assumes you have `MinGW`/`MSYS` installed and 
+  the directory `C:\msys\scripts` is in your PATH.
+Command completion is not supported in windows `CMD`. 
+
+
+# Prerequisites for the command-line interface
+
+It is recommended to install bash completion if it is not already installed (there is a manual for OS/X [here](http://davidalger.com/development/bash-completion-on-os-x-with-brew/)).
+
+TPS currently supports C++, Pascal and Java.
+The `gcc` compiler is mandatory, 
+ and `fpc` (Free Pascal) and java compilers are required if there are invocations of those languages.
+
+Python (2 or 3) is an essential dependency.
+
+Windows users should install the python package `colorama` in order to have colorful outputs.
+In return, non-windows users should install the python package `psutil` to be able to invoke solutions (using `tps invoke`).
+
+You can install a python package by running:
+
+```
+sudo pip install package-name
+```
+
+or:
+
+```
+sudo python -m pip install package-name
+```
+
+The `dos2unix` command is required for making public directories and task attachments (using `tps make-public`).
+It is also suggested to be available when generating tests (using `tps gen`). 
+You may install it in linux using:
+
+```
+sudo apt install dos2unix
+```
+
+and in OS/X using:
+
+```
+brew install dos2unix
+```
+
+You can install `dos2unix` on Windows through GnuWin32 packages.
+
+The system should have the GNU `make` command (for `Makefile`s).
 
 
 # Task Directory Structure
@@ -159,11 +170,20 @@ The `cpp` directory usually contains a `.h` interface file that is included in g
 
 ## checker/
 
-It contains a program, `checker.cpp`, that takes the input, output and answer of a test and checks if the output is correct or wrong, or evaluates the output in partial-scoring tasks. It also contains `testlib.h` that the checker file usually uses.
+It contains a program, `checker.cpp`, that takes the input, output and answer of a test and checks if the output is correct or wrong,
+  or evaluates the output in partial-scoring tasks.
+It also contains `testlib.h` that the checker file usually uses.
+The file `testlib.h` used in TPS directories is a little bit different from [its official version](https://github.com/MikeMirzayanov/testlib).
+The modifications are to make it compatible with CMS and TPS.
+
+Note:
+As based on protocol, TPS and CMS read the first lines of standard output/error of the checker (written by `testlib` on quitting the checker),
+ make sure not to print to these streams in the checker code.
+Otherwise, the judgment behavior is undefined.
 
 ## solution/
 
-It contains all solutions that are prepared and used in develepment of the task, for different programming languages (all in the same directory). Each solution has a verdict that are listed in `solutions.json` file.
+It contains all solutions that are prepared and used in development of the task, for different programming languages (all in the same directory). Each solution has a verdict that are listed in `solutions.json` file.
 
 ## solutions.json
 
@@ -174,8 +194,9 @@ Below is an example:
 
 ```
 {
-    "mountains-haghani-solution.cpp": {"verdict": "model_solution"},
-	"mountain.cpp": {"verdict": "correct"},
+	"main-solution.cpp": {"verdict": "model_solution"},
+	"alternative-sol.cpp": {"verdict": "correct"},
+	"correct-sol.java": {"verdict": "correct"},
 	"greedy.cpp": {
 		"verdict": "incorrect",
 		"except": {"samples": "correct", "n2": "time_limit"}
@@ -189,11 +210,28 @@ This directory contains validators for the whole set of test data (global valida
 
 ## subtasks.json
 
-It contains the list of all subtasks, the score of each subtask, and a mapping between validators and subtasks. The total scores should be 100. Below is an example:
+It contains the information of all subtasks, including:
+* `index`: the number of the subtask.
+  It naturally should start with $0$ when there is a `samples` subtask.
+  In output-only tasks which usually do not have the sample tests as subtask,
+  the subtasks indices should start with $1$.
+* `score`: the score of the subtask.
+  The total scores over all subtasks should be $100$. 
+* `validators`: the list of validators specific to the subtask.
+
+In addition, it contains the list of global validators (`global_validators`).
+A global validator validates each test exactly once regardless of the subtasks it belongs.
+There may also be the list of subtask-sensitive validators (`subtask_sensitive_validators`)
+ which validate each test once for each subtask containing the test.
+The subtask name is passed to the subtask-sensitive validator through the `{subtask}` argument placeholder.
+Passing arguments to the validators is supported.
+
+Below is an example:
 
 ```
 {
     "global_validators": ["validator.cpp"],
+    "subtask_sensitive_validators": ["subtask-val.cpp --group {subtask}"],
     "subtasks": {
           "samples": {
                "index": 0,
@@ -203,17 +241,17 @@ It contains the list of all subtasks, the score of each subtask, and a mapping b
           "2^n": {
                 "index": 1,
                 "score": 20,
-                "validators": ["sub1_validator.cpp"]
+                "validators": ["validator_sub1.cpp", "grep hello"]
           },
           "bt": {
                 "index": 2,
                 "score": 20,
-                "validators": ["sub2_validator.cpp"]
+                "validators": ["validator_sub2.java"]
           },
           "n3": {
                 "index": 3,
                 "score": 30,
-                "validators": ["sub3_validator.cpp"]
+                "validators": ["validator_sub3.py arg1", "my-bash-val.sh"]
           },
           "full": {
                 "index": 4,
@@ -226,7 +264,10 @@ It contains the list of all subtasks, the score of each subtask, and a mapping b
 
 ## statement/
 
-This directory contains the task statement, usually in markdown format. The main file is `index.md`, from which html file and other formats will be created. The pictures can be placed here as well.
+This directory contains the task statement which is usually in markdown or latex format.
+The source file is then something like `index.md` or `some-file.tex`, from which HTML, PDF, or other formats will be created.
+The pictures can be placed here as well.
+
 
 ## scripts/
 
@@ -236,6 +277,19 @@ If you invoke
 tps mycommand ...
 ```
 it will look in this directory for `mycommand.sh`, `mycommand.py`, and `mycommand.exe`.
+
+The `scripts` directory has the following subdirectories:
+
+* `bash_completion`:
+This directory contains the data used for bash completion.
+
+* `internal`:
+The private scripts (those that are not going to be invoked directly) are kept in this directory.
+
+* `templates`:
+Some code fragments are more prone to change in customized tasks.
+These fragments are extracted from the scripts and kept in this directory, so that they can be found and modified more easily.
+
 
 ## public/
 
@@ -249,9 +303,24 @@ This file defines how the public package of task files given to the contestants 
 Every file that is going to be put in the archive should be explicitly mentioned in this file.
 The following commands can be used to add a file:
  
-`public <public-file-path>`: The same file in the `public` directory is used after some fixing (dos2unix).
+* `public <public-file-path>`:
+The same file in the `public` directory is used after some fixing (dos2unix).
 
-`grader <grader-file-path>`: The grader from `grader` directory is used after removing the secret parts.
+* `grader <grader-file-path>`:
+The file is going to be generated from the equivalent file in the `grader` directory,
+ using the `pgg` (Public Grader Generator) script. 
+ This script removes the secret parts of the judge grader that are specified through `BEGIN SECRET`/`END SECRET` markers.
+
+* `copy_test_inputs <gen/data file> <public tests dir> <generated tests dir>`:
+This command is mainly used in output-only tasks.
+It copies all test inputs based on file `gen/data` from directory `tests` to directory `public/tests`.
+**Important**: 
+It assumes that the test data is already generated and available in the `tests` directory (naturally, using `tps gen`).
+
+Note that the keyword `PROBLEM_NAME_PLACE_HOLDER` in file names is representing the task name (specified in `problem.json`)
+ and is automatically replaced during the execution.
+ So, it is not needed to replace it with the task name in the file.
+
 
 
 Example:
@@ -271,6 +340,8 @@ public java/run_java.sh
 public java/PROBLEM_NAME_PLACE_HOLDER.java
 grader java/grader.java
 
+#this is a comment
+
 public examples/01.in
 public examples/01.out
 public examples/02.in
@@ -281,24 +352,54 @@ public examples/02.out
 
 ## tests/
 
-After running the generators (using `tps gen`), it will contain all the test data (both input and output files). 
-It also will contain a file named `mapping` that specifies the mapping of test cases to subtasks.
+After running the generators (using `tps gen`), it will contain the following material:
+* The generated test data (both input and output files).
+* A file named `mapping` that specifies the mapping of test cases to subtasks.
 For each test case $c$ and subtask $s$ containing $c$, there is a line containing $s$ and $c$.
 The same test can be mapped to multiple subtasks. 
 This mapping is used during the validation of test cases, and also in exporting to CMS.
+* A file named `gen_summary` which contains a summary of data generation process.
+For each line of test generation in file `gen/data`, 
+ its line number, its contents, and name of the corresponding generated test is written to `gen_summary`.
 
-## sanbox/
+## sandbox/
 
 A directory that is used to compile solutions, and run them over the test data.
 
 ## logs/
 
-Contains all compile and run logs.
+Contains all compile and run logs on the last execution of `gen` or `invoke`.
 
 
 ## Derived directories
+
 Note that `logs`, `sandbox`, and `tests` are _derived_ directories i.e. their content is computed based on other files.
-So, these directories are in gitignore.
+So, these directories are in `.gitignore`.
+
+
+## Note on `Makefile`s
+
+While solutions are compiled in the sandbox (every time, from scratch),
+ the other codes which should be compiled are built with `Makefile`s.
+This covers input generators, input validators, and the checker.
+
+TPS has the ability to detect compilation warnings.
+For being able to do that,
+ the `Makefile`s should not only generate the executables,
+ but also write the compilation outputs/logs in separate files.
+These files are then processed by TPS
+ to check if there was a compilation warning.
+A `Makefile` should also have a special target named `compile_outputs_list`
+ which prints the list of file names for all compilation outputs generated.
+
+One may ask
+ why the output of the `make` command itself is not processed to detect the warnings.
+That's because the `make` command does not perform the compilation again 
+ if the executables are already built and up-to-date.
+So, if it was implemented that way, no warning could be detected in such cases.
+
+[A well-implemented version of `Makefile` (named `Makefile.sample`)](Makefile.sample)
+ is available besides this documentation.
 
 # TPS commands
 
@@ -312,69 +413,227 @@ tps &lt;command&gt; &lt;arguments&gt;...
 Below are the list of commands that can usually be used with `tps`.
 The exact list of commands depends on the contents of the `scripts` directory in the task package.
 
-## analyze
 
-This will open the TPS web interface on the same commit, to verify the directory structure, to generate the test data, and to use the other functionalities of the web interface from the left menu (e.g. invocations). It will not change from this commit, even if the other people push changes.
+## verify
+
+This command verifies the whole directory structure,
+   and reports error or warning messages accordingly.
+It is quite useful in finding inconsistencies.
 
 ## compile
 
-Given a single solution code, TPS will understand its programming language, put it in the `sandbox` directory with a new name that matches the short name of the task, puts necessary grader files in sandbox (use `-p, --public` argument to copy the public grader), compiles it, and creates `exec.sh` (that runs the program based on the programming language) and `run.sh` (which handles the required pipe-handling for interactive tasks). It also looks for `scripts/templates/post_compile.sh` and runs it if the compile process is finished successfully. The hook script `post_compile.sh` is useful in some task types; for example, in `Communication` tasks, a manager file should also be compiled and put beside the grader.
+This command gets a single solution and does the following:
+* Detects the programming language.
+* Puts the solution in the `sandbox` directory with the appropriate name (naturally, renamed to the task name).
+* Puts the necessary grader files in the sandbox.
+* Compiles and links the solution with the grader. 
+* Creates `exec.sh` in the sandbox.
+  This script runs the program based on the detected programming language.
+  The complexities due to the different programming languages are wrapped by this script.
+  So, one would rather use this script instead of directly running the compiled binary.
+* Creates `run.sh` in the sandbox.
+  This script uses `exec.sh` 
+   and implements the logic of running the program based on the task type.
+  For example, it handles the pipes and interactions with the manager in tasks of type `Communication`,
+  or it runs both two phases of execution in tasks of type `TwoSteps`.
+  Naturally, it is more common to run the solution using `run.sh` instead of running through `exec.sh`.
+* If the compile process is finished successfully,
+   the script then looks for `scripts/templates/post_compile.sh`
+   and runs it if it is available.
+  This hook script is useful in some task types,
+   when something special should be done in addition to the normal compile process.
+  For example, in `Communication` tasks, a manager file should also be compiled and put beside the grader.
+  This is achieved using `post_compile.sh` in the current implementation,
+   without the need for modifying the compile script itself.
+
+In addition to the solution path, the command can get some options:
+* `-h, --help`:
+  Shows the help.
+* `-v, --verbose`:
+  Prints verbose details during the execution.
+  It prints the value of important variables, the decisions made based on the state, and commands being executed.
+* `-w, --warning-sensitive`:
+  Fails (exits with a nonzero code) when warnings were detected during the compilation process.
+* `-p, --public`:
+  Uses the public graders (in directory `public`) for compiling and linking with the solution,
+   instead of the judge graders (in directory `grader`).
+  This is mainly useful for verifying and testing the public graders and example tests.
+ 
+ 
+## run
+
+In short, it runs the compiled solution in the sandbox.
+But, there is more to say!
+
+As mentioned in the description of the `compile` command,
+  it also creates a script `run.sh` in `sandbox`
+  which wraps both the complexities of having different programming languages
+  and the complexities of having different task types.
+When being in different directories, 
+  directly executing `run.sh` needs annoying relative addressings like `../../sandbox/run.sh`.
+The `run` command in TPS handles this addressing issue.
+So, being in any location of the task directory structure, the same thing should be entered in the command-line:
+
+```
+tps run  < input-file  > output-file
+```
+
+This command seems quite basic.
+It gets the solution input from the standard input and sends the solution output to the standard output.
+It does not consider task constraints like time limit.
+You should use the `invoke` command (discussed in the next sections) to consider those limits and run against the test cases.
+
 
 ## gen
 
-Compiles generator, model-solution, and validator, and then generates and validates the test data and check model solution on them. Each test is assigned a test name by the TPS. 
-Currently, the test names are in `X-YY` format, where `X` is the subtask name (or testset number, starting from `0`), and `YY` is the test number, starting from `01`, in the same order of their presence in the `gen/data` file. This format is set in `scripts/templates/test_name.py` and can be changed per task, if required.
+Compiles generator, model-solution, and validator, 
+  and then generates and validates the test inputs and runs the model solution on them to generate the test outputs.
+The generated test cases are placed in the `tests` directory.
 
-The other arguments are:
+Each test is assigned a test name by the TPS.
+Currently, the test names are in `X-YY` format, 
+  where `X` is the subtask name (or testset number, starting from `0`), 
+  and `YY` is the test number, 
+  starting from `01`, in the same order of their presence in the `gen/data` file.
+This format is set in `scripts/templates/test_name.py` and can be changed per task, if required.
+Default naming of the tests is different in output-only tasks; it is just `YY` where `YY` is the test number.
 
-* `-m, --model-solution=<model-solution-path>`: change the model solution.
-* `-s, --sensitive`: Terminate on the first error.
-* `-t, --test=<test-name>`: run the whole process for only a single test. The `test-name` should be in the same `X-YY` format, as explained above.  
-* `-d, --gen-data=<gen-data-file>`: use another file rather than `gen/data`.
-* `--no-gen`: do not generate the tests again.
-* `--no-sol`: do not run the model-solution.
-* `--no-val`: do not run the validator.
-* `--no-sol-comp[ile]`: do not compile model solution.
-* `-h, --help`: this help info.
+The command options are:
+
+* `-h, --help`:
+  Shows the help.
+* `-s, --sensitive`:
+  Terminates the generation process on the first error and shows the error details.
+* `-w, --warning-sensitive`:
+  Terminates the generation process on the first warning or error and shows the details.
+  It also enables the `--sensitive` flag implicitly. 
+* `-u, --update`:
+  Updates the currently existing set of tests.
+  This option prevents the initial cleanup of the `tests` directory 
+   and is used when a subset of test data needs to be generated again.
+  *Warning:* Use this feature only when the other tests are not needed or already generated correctly.
+* `-t, --test=<test-name-pattern>`: 
+  Runs the process of test generation for a subset of tests.
+  A test is generated if and only if its name matches the given pattern.
+  Example patterns are `1-01`, `'1-*'`, and `'1-0?'`.
+  Note: When using wildcards, do not forget to use quotation marks or escaping (using `\`) in the pattern to prevent shell expansion.
+* `-m, --model-solution=<model-solution-path>`: 
+  Overrides the model solution used for generating test outputs.
+* `-d, --gen-data=<gen-data-file>`: 
+  Overrides the location of meta-data file used for test generation (instead of `gen/data`).
+* `--tests-dir=<tests-directory-path>`:
+  Overrides the location of the tests directory (instead of `tests`).
+* `--no-gen`: 
+ Skips running the generators for generating test inputs.
+ This option prevents the initial cleanup of the tests directory
+  and is used when test inputs are already thoroughly generated and only test outputs need to be generated.
+* `--no-sol`: 
+ Skips running the model solution for generating test outputs.
+* `--no-val`: 
+ Skips validating test inputs.
+* `--no-sol-compile`:
+ Skips compiling the model solution
+  and uses the solution already compiled and available in the sandbox.
+
+Here are some notes/features on this command:
+* The contents of the `tests` directory (or the directory specified with `--tests-dir`)
+  is completely cleared in the beginning of execution.
+  The exception is when flags `-u`, `--update`, or `--no-gen` are set.
+* The script warns for each test if it has no validator.  
+* Files `mapping` and `gen_summary` in the `tests` directory are also generated when this command is run.
+* If file `input.header` is available in the `gen` directory, its contents is inserted in the beginning of each input.
+* If file `output.header` is available in the `gen` directory, its contents is appended to the end of each input.
+* A `dos2unix` is applied on the generated inputs if the command is available.
+* The `logs` directory is completely cleared in the beginning of this script.
+  All the steps are logged in separate files in this directory.
+
+
 
 ## invoke
 
-This command is used to compile one solution and checker, run the solution over the test data and check its output. Here is the usage:
+This command is used to compile a solution and the checker, 
+  run the solution over the test data (with the problem constraints, e.g. time limit) and check its output. 
+Here is the usage:
 
 ```
 tps invoke [options] <solution-path>
 ```
 
-Below are the arguments:
-* `-h, --help`: this help info.
-* `-s, --sensitive`: terminate on the first error.
-* `-r, --show-reason`: display the reason for not being accepted, e.g. checker output
-* `-t, --test=<test-name>`: invoke a single test case.
-* `-d, --gen-data=<gen-data-file>`: use alternative `gen/data` file.
-* `--no-check[er]`: do not run checker.
-* `--no-sol-comp[ile]`: do not compile solution.
-* `--no-tle`: no time limit exceeded report.
-* `--time-limit=<time-limit>`: use alternative time limit in seconds.
-* `--hard-time-limit=<hard-time-limit>`: solution process will be killed after the given time in seconds. Default: `<time-limit>`$+2$.
+Below are the command options:
+* `-h, --help`:
+  Shows the help.
+* `-s, --sensitive`:
+ Terminates the invocation process on the first error.
+ Note that solution failures such as `Wrong Answer` or `Runtime Error` are not considered an error here.
+* `-w, --warning-sensitive`:
+ Terminates the invocation process on the first warning or error and shows the details.
+ It also enables the `--sensitive` flag implicitly. 
+* `-r, --show-reason`:
+ Displays the failure reason for each test case.
+ The checker message is written in the case of `Wrong Answer`.
+* `-t, --test=<test-name-pattern>`:
+ Runs the invocation process on a subset of tests.
+ The invocation is run on each test if and only if its name matches the given pattern.
+ Example patterns are `1-01`, `'1-*'`, and `'1-0?'`.
+ Note: When using wildcards, do not forget to use quotation marks or escaping (using `\`) in the pattern to prevent shell expansion.
+* `--tests-dir=<tests-directory-path>`:
+ Overrides the location of the tests directory (instead of `tests`).
+* `--no-check`:
+ Skips running the checker on solution outputs.
+* `--no-sol-compile`:
+ Skips compiling the solution
+  and uses the solution already compiled and available in the sandbox.
+* `--no-tle`:
+ Removes the default time limit on the execution of the solution.
+ It actually sets the time limit to $24$ hours.
+* `--time-limit=<time-limit>`:
+ Overrides the time limit (specified in `problem.json`) on the solution execution.
+ The time limit is given in seconds.
+ For example, `--time-limit=1.2` means $1.2$ seconds.
+* `--hard-time-limit=<hard-time-limit>`:
+ Specifies the hard time limit on solution execution,
+  i.e. the time after which the solution process will be killed.
+ This limit is also given in seconds
+  and its default value is $2$ seconds more than the (soft) time limit.
+ Note that the hard time limit must be greater than the (soft) time limit.
 
-## run
 
-Runs the compiled solution in the sandbox for a given set of arguments.
-This command is quite basic. Naturally, you should use the `invoke` command instead.
+Here are some notes/features on this command:
+* This script runs based on the assumption that
+   the test data is already generated and placed in the `tests` directory (or the directory specified with `--tests-dir`).
+* The script needs the file `gen_summary` in the tests directory (generated by the `gen` command)
+  in order to detect the test cases. Make sure the file is not removed or modified manually.
+* The script reports the test cases
+  which are (for any reason) not available in the tests directory
+  but the invocation should have been run on them.
+* The `logs` directory is completely cleared in the beginning of this script.
+  All the steps are logged in separate files in this directory.
+* In addition to the verdict,
+   the running time and the score of the solution is printed for each test case.
+  The score is usually zero or one, unless the verdict is `Partially Correct`.
+
 
 ## make-public
 
-Updates the `public` directory and provides the package that is given to the contestants.
-It contains the public graders for each language, example test data, sample solution, the compile scripts, and input tests for the output-only tasks.
-The script finally creates a zip file which can be shared with the contestants during the contest (directly put in CMS, etc).
-The behavior of the script is specified per file in `public/files`.
-
-## verify
-
-Verifies the directory structure, and reports error or warning messages accordingly.
+This command updates the `public` directory and provides the package that is given to the contestants.
+It contains the public graders for each language, example test data, sample solution, the compile/run scripts, and test inputs for the output-only tasks.
+The script finally generates a ZIP file (in the root of task directory structure) 
+  which can be shared with the contestants during the contest (directly put in CMS, etc).
+The behavior of the script for each public file is explicitly specified in `public/files`.
 
 
-# Web interface
+## analyze
+
+This command will open the TPS web interface on the same current commit,
+ to verify the directory structure, 
+ to generate the test data, 
+ and to use the other functionalities of the web interface from the left menu (e.g. invocations). 
+It will not change from this commit, even if other people push changes.
+Make sure to push your commits before executing this command.
+This command is not usable if TPS web interface is not setup for the task.
+
+
+# TPS Web interface
 
 To use the TPS web interface, clone `tps-web` repository from [here](https://github.com/ioi-2017/tps-web).
 Using the web interface, you can go to any task, and see the task statement and all of test materials. The test cases are only available after they are generated. For generating the test cases you should go to the analysis page and click on the generate button. During the generation you can also see the generation state by reloading the page. You may then analyze the test data using the test cases section. You may also use invocations to evaluate solutions.
