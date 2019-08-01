@@ -106,7 +106,7 @@ def has_ending(file_name, endings):
     return any(file_name.endswith(ending) for ending in endings) 
 
 def is_ignored(file_name):
-    return has_ending(file_name, ['.exe', '.class', '~']) 
+    return has_ending(file_name, ['.exe', '.class', '~', '.compile.out']) 
 
 def get_list_of_files(directory):
     return list(os.listdir(directory))
