@@ -5,17 +5,39 @@ import os
 import json
 import subprocess
 
+from gen_data_parser import DataVisitor, parse_data_or_throw, DataParseError
 from color_util import colored, cprint, colors
 
 BASE_DIR = os.environ.get('BASE_DIR')
+
 PROBLEM_NAME = os.environ.get('PROBLEM_NAME')
 HAS_GRADER = os.environ.get('HAS_GRADER')
 HAS_MANAGER = os.environ.get('HAS_MANAGER')
 WEB_TERMINAL = os.environ.get('WEB_TERMINAL')
 
-#TODO read these 2 variables from problem.json
+
+PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
+SOLUTIONS_JSON = os.environ.get('SOLUTIONS_JSON')
+SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
+GEN_DATA = os.environ.get('GEN_DATA')
+GEN_DIR = os.environ.get('GEN_DIR')
+VALIDATOR_DIR = os.environ.get('VALIDATOR_DIR')
+SOLUTION_DIR = os.environ.get('SOLUTION_DIR')
+CHECKER_DIR = os.environ.get('CHECKER_DIR')
+GRADER_DIR = os.environ.get('GRADER_DIR')
+STATEMENT_DIR = os.environ.get('STATEMENT_DIR')
+
+
+def get_relative(full_path):
+    return full_path[len(BASE_DIR)+1:] if full_path.startswith(BASE_DIR) else full_path
+
+GEN_DATA_RELATIVE = get_relative(GEN_DATA)
+SUBTASKS_JSON_RELATIVE = get_relative(SUBTASKS_JSON)
+
+#TODO read these 3 variables from problem.json
 java_enabled = True
 pascal_enabled = False
+has_markdown_statement = True
 
 git_enabled = True
 git_remote_name = "origin"
@@ -24,21 +46,30 @@ valid_problem_types = ('Batch', 'Communication', 'OutputOnly', 'TwoSteps')
 model_solution_verdict = 'model_solution'
 valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error', 'partially_correct')
 necessary_files = (
-    'checker/testlib.h', 'checker/Makefile', 'checker/checker.cpp',
-    'validator/testlib.h', 'validator/Makefile',
-    'gen/testlib.h', 'gen/Makefile', 'gen/data',
+    os.path.join(CHECKER_DIR, 'Makefile'),
+    os.path.join(VALIDATOR_DIR, 'Makefile'),
+    os.path.join(GEN_DIR, 'Makefile'), 
+    GEN_DATA
+)
+semi_necessary_files = (
+    os.path.join(CHECKER_DIR, 'checker.cpp'),
+    os.path.join(CHECKER_DIR, 'testlib.h'), 
+    os.path.join(VALIDATOR_DIR, 'testlib.h'), 
+    os.path.join(GEN_DIR, 'testlib.h'),
 )
 
 grader_necessary_files = [
-    'grader/cpp/%s.h' % PROBLEM_NAME, 'grader/cpp/grader.cpp',
+    os.path.join(GRADER_DIR, 'cpp/%s.h' % PROBLEM_NAME), 
+    os.path.join(GRADER_DIR, 'cpp/grader.cpp'),
 ]
 if java_enabled:
-    grader_necessary_files.append('grader/java/grader.java')
+    grader_necessary_files.append(os.path.join(GRADER_DIR, 'java/grader.java'))
 if pascal_enabled:
-    grader_necessary_files.append('grader/pas/grader.pas')
+    grader_necessary_files.append(os.path.join(GRADER_DIR, 'pas/grader.pas'))
 
 manager_necessary_files = (
-    'grader/Makefile', 'grader/manager.cpp'
+    os.path.join(GRADER_DIR, 'Makefile'), 
+    os.path.join(GRADER_DIR, 'manager.cpp')
 )
 
 if sys.version_info >= (3,):
@@ -91,7 +122,7 @@ def load_data(json_file, required_keys=()):
                 error('invalid json')
                 return None
     except IOError:
-        error('file does not exists')
+        error('file does not exist')
         return None
     try:
         check_keys(data, required_keys)
@@ -113,7 +144,7 @@ def get_list_of_files(directory):
 
 
 def verify_problem():
-    problem = load_data(os.path.join(BASE_DIR, 'problem.json'), ['name', 'title', 'type', 'time_limit', 'memory_limit'])
+    problem = load_data(PROBLEM_JSON, ['name', 'title', 'type', 'time_limit', 'memory_limit'])
     if problem is None:
         return problem
 
@@ -152,24 +183,25 @@ def verify_problem():
     if not isinstance(problem['title'], string_types):
         error('title is not a string')
 
-    try:
-        with open(os.path.join(BASE_DIR, 'statement', 'index.md')) as f:
-            first_line = None
-            for line in f.readlines():
-                if line.strip() != '':
-                    first_line = line
-                    break
+    if has_markdown_statement:
+        try:
+            with open(os.path.join(STATEMENT_DIR, 'index.md')) as f:
+                first_line = None
+                for line in f.readlines():
+                    if line.strip() != '':
+                        first_line = line
+                        break
 
-            if first_line is None:
-                warning('statement is empty')
-            elif not first_line.strip().startswith('#'):
-                warning('statement does not start with a title')
-            else:
-                statement_title = first_line.replace('#', '').strip()
-                if statement_title != problem['title']:
-                    warning('title (%s) does not match title in statement (%s)' % (problem['title'], statement_title))
-    except IOError:
-        warning('statement does not exists')
+                if first_line is None:
+                    warning('statement is empty')
+                elif not first_line.strip().startswith('#'):
+                    warning('statement does not start with a title')
+                else:
+                    statement_title = first_line.replace('#', '').strip()
+                    if statement_title != problem['title']:
+                        warning('title (%s) does not match title in statement (%s)' % (problem['title'], statement_title))
+        except IOError:
+            warning('statement does not exist')
 
     if not isinstance(problem['type'], string_types) or problem['type'] not in valid_problem_types:
         error('type should be one of {}'.format('/'.join(valid_problem_types)))
@@ -201,7 +233,7 @@ def verify_problem():
 
 
 def verify_subtasks():
-    subtasks_data = load_data(os.path.join(BASE_DIR, 'subtasks.json'), ['subtasks'])
+    subtasks_data = load_data(SUBTASKS_JSON, ['subtasks'])
     
     if subtasks_data is None:
         return None
@@ -209,10 +241,10 @@ def verify_subtasks():
     k_glob = 'global_validators'
     k_sub = 'subtask_sensitive_validators'
     if (k_glob not in subtasks_data) and (k_sub not in subtasks_data):
-        error('Neither "{}" nor "{}" is present in "{}".'.format(k_glob, k_sub, 'subtasks.json'))
+        error('Neither "{}" nor "{}" is present in "{}".'.format(k_glob, k_sub, SUBTASKS_JSON_RELATIVE))
         return None
     
-    validator_files = get_list_of_files(os.path.join(BASE_DIR, 'validator/'))
+    validator_files = get_list_of_files(VALIDATOR_DIR)
     used_validators = set()
 
     def check_validator_key(parent, key, name, parName=None):
@@ -300,6 +332,76 @@ def verify_subtasks():
     return subtasks
 
 
+def verify_gen_data(task_data, subtasks):
+    class GenDataVisitor(DataVisitor):
+        def __init__(self):
+            DataVisitor.__init__(self)
+            self.tests_map = dict()
+            self.subtasks = []
+            self.testsets = []
+            self.used_testsets = set()
+    
+        def on_testset(self, testset_name, line_number):
+            self.testsets.append(testset_name)
+            self.tests_map[testset_name] = set()
+    
+        def on_subtask(self, subtask_name, line_number):
+            self.subtasks.append(subtask_name)
+            self.used_testsets.add(subtask_name)
+        
+        def on_include(self, testset_name, included_testset, line_number):
+            self.used_testsets.add(included_testset)
+            self.tests_map[testset_name] |= self.tests_map[included_testset]
+    
+        def on_test(self, testset_name, test_name, line, line_number):
+            self.tests_map[testset_name].add(test_name)
+    
+        def get_test_subtasks(self):
+            test_subtasks = defaultdict(list)
+            for subtask in self.subtasks:
+                for test in self.tests_map[subtask]:
+                    test_subtasks[test].append(subtask)
+            return test_subtasks
+    
+    gen_data = GenDataVisitor()
+    try:
+        with open(GEN_DATA, 'r') as f:
+            try:
+                parse_data_or_throw(f.readlines(), task_data, gen_data)
+            except DataParseError as e:
+                error(e.message)
+                return
+    except IOError:
+        error('file does not exist or is not readable')
+        return
+    
+    json_subtasks = set(subtasks.keys())
+    gen_subtasks = set(gen_data.subtasks)
+    #Checking the equivalence of subtasks in json file and data file:
+    for s in json_subtasks-gen_subtasks:
+        error("subtask '{}' is defined in '{}' but not mentioned in '{}'".format(s, SUBTASKS_JSON_RELATIVE, GEN_DATA_RELATIVE))
+    for s in gen_subtasks-json_subtasks:
+        error("subtask '{}' is mentioned in '{}' but not defined in '{}'".format(s, GEN_DATA_RELATIVE, SUBTASKS_JSON_RELATIVE))
+    
+    #Checking for empty testsets/subtasks:
+    for testset in gen_data.testsets:
+        if not gen_data.tests_map[testset]:
+            if testset in gen_subtasks:
+                score = 0
+                if testset in subtasks:
+                    score = subtasks[testset]['score']
+                if score > 0:
+                    error("subtask '{}' (with a positive score) has no tests".format(testset))
+                else:
+                    warning("subtask '{}' has no tests".format(testset))
+            else:
+                warning("testset '{}' has no tests".format(testset))
+    
+    #Checking if a testset is defined but not used:
+    for ts in set(gen_data.testsets)-set(gen_data.used_testsets):
+        warning("testset '{}' is not used anywhere".format(ts))
+
+
 def verify_verdict(verdict, key_name):
     if not isinstance(verdict, string_types) or verdict not in valid_verdicts:
         error('{} verdict should be one of {}'.format(key_name, '/'.join(valid_verdicts)))
@@ -315,17 +417,17 @@ def get_model_solution(solutions):
 
 
 def verify_solutions(subtasks):
-    solutions = load_data(os.path.join(BASE_DIR, 'solutions.json'))
+    solutions = load_data(SOLUTIONS_JSON)
     if solutions is None or subtasks is None:
         return solutions
 
     model_solution = None
-    solution_files = get_list_of_files(os.path.join(BASE_DIR, 'solution/'))
+    solution_files = get_list_of_files(SOLUTION_DIR)
     used_solutions = set()
 
     for solution in solutions:
         if solution not in solution_files:
-            error('{} does not exists'.format(solution))
+            error('{} does not exist'.format(solution))
             continue
         used_solutions.add(solution)
 
@@ -364,25 +466,36 @@ def verify_solutions(subtasks):
 
 
 def verify_existence(files):
-    for file in files:
+    for file0 in files:
+        file = get_relative(file0)
         if not os.path.isfile(os.path.join(BASE_DIR, file)):
             error(file)
+
+def verify_existence_warn(files):
+    for file0 in files:
+        file = get_relative(file0)
+        if not os.path.isfile(os.path.join(BASE_DIR, file)):
+            warning(file)
 
 
 def verify():
     global namespace
-    namespace = 'problem.json'
+    namespace = get_relative(PROBLEM_JSON)
     global problem
     problem = verify_problem()
 
-    namespace = 'subtasks.json'
+    namespace = SUBTASKS_JSON_RELATIVE
     subtasks = verify_subtasks()
+    
+    namespace = GEN_DATA_RELATIVE
+    verify_gen_data(problem, subtasks)
 
-    namespace = 'solutions.json'
+    namespace = get_relative(SOLUTIONS_JSON)
     verify_solutions(subtasks)
 
     namespace = 'not found'
     verify_existence(necessary_files)
+    verify_existence_warn(semi_necessary_files)
     if HAS_GRADER == "true":
         verify_existence(grader_necessary_files)
     if HAS_MANAGER == "true":

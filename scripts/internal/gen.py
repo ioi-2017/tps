@@ -4,7 +4,7 @@ from collections import defaultdict
 import subprocess
 
 from util import load_json, wait_process_success
-from gen_data_parser import DataVisitor, parse_data, data_parse_error, check_test_pattern_exists, test_name_matches_pattern
+from gen_data_parser import DataVisitor, parse_data, check_test_pattern_exists, test_name_matches_pattern
 
 
 PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
@@ -31,7 +31,7 @@ class SummaryVisitor(DataVisitor):
 class MappingVisitor(DataVisitor):
     def __init__(self):
         DataVisitor.__init__(self)
-        self.tests_map = defaultdict(set)
+        self.tests_map = dict()
         self.subtasks = []
 
     def on_testset(self, testset_name, line_number):
@@ -41,8 +41,6 @@ class MappingVisitor(DataVisitor):
         self.subtasks.append(subtask_name)
 
     def on_include(self, testset_name, included_testset, line_number):
-        if included_testset not in self.tests_map:
-            data_parse_error("Undefined testset %s" % included_testset)
         self.tests_map[testset_name] |= self.tests_map[included_testset]
 
     def on_test(self, testset_name, test_name, line, line_number):
