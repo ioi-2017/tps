@@ -25,7 +25,9 @@ function usage {
 
 	errcho -e "  -t, --test=<test-name-pattern>"
 	errcho -e "\tInvokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
+	errcho -e "\tMultiple patterns can be given using commas or pipes. Examples: '1-01, 2-*', '?-01|*2|0-*'"
 	errcho -e "\tNote: Use quotation marks or escaping (with '\\') when using wildcards in the pattern to prevent shell expansion."
+	errcho -e "\t      Also, use escaping (with '\\') when separating multiple patterns using pipes."
 
 	errcho -e "      --tests-dir=<tests-directory-path>"
 	errcho -e "\tOverrides the location of the tests directory"

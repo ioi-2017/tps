@@ -1,6 +1,6 @@
 # Task Preparation System (TPS)
 
-Version 1.11
+Version 1.12
 
 Host Technical Committee, Host Scientific Committee
 
@@ -516,7 +516,10 @@ The command options are:
   Runs the process of test generation for a subset of tests.
   A test is generated if and only if its name matches the given pattern.
   Example patterns are `1-01`, `'1-*'`, and `'1-0?'`.
+  Multiple patterns can be given using commas or pipes.
+  Examples of multiple patterns are "`1-01, 2-*`", "`?-01|*2|0-*`".
   Note: When using wildcards, do not forget to use quotation marks or escaping (using `\`) in the pattern to prevent shell expansion.
+  Also, use escaping (with `\`) when separating multiple patterns using pipes.
 * `-m, --model-solution=<model-solution-path>`: 
   Overrides the model solution used for generating test outputs.
 * `-d, --gen-data=<gen-data-file>`: 
@@ -575,7 +578,10 @@ Below are the command options:
  Runs the invocation process on a subset of tests.
  The invocation is run on each test if and only if its name matches the given pattern.
  Example patterns are `1-01`, `'1-*'`, and `'1-0?'`.
+ Multiple patterns can be given using commas or pipes.
+ Examples of multiple patterns are "`1-01, 2-*`", "`?-01|*2|0-*`".
  Note: When using wildcards, do not forget to use quotation marks or escaping (using `\`) in the pattern to prevent shell expansion.
+ Also, use escaping (with `\`) when separating multiple patterns using pipes.
 * `--tests-dir=<tests-directory-path>`:
  Overrides the location of the tests directory (instead of `tests`).
 * `--no-check`:

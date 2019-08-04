@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 import fnmatch
 
 from test_name import get_test_name
@@ -136,8 +137,9 @@ def check_test_exists(gen_data, task_data, test_name):
 
 
 
-def test_name_matches_pattern(test_name, pattern):
-    return fnmatch.fnmatchcase(test_name, pattern)
+def test_name_matches_pattern(test_name, pattern_expression):
+    return any(fnmatch.fnmatchcase(test_name, single_pattern.strip()) 
+               for single_pattern in re.split(",|\|", pattern_expression))
 
 
 def check_test_pattern_exists_in_list(test_names_list, test_pattern):
