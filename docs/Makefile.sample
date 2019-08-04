@@ -14,10 +14,10 @@
 
 # Defining some recursively expanded variables
 
-CPP_HEADERS=testlib.h
 CXXFLAGS=-std=gnu++1y -Wall -Wextra -O2
 
 CPP_EXT=cpp
+HEADER_EXT=h
 EXE_EXT=exe
 COMPILE_OUT_PREFIX=._
 CPP_COMPILE_OUT_SUFFIX=.$(CPP_EXT).compile.out
@@ -28,11 +28,12 @@ CPP_COMPILE_TMP_OUT_SUFFIX=.$(CPP_EXT).compile.tmp.out
 SHELL=/bin/bash
 
 # Defining some simply expanded variables
-# Using 'wildcard' function to find all C++ files
-SOURCES := $(wildcard *.$(CPP_EXT))
+# Using 'wildcard' function to find all C++ sources and headers
+CPP_HEADERS := $(wildcard *.$(HEADER_EXT))
+CPP_SOURCES := $(wildcard *.$(CPP_EXT))
 # Defining variables through substitution references
-EXECUTABLES := $(SOURCES:%.$(CPP_EXT)=%.$(EXE_EXT))
-COMPILE_OUTPUTS := $(SOURCES:%.$(CPP_EXT)=$(COMPILE_OUT_PREFIX)%$(CPP_COMPILE_OUT_SUFFIX))
+EXECUTABLES := $(CPP_SOURCES:%.$(CPP_EXT)=%.$(EXE_EXT))
+COMPILE_OUTPUTS := $(CPP_SOURCES:%.$(CPP_EXT)=$(COMPILE_OUT_PREFIX)%$(CPP_COMPILE_OUT_SUFFIX))
 
 # Defining .PHONY targets
 .PHONY: all clean compile_outputs
