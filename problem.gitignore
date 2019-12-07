@@ -1,6 +1,7 @@
 /sandbox/
 /tests/
 /logs/
+/public/tests
 
 # C++.gitignore
 
@@ -121,6 +122,10 @@ Temporary Items
 
 # Eclipse
 /.project
+/.pydevproject
+/.settings/
+/.cproject
+/.classpath
 
 # CMake
 cmake-build-debug/
