@@ -155,19 +155,19 @@ else
 fi
 echo
 
-printf "%-${STATUS_PAD}scompile" "solution"
-if "${SKIP_SOL}" || "${skip_compile_sol}"; then
-	echo_status "SKIP"
-else
-	sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${model_solution}"
-fi
-echo
-
 printf "%-${STATUS_PAD}scompile" "validator"
 if "${SKIP_VAL}"; then
 	echo_status "SKIP"
 else
 	sensitive reporting_guard "validators.compile" build_with_make "${VALIDATOR_DIR}"
+fi
+echo
+
+printf "%-${STATUS_PAD}scompile" "solution"
+if "${SKIP_SOL}" || "${skip_compile_sol}"; then
+	echo_status "SKIP"
+else
+	sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${model_solution}"
 fi
 echo
 
