@@ -18,7 +18,13 @@ fi
 
 source "${BASE_DIR}/scripts/internal/locations.sh"
 source "${INTERNALS}/problem_data.sh"
-PYTHONPATH="${PYTHONPATH}:${INTERNALS}:${TEMPLATES}"
+
+if [ -n "${PYTHONPATH+x}" ]; then
+	PYTHONPATH="${PYTHONPATH}:"
+else
+	PYTHONPATH=""
+fi
+PYTHONPATH="${PYTHONPATH}${INTERNALS}:${TEMPLATES}"
 
 ulimit -s 512000 > /dev/null 2>&1 || true
 JAVA_OPTS="-Xmx512M -Xss256M"
