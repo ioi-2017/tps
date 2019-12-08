@@ -1,6 +1,6 @@
 # Task Preparation System (TPS)
 
-Version 1.12
+Version 1.13
 
 Host Technical Committee, Host Scientific Committee
 
@@ -33,11 +33,14 @@ Command completion is not supported in windows `CMD`.
 
 It is recommended to install bash completion if it is not already installed (there is a manual for OS/X [here](http://davidalger.com/development/bash-completion-on-os-x-with-brew/)).
 
-TPS currently supports C++, Pascal and Java.
+TPS currently supports C++, Pascal, Java, and Python for solutions.
 The `gcc` compiler is mandatory, 
  and `fpc` (Free Pascal) and java compilers are required if there are invocations of those languages.
 
-Python (2 or 3) is an essential dependency.
+Python (2 or 3) is an essential dependency for executing the TPS scripts.
+It is also needed for invocations of Python solutions.
+You can set the environment variable `PYTHON` to `python3`, `python2`, `python`, or any other Python interpreter with which you want to run the solution.
+If the environment variable `PYTHON` is not set, TPS first looks for the command `python3` (or `python2` if the solution extension is `py2` instead of `py`), and if it was not available, it falls back to the command `python`.
 
 Windows users should install the python package `colorama` in order to have colorful outputs.
 In return, non-windows users should install the python package `psutil` to be able to invoke solutions (using `tps invoke`).

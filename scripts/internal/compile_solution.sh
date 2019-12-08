@@ -95,6 +95,12 @@ elif [ "${ext}" == "pas" ] ; then
 elif [ "${ext}" == "java" ] ; then
 	vecho "Detected language: Java"
 	LANG="java"
+elif [ "${ext}" == "py" ] ; then
+	vecho "Detected language: Python3"
+	LANG="py"
+elif [ "${ext}" == "py2" ] ; then
+	vecho "Detected language: Python2"
+	LANG="py2"
 else
 	error_exit 1 "Unknown solution extension: ${ext}"
 fi
@@ -236,6 +242,49 @@ elif [ "${LANG}" == "java" ] ; then
 	vecho "Removing *.class files..."
 	vrun rm *.class
 	check_warning "${WARNING_TEXT_PATTERN_FOR_JAVA}"
+elif is_in "${LANG}" "py" "py2" ; then
+	function check_py_cmd {
+		CMD="$1"
+		if command_exists "${CMD}" ; then
+			vecho "Python command '${CMD}' exists and is being used."
+			PYTHON_CMD="${CMD}"
+			return 0
+		else
+			return 1
+		fi
+	}
+	if variable_exists "PYTHON" ; then
+		vecho "Environment variable PYTHON is set to '${PYTHON}'."
+		check_py_cmd "${PYTHON}" || error_exit 1 "Python command '${PYTHON}' does not exist."
+	else
+		if [ "${LANG}" == "py" ] ; then
+			if ! check_py_cmd "python3" ; then
+				vecho "Python command 'python3' does not exist."
+				check_py_cmd "python" || error_exit 1 "Neither of python commands 'python3' nor 'python' exists."
+			fi
+		elif [ "${LANG}" == "py2" ] ; then
+			if ! check_py_cmd "python2" ; then
+				vecho "Python command 'python2' does not exist."
+				check_py_cmd "python" || error_exit 1 "Neither of python commands 'python2' nor 'python' exists."
+			fi
+		else
+			error_exit 5 "Illegal state; unhandled python language: ${LANG}"
+		fi
+	fi
+	files_to_compile=("${prog}")
+	if "${HAS_GRADER}"; then
+		grader_py="grader.py"
+		vecho "Copying '${grader_py}' to sandbox..."
+		vrun cp "${GRADER_LANG_DIR}/${grader_py}" "."
+		files_to_compile+=("${grader_py}")
+		MAIN_FILE_NAME="grader"
+	else
+		MAIN_FILE_NAME="${PROBLEM_NAME}"
+	fi
+	vecho "files_to_compile: ${files_to_compile[@]}"
+	vecho "Compiling python sources..."
+	vrun capture_compile "${PYTHON_CMD}" -m py_compile "${MAIN_FILE_NAME}.py"
+	#check_warning "${WARNING_TEXT_PATTERN_FOR_PY}" TODO
 else
 	error_exit 5 "Illegal state; unknown language: ${LANG}"
 fi
@@ -250,6 +299,12 @@ function replace_tokens {
 	# Implementation of 'sed' in GNU (Linux) is different from BSD (Mac).
 	# For any change of this code you have to test it both in Linux and Mac.
 	vrun sed -i.bak -e "s/PROBLEM_NAME_PLACE_HOLDER/${PROBLEM_NAME}/g" "${the_file}"
+	if variable_exists "MAIN_FILE_NAME" ; then
+		vrun sed -i.bak -e "s/MAIN_FILE_NAME_PLACE_HOLDER/${MAIN_FILE_NAME}/g" "${the_file}"
+	fi
+	if variable_exists "PYTHON_CMD" ; then
+		vrun sed -i.bak -e "s/PYTHON_CMD_PLACE_HOLDER/${PYTHON_CMD}/g" "${the_file}"
+	fi
 	vrun rm "${the_file}.bak"
 }
 
