@@ -31,6 +31,11 @@ function error_echo {
 	cerrcho error -n "Error: "
 	errcho "$@"
 }
+function error_exit {
+	exit_code=$1; shift
+	error_echo "$@"
+	exit ${exit_code}
+}
 
 
 # This function 'echo's its arguments iff VERBOSE is true
@@ -54,17 +59,13 @@ function vrun {
 }
 
 
-if [ "$#" -ne 1 ]; then
-	error_echo "Illegal number of arguments"
-	exit 1
-fi
+[ "$#" -eq 1 ] || error_exit 2 "Illegal number of arguments"
 SOLUTION="$1"; shift
 
 if variable_not_exists "VERBOSE" ; then
 	VERBOSE="false"
 elif ! is_in "${VERBOSE}" "true" "false" ; then
-	error_echo "Invalid value for variable VERBOSE: ${VERBOSE}"
-	exit 1
+	error_exit 1 "Invalid value for variable VERBOSE: ${VERBOSE}"
 fi
 
 check_variable HAS_GRADER
@@ -77,8 +78,7 @@ if "${HAS_GRADER}"; then
 	elif [ "${GRADER_TYPE}" == "public" ] ; then
 		USED_GRADER_DIR="${PUBLIC_DIR}"
 	else
-		error_echo "Invalid grader type: ${GRADER_TYPE}"
-		exit 1
+		error_exit 1 "Invalid grader type: ${GRADER_TYPE}"
 	fi
 fi
 
@@ -96,8 +96,7 @@ elif [ "${ext}" == "java" ] ; then
 	vecho "Detected language: Java"
 	LANG="java"
 else
-	error_echo "Unknown solution extension: ${ext}"
-	exit 1
+	error_exit 1 "Unknown solution extension: ${ext}"
 fi
 
 if "${HAS_GRADER}"; then
@@ -210,9 +209,7 @@ elif [ "${LANG}" == "pas" ] ; then
 	vecho "Compiling and linking..."
 	vrun capture_compile fpc ${PAS_OPTS} "${files_to_compile[@]}" "-o${exe_file}"
 	if [ ! -x "${exe_file}" ]; then
-		error_echo "Executable ${exe_file} is not created by the compiler."
-		errcho "The source file was probably a UNIT instead of a PROGRAM."
-		exit 1
+		error_exit 1 -e "Executable ${exe_file} is not created by the compiler.\nThe source file was probably a UNIT instead of a PROGRAM."
 	fi
 	check_warning "${WARNING_TEXT_PATTERN_FOR_PAS}"
 elif [ "${LANG}" == "java" ] ; then
@@ -240,8 +237,7 @@ elif [ "${LANG}" == "java" ] ; then
 	vrun rm *.class
 	check_warning "${WARNING_TEXT_PATTERN_FOR_JAVA}"
 else
-	error_echo "Illegal state; unknown language: ${LANG}"
-	exit 1
+	error_exit 5 "Illegal state; unknown language: ${LANG}"
 fi
 
 vecho "Exiting the sandbox."
