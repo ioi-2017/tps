@@ -374,7 +374,7 @@ function command_exists {
 }
 
 function invalid_arg {
-	errcho "Error at argument '${curr}': " "$@"
+	errcho "Error at argument '${curr}':" "$@"
 	usage
 	exit 2
 }
@@ -383,14 +383,13 @@ function invalid_arg {
 # ${curr} denotes the current token
 # ${next} denotes the next token when ${next_available} is "true"
 # the next token is allowed to be used when ${can_use_next} is "true"
-
 function fetch_arg_value {
-	variable_name="$1"; shift
-	short_name="$1"; shift
-	long_name="$1"; shift
-	argument_name="$1"
+	local variable_name="$1"; shift
+	local short_name="$1"; shift
+	local long_name="$1"; shift
+	local argument_name="$1"
 
-	fetched_arg_value=""
+	local fetched_arg_value=""
 	if [ "${curr}" == "${short_name}" ]; then
 		if "${can_use_next}" && "${next_available}"; then
 			fetched_arg_value="${next}"
@@ -399,14 +398,33 @@ function fetch_arg_value {
 	else
 		fetched_arg_value="${curr#${long_name}=}"
 	fi
-	[ ! -z "${fetched_arg_value}" ] || invalid_arg "missing ${argument_name}"
-	eval "${variable_name}=${fetched_arg_value}"
+	if [ -n "${fetched_arg_value}" ]; then
+		eval "${variable_name}='${fetched_arg_value}'"
+	else
+		invalid_arg "missing ${argument_name}"
+	fi
+}
+
+# Fetches the value of the next argument, while parsing the arguments of the command
+# ${curr} denotes the current token
+# ${next} denotes the next token when ${next_available} is "true"
+# the next token is allowed to be used when ${can_use_next} is "true"
+function fetch_next_arg {
+	local variable_name="$1"; shift
+	local short_name="$1"; shift
+	local long_name="$1"; shift
+	local argument_name="$1"; shift
+	if "${can_use_next}" && "${next_available}"; then
+		shifts=1
+		eval "${variable_name}='${next}'"
+	else
+		invalid_arg "missing ${argument_name}"
+	fi
 }
 
 # Parses arguments of the command
 # two callbacks should be provided in order to handle positional args and options
 # variables ${curr}, ${next}, ${next_available}, and ${can_use_next} are provided to callbacks
-
 function argument_parser {
 	handle_positional_arg_callback="$1"; shift
 	handle_option_callback="$1"; shift
@@ -421,20 +439,20 @@ function argument_parser {
 		fi
 
 		if [[ "${curr}" == --* ]]; then
-			can_use_next="false"
+			can_use_next="true"
 			"${handle_option_callback}"
 		elif [[ "${curr}" == -* ]]; then
 			if [ "${#curr}" == 1 ]; then
 				invalid_arg "invalid argument"
 			else
 				temp="${curr#-}"
-				while [ ! -z "${temp}" ]; do
+				while [ -n "${temp}" ]; do
 					can_use_next="false"
 					if [ "${#temp}" -eq 1 ]; then
 						can_use_next="true"
 					fi
 					curr="-${temp:0:1}"
-					handle_option
+					"${handle_option_callback}"
 					temp="${temp:1}"
 				done
 			fi
