@@ -8,7 +8,7 @@ source "${INTERNALS}/problem_util.sh"
 tests_dir="$1"; shift
 test_name="$1"; shift
 command="$1"; shift
-args="$@"
+args=("$@")
 
 input="${tests_dir}/${test_name}.in"
 output="${tests_dir}/${test_name}.out"
@@ -16,9 +16,13 @@ output="${tests_dir}/${test_name}.out"
 function gen_input {
 	temp_input=${input}.tmp
 	if [ "${command}" == "manual" ]; then
-		cp "${GEN_DIR}/manual/${args}" "${temp_input}" || return $?
+		if [ ${#args[@]} -ne 1 ] ; then
+			errcho "There must be exactly one argument for manual tests, but found ${#args[@]} arguments."
+			return 1
+		fi
+		cp "${GEN_DIR}/manual/${args[0]}" "${temp_input}" || return $?
 	else
-		"${GEN_DIR}/${command}.exe" ${args} > "${temp_input}" || return $?
+		"${GEN_DIR}/${command}.exe" "${args[@]}" > "${temp_input}" || return $?
 	fi
 	
 	header_file=${GEN_DIR}/input.header

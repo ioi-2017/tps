@@ -1,6 +1,7 @@
 import sys
 import os
 from collections import defaultdict
+import shlex
 import subprocess
 
 from util import load_json, wait_process_success
@@ -63,13 +64,12 @@ class GeneratingVisitor(DataVisitor):
     def on_test(self, testset_name, test_name, line, line_number):
         global tests_dir
         if SPECIFIC_TESTS == "false" or test_name_matches_pattern(test_name, SPECIFIED_TESTS_PATTERN):
-            command = ' '.join([
-                        'bash',
-                        os.path.join(INTERNALS_DIR, 'gen_test.sh'),
-                        tests_dir,
-                        test_name,
-                        line,
-                    ])
+            command = [
+                    'bash',
+                    os.path.join(INTERNALS_DIR, 'gen_test.sh'),
+                    tests_dir,
+                    test_name,
+                ] + shlex.split(line)
             wait_process_success(subprocess.Popen(command, shell=True))
 
 
