@@ -29,7 +29,7 @@ source "${INTERNALS}/util.sh"
 
 function error_echo {
 	cerrcho error -n "Error: "
-    errcho "$@"
+	errcho "$@"
 }
 
 
@@ -55,13 +55,13 @@ function vrun {
 
 
 if [ "$#" -ne 1 ]; then
-    error_echo "Illegal number of arguments"
-    exit 1
+	error_echo "Illegal number of arguments"
+	exit 1
 fi
 SOLUTION="$1"; shift
 
 if variable_not_exists "VERBOSE" ; then
-    VERBOSE="false"
+	VERBOSE="false"
 elif ! is_in "${VERBOSE}" "true" "false" ; then
 	error_echo "Invalid value for variable VERBOSE: ${VERBOSE}"
 	exit 1
@@ -70,14 +70,14 @@ fi
 check_variable HAS_GRADER
 if "${HAS_GRADER}"; then
 	if variable_not_exists "GRADER_TYPE" ; then
-    	GRADER_TYPE="judge"
+		GRADER_TYPE="judge"
 	fi
 	if [ "${GRADER_TYPE}" == "judge" ] ; then
-    	USED_GRADER_DIR="${GRADER_DIR}"
+		USED_GRADER_DIR="${GRADER_DIR}"
 	elif [ "${GRADER_TYPE}" == "public" ] ; then
-        USED_GRADER_DIR="${PUBLIC_DIR}"
+		USED_GRADER_DIR="${PUBLIC_DIR}"
 	else
-  		error_echo "Invalid grader type: ${GRADER_TYPE}"
+		error_echo "Invalid grader type: ${GRADER_TYPE}"
 		exit 1
 	fi
 fi
@@ -96,18 +96,18 @@ elif [ "${ext}" == "java" ] ; then
 	vecho "Detected language: Java"
 	LANG="java"
 else
-    error_echo "Unknown solution extension: ${ext}"
-    exit 1
+	error_echo "Unknown solution extension: ${ext}"
+	exit 1
 fi
 
 if "${HAS_GRADER}"; then
-    vecho "The task has grader."
+	vecho "The task has grader."
 	vecho "GRADER_TYPE='${GRADER_TYPE}'"
 	vecho "USED_GRADER_DIR='${USED_GRADER_DIR}'"
-    GRADER_LANG_DIR="${USED_GRADER_DIR}/${LANG}"
+	GRADER_LANG_DIR="${USED_GRADER_DIR}/${LANG}"
 	vecho "GRADER_LANG_DIR='${GRADER_LANG_DIR}'"
 else
-   	vecho "The task does not have grader."
+	vecho "The task does not have grader."
 fi
 
 vecho "Cleaning the sandbox..."
@@ -136,112 +136,112 @@ function capture_compile {
 }
 
 function check_warning {
-    local warning_text_pattern="$1"
-    if variable_exists "WARN_FILE"; then
-    	vecho "WARN_FILE='${WARN_FILE}'"
-	    if grep -q "${warning_text_pattern}" "${compiler_out}"; then
-	    	vecho "Text pattern '${warning_text_pattern}' found in compiler outputs."
-	    	echo "Text pattern '${warning_text_pattern}' found in compiler outputs." >> "${WARN_FILE}"
-	    else
-	    	vecho "Text pattern '${warning_text_pattern}' not found in compiler outputs."
-	    fi
+	local warning_text_pattern="$1"
+	if variable_exists "WARN_FILE"; then
+		vecho "WARN_FILE='${WARN_FILE}'"
+		if grep -q "${warning_text_pattern}" "${compiler_out}"; then
+			vecho "Text pattern '${warning_text_pattern}' found in compiler outputs."
+			echo "Text pattern '${warning_text_pattern}' found in compiler outputs." >> "${WARN_FILE}"
+		else
+			vecho "Text pattern '${warning_text_pattern}' not found in compiler outputs."
+		fi
 	else
-    	vecho "variable WARN_FILE is not defined."
-    fi	
+		vecho "variable WARN_FILE is not defined."
+	fi	
 }
 
 
 if [ "${LANG}" == "cpp" ] ; then
-    variable_not_exists "CPP_STD_OPT" && CPP_STD_OPT="--std=gnu++14"
-    vecho "CPP_STD_OPT='${CPP_STD_OPT}'"
-    variable_not_exists "CPP_WARNING_OPTS" && CPP_WARNING_OPTS="-Wall -Wextra -Wshadow"
-    vecho "CPP_WARNING_OPTS='${CPP_WARNING_OPTS}'"
-    variable_not_exists "CPP_OPTS" && CPP_OPTS="-DEVAL ${CPP_STD_OPT} ${CPP_WARNING_OPTS} -O2"
-    vecho "CPP_OPTS='${CPP_OPTS}'"
-    if "${coloring_enabled}" ; then
-    	coloring_flag="-fdiagnostics-color=always"
-    else
-    	coloring_flag="-fdiagnostics-color=never"
-    fi
+	variable_not_exists "CPP_STD_OPT" && CPP_STD_OPT="--std=gnu++14"
+	vecho "CPP_STD_OPT='${CPP_STD_OPT}'"
+	variable_not_exists "CPP_WARNING_OPTS" && CPP_WARNING_OPTS="-Wall -Wextra -Wshadow"
+	vecho "CPP_WARNING_OPTS='${CPP_WARNING_OPTS}'"
+	variable_not_exists "CPP_OPTS" && CPP_OPTS="-DEVAL ${CPP_STD_OPT} ${CPP_WARNING_OPTS} -O2"
+	vecho "CPP_OPTS='${CPP_OPTS}'"
+	if "${coloring_enabled}" ; then
+		coloring_flag="-fdiagnostics-color=always"
+	else
+		coloring_flag="-fdiagnostics-color=never"
+	fi
 	files_to_compile=("${prog}")
 	if is_windows; then
-    	vecho "It is Windows. Needed disabling runtime error dialog."
+		vecho "It is Windows. Needed disabling runtime error dialog."
 		wrdd="win_rte_dialog_disabler.cpp"
-    	vecho "Copying '${wrdd}' to sandbox..."
-        vrun cp "${INTERNALS}/${wrdd}" "."
-	    files_to_compile+=("${wrdd}")
+		vecho "Copying '${wrdd}' to sandbox..."
+		vrun cp "${INTERNALS}/${wrdd}" "."
+		files_to_compile+=("${wrdd}")
 	fi
-    if "${HAS_GRADER}"; then
-	    grader_header="${PROBLEM_NAME}.h"
-	    grader_cpp="grader.cpp"
-    	vecho "Copying '${grader_header}' and '${grader_cpp}' to sandbox..."
-        vrun cp "${GRADER_LANG_DIR}/${grader_header}" "${GRADER_LANG_DIR}/${grader_cpp}" "."
-    	vecho "Compiling grader..."
-        vrun capture_compile g++ ${CPP_OPTS} -c "${grader_cpp}" -o "grader.o" "${coloring_flag}"
-    	vecho "Removing grader source..."
-        vrun rm "${grader_cpp}"
+	if "${HAS_GRADER}"; then
+		grader_header="${PROBLEM_NAME}.h"
+		grader_cpp="grader.cpp"
+		vecho "Copying '${grader_header}' and '${grader_cpp}' to sandbox..."
+		vrun cp "${GRADER_LANG_DIR}/${grader_header}" "${GRADER_LANG_DIR}/${grader_cpp}" "."
+		vecho "Compiling grader..."
+		vrun capture_compile g++ ${CPP_OPTS} -c "${grader_cpp}" -o "grader.o" "${coloring_flag}"
+		vecho "Removing grader source..."
+		vrun rm "${grader_cpp}"
 		files_to_compile+=("grader.o")
 		vecho "Added grader object file to the list of files to compile."
-    fi
+	fi
 	vecho "files_to_compile: ${files_to_compile[@]}"
 	exe_file="${PROBLEM_NAME}.exe"
-    vecho "Compiling and linking..."
-    vrun capture_compile g++ ${CPP_OPTS} "${files_to_compile[@]}" -o "${exe_file}" "${coloring_flag}"
-    check_warning "${WARNING_TEXT_PATTERN_FOR_CPP}"
+	vecho "Compiling and linking..."
+	vrun capture_compile g++ ${CPP_OPTS} "${files_to_compile[@]}" -o "${exe_file}" "${coloring_flag}"
+	check_warning "${WARNING_TEXT_PATTERN_FOR_CPP}"
 elif [ "${LANG}" == "pas" ] ; then
-    variable_not_exists "PAS_OPTS" && PAS_OPTS="-dEVAL -XS -O2"
-    vecho "PAS_OPTS='${PAS_OPTS}'"
-    files_to_compile=()
-    if "${HAS_GRADER}"; then
-	    grader_pas="grader.pas"
-    	vecho "Copying '${grader_pas}' to sandbox..."
-        vrun cp "${GRADER_LANG_DIR}/${grader_pas}" "."
+	variable_not_exists "PAS_OPTS" && PAS_OPTS="-dEVAL -XS -O2"
+	vecho "PAS_OPTS='${PAS_OPTS}'"
+	files_to_compile=()
+	if "${HAS_GRADER}"; then
+		grader_pas="grader.pas"
+		vecho "Copying '${grader_pas}' to sandbox..."
+		vrun cp "${GRADER_LANG_DIR}/${grader_pas}" "."
 		graderlib="graderlib.pas"
-        if [ -f "${GRADER_LANG_DIR}/${graderlib}" ] ; then
-	    	vecho "Copying '${graderlib}' to sandbox..."
-        	vrun cp "${GRADER_LANG_DIR}/${graderlib}" "."
-        fi
+		if [ -f "${GRADER_LANG_DIR}/${graderlib}" ] ; then
+			vecho "Copying '${graderlib}' to sandbox..."
+			vrun cp "${GRADER_LANG_DIR}/${graderlib}" "."
+		fi
 		files_to_compile+=("${grader_pas}")
-    else
+	else
 		files_to_compile+=("${prog}")
-    fi
+	fi
 	vecho "files_to_compile: ${files_to_compile[@]}"
-    exe_file="${PROBLEM_NAME}.exe"
-    vecho "Compiling and linking..."
-    vrun capture_compile fpc ${PAS_OPTS} "${files_to_compile[@]}" "-o${exe_file}"
-    if [ ! -x "${exe_file}" ]; then
-    	error_echo "Executable ${exe_file} is not created by the compiler."
-    	errcho "The source file was probably a UNIT instead of a PROGRAM."
-	    exit 1
-    fi
-    check_warning "${WARNING_TEXT_PATTERN_FOR_PAS}"
+	exe_file="${PROBLEM_NAME}.exe"
+	vecho "Compiling and linking..."
+	vrun capture_compile fpc ${PAS_OPTS} "${files_to_compile[@]}" "-o${exe_file}"
+	if [ ! -x "${exe_file}" ]; then
+		error_echo "Executable ${exe_file} is not created by the compiler."
+		errcho "The source file was probably a UNIT instead of a PROGRAM."
+		exit 1
+	fi
+	check_warning "${WARNING_TEXT_PATTERN_FOR_PAS}"
 elif [ "${LANG}" == "java" ] ; then
-    variable_not_exists "JAVAC_WARNING_OPTS" && JAVAC_WARNING_OPTS="-Xlint:all"
-    vecho "JAVAC_WARNING_OPTS='${JAVAC_WARNING_OPTS}'"
-    variable_not_exists "JAVAC_OPTS" && JAVAC_OPTS="${JAVAC_WARNING_OPTS}"
-    vecho "JAVAC_OPTS='${JAVAC_OPTS}'"
+	variable_not_exists "JAVAC_WARNING_OPTS" && JAVAC_WARNING_OPTS="-Xlint:all"
+	vecho "JAVAC_WARNING_OPTS='${JAVAC_WARNING_OPTS}'"
+	variable_not_exists "JAVAC_OPTS" && JAVAC_OPTS="${JAVAC_WARNING_OPTS}"
+	vecho "JAVAC_OPTS='${JAVAC_OPTS}'"
 	files_to_compile=("${prog}")
-    if "${HAS_GRADER}"; then
+	if "${HAS_GRADER}"; then
 		grader_java="grader.java"
-    	vecho "Copying '${grader_java}' to sandbox..."
-        vrun cp "${GRADER_LANG_DIR}/${grader_java}" "."
+		vecho "Copying '${grader_java}' to sandbox..."
+		vrun cp "${GRADER_LANG_DIR}/${grader_java}" "."
 		files_to_compile+=("${grader_java}")
 		main_class="grader"
-    else
+	else
 		main_class="${PROBLEM_NAME}"
-    fi
+	fi
 	vecho "files_to_compile: ${files_to_compile[@]}"
 	vecho "Compiling java sources..."
-    vrun capture_compile javac ${JAVAC_OPTS} "${files_to_compile[@]}"
+	vrun capture_compile javac ${JAVAC_OPTS} "${files_to_compile[@]}"
 	jar_file="${PROBLEM_NAME}.jar"
-    vecho "Creating the jar file..."
-    vrun capture_compile jar cfe "${jar_file}" "${main_class}" *.class
+	vecho "Creating the jar file..."
+	vrun capture_compile jar cfe "${jar_file}" "${main_class}" *.class
 	vecho "Removing *.class files..."
-    vrun rm *.class
-    check_warning "${WARNING_TEXT_PATTERN_FOR_JAVA}"
+	vrun rm *.class
+	check_warning "${WARNING_TEXT_PATTERN_FOR_JAVA}"
 else
-    error_echo "Illegal state; unknown language: ${LANG}"
-    exit 1
+	error_echo "Illegal state; unknown language: ${LANG}"
+	exit 1
 fi
 
 vecho "Exiting the sandbox."
@@ -253,8 +253,8 @@ function replace_tokens {
 	# Do not try to delete the backup removal code by omitting '.bak'.
 	# Implementation of 'sed' in GNU (Linux) is different from BSD (Mac).
 	# For any change of this code you have to test it both in Linux and Mac.
-    vrun sed -i.bak -e "s/PROBLEM_NAME_PLACE_HOLDER/${PROBLEM_NAME}/g" "${the_file}"
-    vrun rm "${the_file}.bak"
+	vrun sed -i.bak -e "s/PROBLEM_NAME_PLACE_HOLDER/${PROBLEM_NAME}/g" "${the_file}"
+	vrun rm "${the_file}.bak"
 }
 
 execsh_name="exec.sh"
@@ -265,9 +265,9 @@ replace_tokens "${execsh}"
 vrun chmod +x "${execsh}"
 
 if "${HAS_GRADER}"; then
-    source_runsh="${TEMPLATES}/run.${GRADER_TYPE}.sh"
+	source_runsh="${TEMPLATES}/run.${GRADER_TYPE}.sh"
 else
-    source_runsh="${TEMPLATES}/run.judge.sh"
+	source_runsh="${TEMPLATES}/run.judge.sh"
 fi
 
 runsh_name="run.sh"
@@ -282,14 +282,14 @@ post_compile_name="post_compile.sh"
 post_compile="${TEMPLATES}/${post_compile_name}"
 
 if [ -f "${post_compile}" ] ; then
-    if "${HAS_GRADER}"; then
-        export GRADER_TYPE
-        export USED_GRADER_DIR
-        export GRADER_LANG_DIR
-    fi
-    export SOLUTION
+	if "${HAS_GRADER}"; then
+		export GRADER_TYPE
+		export USED_GRADER_DIR
+		export GRADER_LANG_DIR
+	fi
+	export SOLUTION
 	vecho "File ${post_compile_name} is present in templates. Executing..."
-    vrun bash "${post_compile}"
+	vrun bash "${post_compile}"
 else
 	vecho "File ${post_compile_name} is not present in templates. Nothing more to do."
 fi

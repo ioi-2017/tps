@@ -65,100 +65,100 @@ skip_compile_sol="false"
 
 
 function handle_option {
-    shifts=0
-    case "${curr}" in
-        -h|--help)
-            usage
-            exit 0
-            ;;
-        -s|--sensitive)
-            SENSITIVE_RUN="true"
-            ;;
-        -w|--warning-sensitive)
-            SENSITIVE_RUN="true"
-            WARNING_SENSITIVE_RUN="true"
-            ;;
-        -r|--show-reason)
-            SHOW_REASON="true"
-            ;;
-        -t|--test=*)
-            fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
-            SPECIFIC_TESTS="true"
-            ;;
-        --tests-dir=*)
-            fetch_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
-            ;;
-        --no-check)
-            SKIP_CHECK="true"
-            ;;
-        --no-sol-compile)
-            skip_compile_sol="true"
-            ;;
-        --no-tle)
-            SOFT_TL=$((24*60*60))
-            ;;
-        --time-limit=*)
-            fetch_arg_value "SOFT_TL" "-@" "--time-limit" "soft time limit"
-            ;;
-        --hard-time-limit=*)
-            fetch_arg_value "HARD_TL" "-@" "--hard-time-limit" "hard time limit"
-            ;;
-        *)
-            invalid_arg "undefined option"
-            ;;
-    esac
+	shifts=0
+	case "${curr}" in
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-s|--sensitive)
+			SENSITIVE_RUN="true"
+			;;
+		-w|--warning-sensitive)
+			SENSITIVE_RUN="true"
+			WARNING_SENSITIVE_RUN="true"
+			;;
+		-r|--show-reason)
+			SHOW_REASON="true"
+			;;
+		-t|--test=*)
+			fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
+			SPECIFIC_TESTS="true"
+			;;
+		--tests-dir=*)
+			fetch_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
+			;;
+		--no-check)
+			SKIP_CHECK="true"
+			;;
+		--no-sol-compile)
+			skip_compile_sol="true"
+			;;
+		--no-tle)
+			SOFT_TL=$((24*60*60))
+			;;
+		--time-limit=*)
+			fetch_arg_value "SOFT_TL" "-@" "--time-limit" "soft time limit"
+			;;
+		--hard-time-limit=*)
+			fetch_arg_value "HARD_TL" "-@" "--hard-time-limit" "hard time limit"
+			;;
+		*)
+			invalid_arg "undefined option"
+			;;
+	esac
 }
 
 function handle_positional_arg {
-    if variable_not_exists "solution" ; then
-        solution="${curr}"
-        return
-    fi
-    invalid_arg "meaningless argument"
+	if variable_not_exists "solution" ; then
+		solution="${curr}"
+		return
+	fi
+	invalid_arg "meaningless argument"
 }
 
 argument_parser "handle_positional_arg" "handle_option" "$@"
 
 if variable_not_exists "solution" ; then
-    errcho "Solution is not specified."
-    usage
-    exit 2
+	errcho "Solution is not specified."
+	usage
+	exit 2
 fi
 
 if ! is_windows && ! python -c "import psutil" >/dev/null 2>/dev/null; then
-    cerrcho error -n "Error: "
-    errcho "Package 'psutil' is not installed."
-    errcho "You can install it using:"
-    errcho -e "\tpip install psutil"
-    errcho "or:"
-    errcho -e "\tpython -m pip install psutil"
-    exit 1
+	cerrcho error -n "Error: "
+	errcho "Package 'psutil' is not installed."
+	errcho "You can install it using:"
+	errcho -e "\tpip install psutil"
+	errcho "or:"
+	errcho -e "\tpython -m pip install psutil"
+	exit 1
 fi
 
 if variable_not_exists "SOFT_TL" ; then
-    SOFT_TL="$(get_time_limit)"
+	SOFT_TL="$(get_time_limit)"
 fi
 
 if ! check_float "${SOFT_TL}"; then
-    errcho "Provided time limit '${SOFT_TL}' is not a positive real number."
-    usage
-    exit 2
+	errcho "Provided time limit '${SOFT_TL}' is not a positive real number."
+	usage
+	exit 2
 fi
 
 if variable_not_exists "HARD_TL" ; then
-    HARD_TL="$(python -c "print(${SOFT_TL} + 2)")"
+	HARD_TL="$(python -c "print(${SOFT_TL} + 2)")"
 fi
 
 if ! check_float "${HARD_TL}"; then
-    errcho "Provided hard time limit '${HARD_TL}' is not a positive real number."
-    usage
-    exit 2
+	errcho "Provided hard time limit '${HARD_TL}' is not a positive real number."
+	usage
+	exit 2
 fi
 
 if python -c "exit(0 if ${HARD_TL} <= ${SOFT_TL} else 1)"; then
-    errcho "Provided hard time limit (${HARD_TL}) is not greater than the soft time limit (${SOFT_TL})."
-    usage
-    exit 2
+	errcho "Provided hard time limit (${HARD_TL}) is not greater than the soft time limit (${SOFT_TL})."
+	usage
+	exit 2
 fi
 
 gen_summary_file="${tests_dir}/${GEN_SUMMARY_FILE_NAME}"
@@ -176,17 +176,17 @@ export STATUS_PAD=20
 
 printf "%-${STATUS_PAD}scompile" "solution"
 if "${skip_compile_sol}"; then
-    echo_status "SKIP"
+	echo_status "SKIP"
 else
-    sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${solution}"
+	sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${solution}"
 fi
 echo
 
 printf "%-${STATUS_PAD}scompile" "checker"
 if "${SKIP_CHECK}"; then
-    echo_status "SKIP"
+	echo_status "SKIP"
 else
-    sensitive reporting_guard "checker.compile" build_with_make "${CHECKER_DIR}"
+	sensitive reporting_guard "checker.compile" build_with_make "${CHECKER_DIR}"
 fi
 echo
 
@@ -197,9 +197,9 @@ python "${INTERNALS}/invoke.py" "${tests_dir}" "${gen_summary_file}" || ret=$?
 echo
 
 if [ ${ret} -eq 0 ]; then
-    cecho success "Finished."
+	cecho success "Finished."
 else
-    cecho fail "Terminated."
+	cecho fail "Terminated."
 fi
 
 exit ${ret}

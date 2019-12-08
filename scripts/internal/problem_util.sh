@@ -2,27 +2,27 @@
 
 
 function get_model_solution {
-    model_solution_name="$(python "${INTERNALS}/get_model_solution.py")" || return $?
-    echo "${SOLUTION_DIR}/${model_solution_name}"
+	model_solution_name="$(python "${INTERNALS}/get_model_solution.py")" || return $?
+	echo "${SOLUTION_DIR}/${model_solution_name}"
 }
 
 function get_time_limit {
-    python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "time_limit"
+	python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "time_limit"
 }
 
 function get_test_validators {
 	tests_dir="$1"; shift
-    test_name="$1"; shift
-    mapping_file="${tests_dir}/${MAPPING_FILE_NAME}"
-    python "${INTERNALS}/get_test_validators.py" "${test_name}" "${mapping_file}"
+	test_name="$1"; shift
+	mapping_file="${tests_dir}/${MAPPING_FILE_NAME}"
+	python "${INTERNALS}/get_test_validators.py" "${test_name}" "${mapping_file}"
 }
 
 
 function get_test_validator_commands {
 	tests_dir="$1"; shift
-    test_name="$1"; shift
-    get_test_validators "${tests_dir}" "${test_name}" | while read validator_name validator_args ; do 
-        [ -z "${validator_name}" ] && continue
+	test_name="$1"; shift
+	get_test_validators "${tests_dir}" "${test_name}" | while read validator_name validator_args ; do 
+		[ -z "${validator_name}" ] && continue
 		#echo "validator_name='${validator_name}'" 
 		#echo "validator_args='${validator_args}'"
 		check_executability=false
@@ -33,7 +33,7 @@ function get_test_validator_commands {
 				validator_target="${VALIDATOR_DIR}/${validator_name%.*}.exe"
 				validator_command="'${validator_target}' ${validator_args}"
 				check_executability=true
-		        ;;
+				;;
 		*.java )
 				#echo "it's java"
 				validator_target="${VALIDATOR_DIR}/${validator_name%.*}.class"
@@ -75,7 +75,7 @@ function get_test_validator_commands {
 		if "${check_executability}" ; then
 			check_executable_exists "validator" "${validator_target}" || return $?
 		fi
-        
-    	echo "${validator_command}"
-    done || return $?
+		
+		echo "${validator_command}"
+	done || return $?
 }

@@ -71,62 +71,62 @@ SKIP_VAL="false"
 skip_compile_sol="false"
 
 function handle_option {
-    shifts=0
-    case "${curr}" in
-        -h|--help)
-            usage
-            exit 0
-            ;;
-        -s|--sensitive)
-            SENSITIVE_RUN="true"
-            ;;
-        -w|--warning-sensitive)
-            SENSITIVE_RUN="true"
-            WARNING_SENSITIVE_RUN="true"
-            ;;
-        -u|--update)
-            UPDATE_MODE="true"
-            ;;
-        -t|--test=*)
-            fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
-            SPECIFIC_TESTS="true"
-            ;;
-        -m|--model-solution=*)
-            fetch_arg_value "model_solution" "-m" "--model-solution" "solution path"
-            ;;
-        -d|--gen-data=*)
-            fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
-            ;;
-        --tests-dir=*)
-            fetch_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
-            ;;
-        --no-gen)
-            SKIP_GEN="true"
-            ;;
-        --no-sol)
-            SKIP_SOL="true"
-            ;;
-        --no-val)
-            SKIP_VAL="true"
-            ;;
-        --no-sol-compile)
-            skip_compile_sol="true"
-            ;;
-        *)
-            invalid_arg "undefined option"
-            ;;
-    esac
+	shifts=0
+	case "${curr}" in
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-s|--sensitive)
+			SENSITIVE_RUN="true"
+			;;
+		-w|--warning-sensitive)
+			SENSITIVE_RUN="true"
+			WARNING_SENSITIVE_RUN="true"
+			;;
+		-u|--update)
+			UPDATE_MODE="true"
+			;;
+		-t|--test=*)
+			fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
+			SPECIFIC_TESTS="true"
+			;;
+		-m|--model-solution=*)
+			fetch_arg_value "model_solution" "-m" "--model-solution" "solution path"
+			;;
+		-d|--gen-data=*)
+			fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
+			;;
+		--tests-dir=*)
+			fetch_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
+			;;
+		--no-gen)
+			SKIP_GEN="true"
+			;;
+		--no-sol)
+			SKIP_SOL="true"
+			;;
+		--no-val)
+			SKIP_VAL="true"
+			;;
+		--no-sol-compile)
+			skip_compile_sol="true"
+			;;
+		*)
+			invalid_arg "undefined option"
+			;;
+	esac
 }
 
 function handle_positional_arg {
-    invalid_arg "meaningless argument"
+	invalid_arg "meaningless argument"
 }
 
 argument_parser "handle_positional_arg" "handle_option" "$@"
 
 if ! "${SKIP_SOL}"; then
 	if [ -z "${model_solution}" ]; then
-	    model_solution="$(sensitive get_model_solution)"
+		model_solution="$(sensitive get_model_solution)"
 	fi
 
 	sensitive check_file_exists "Solution file" "${model_solution}"
@@ -149,32 +149,32 @@ export STATUS_PAD=20
 
 printf "%-${STATUS_PAD}scompile" "generator"
 if "${SKIP_GEN}"; then
-    echo_status "SKIP"
+	echo_status "SKIP"
 else
-    sensitive reporting_guard "generators.compile" build_with_make "${GEN_DIR}"
+	sensitive reporting_guard "generators.compile" build_with_make "${GEN_DIR}"
 fi
 echo
 
 printf "%-${STATUS_PAD}scompile" "solution"
-if "${SKIP_SOL}" || "${skip_compile_sol}";  then
-    echo_status "SKIP"
+if "${SKIP_SOL}" || "${skip_compile_sol}"; then
+	echo_status "SKIP"
 else
-    sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${model_solution}"
+	sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${model_solution}"
 fi
 echo
 
 printf "%-${STATUS_PAD}scompile" "validator"
 if "${SKIP_VAL}"; then
-    echo_status "SKIP"
+	echo_status "SKIP"
 else
-    sensitive reporting_guard "validators.compile" build_with_make "${VALIDATOR_DIR}"
+	sensitive reporting_guard "validators.compile" build_with_make "${VALIDATOR_DIR}"
 fi
 echo
 
 if "${UPDATE_MODE}" || "${SKIP_GEN}"; then
 	cecho yellow "Warning: tests directory is not cleared."
 else
-    recreate_dir "${tests_dir}"
+	recreate_dir "${tests_dir}"
 fi
 
 ret=0
@@ -184,9 +184,9 @@ python "${INTERNALS}/gen.py" "${tests_dir}" "${mapping_file}" "${gen_summary_fil
 echo
 
 if [ ${ret} -eq 0 ]; then
-    cecho success "Finished."
+	cecho success "Finished."
 else
-    cecho fail "Terminated."
+	cecho fail "Terminated."
 fi
 
 exit ${ret}

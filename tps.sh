@@ -100,7 +100,7 @@ if [ "${__tps_command__}" == "--bash-completion" ] ; then
 	
 	command_bc_options_file="${__tps_scripts_dir__}/bash_completion/${command}.options"
 
-	if [ -f "${command_bc_options_file}" ] && [[ ${cur} == --*  ]]; then
+	if [ -f "${command_bc_options_file}" ] && [[ ${cur} == --* ]]; then
 		if ! [[ ${cur} == *=* ]]; then
 			compgen -W "$(cat "${command_bc_options_file}")" -- "${cur}" | {
 				while read -r tmp; do
