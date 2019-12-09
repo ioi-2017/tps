@@ -36,7 +36,7 @@ EXECUTABLES := $(CPP_SOURCES:%.$(CPP_EXT)=%.$(EXE_EXT))
 COMPILE_OUTPUTS := $(CPP_SOURCES:%.$(CPP_EXT)=$(COMPILE_OUT_PREFIX)%$(CPP_COMPILE_OUT_SUFFIX))
 
 # Defining .PHONY targets
-.PHONY: all clean compile_outputs
+.PHONY: all clean compile_outputs_list
 
 all: $(EXECUTABLES) $(COMPILE_OUTPUTS)
 
