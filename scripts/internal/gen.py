@@ -70,7 +70,7 @@ class GeneratingVisitor(DataVisitor):
                     tests_dir,
                     test_name,
                 ] + shlex.split(line)
-            wait_process_success(subprocess.Popen(command, shell=True))
+            wait_process_success(subprocess.Popen(command))
 
 
 if __name__ == '__main__':
