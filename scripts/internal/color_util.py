@@ -68,9 +68,12 @@ def _is_windows():
 def _is_web():
     return os.environ.get('WEB_TERMINAL') == "true"
 
+def _is_tty():
+    return sys.stdout.isatty()
+
 def _term_color_support():
     try:
-        return sys.stdout.isatty() and (8 <= int(subprocess.check_output(["tput", "colors"])))
+        return _is_tty() and (8 <= int(subprocess.check_output(["tput", "colors"])))
     except:
         return False
 
@@ -78,15 +81,17 @@ def _should_use_colors():
 #     sys.stderr.write("is_windows():  {}\n".format(_is_windows()))
 #     sys.stderr.write("term_color_support():  {}\n".format(_term_color_support()))
 #     sys.stderr.write("is_web():  {}\n".format(_is_web()))
+    if not _is_windows():
+        return _term_color_support() or _is_web()
+    if not _is_tty():
+        return _is_web()
     try:
         import colorama
         colorama.init()
-#         sys.stderr.write("using colorama\n")
         return True
     except ImportError:
         pass
-#     sys.stderr.write("not using colorama\n")
-    return (not _is_windows()) and (_term_color_support() or _is_web())
+    return False
 
 _use_colors = _should_use_colors()
 
