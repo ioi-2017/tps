@@ -9,15 +9,16 @@ test_name="$1"; shift
 
 input="${tests_dir}/${test_name}.in"
 judge_answer="${tests_dir}/${test_name}.out"
-sol_output="${SANDBOX}/${test_name}.out"
+sol_stdout="${SANDBOX}/${test_name}.out"
+sol_stderr="${SANDBOX}/${test_name}.err"
 
 function run_solution {
 	tlog_file="$(job_tlog_file "${sol_job}")"
-	python "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input}" "${sol_output}"
+	python "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input}" "${sol_stdout}" "${sol_stderr}"
 }
 
 function run_checker {
-	bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input}" "${judge_answer}" "${sol_output}"
+	bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}"
 }
 
 
