@@ -333,7 +333,17 @@ replace_tokens "${execsh}"
 vrun chmod +x "${execsh}"
 
 # Adding run.sh
-source_runsh_name="run.${GRADER_TYPE}.sh"
+if [ "${GRADER_TYPE}" == "judge" ]; then
+	case "${PROBLEM_TYPE}" in
+		Batch|OutputOnly) runner_type="batch" ;;
+		Communication) runner_type="communication" ;;
+		TwoSteps) runner_type="two-steps" ;;
+		*) runner_type="other" ;;
+	esac
+	source_runsh_name="run.${GRADER_TYPE}.${runner_type}.sh"
+else
+	source_runsh_name="run.${GRADER_TYPE}.sh"
+fi
 source_runsh="${TEMPLATES}/${source_runsh_name}"
 runsh_name="run.sh"
 runsh="${SANDBOX}/${runsh_name}"
