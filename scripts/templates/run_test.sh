@@ -17,7 +17,13 @@ sol_stdout="$3"
 sol_stderr="$4"
 
 # Arguments for running the solution
-sol_run_args=()
+if "${HAS_MANAGER}"; then
+	# Location of the solution log file
+	sol_log="${SANDBOX}/${test_name}.log"
+	sol_run_args=("${sol_log}")
+else
+	sol_run_args=()
+fi
 
 # Using ${sol_run_args[@]+"${sol_run_args[@]}"} instead of "${sol_run_args[@]}" because
 #   simple usage of empty arrays causes unbound variable error in old versions of bash with 'set -u'.

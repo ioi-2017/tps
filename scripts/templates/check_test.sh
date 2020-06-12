@@ -22,8 +22,13 @@ sol_stderr="$5"
 if "${HAS_CHECKER}"; then
 	"${CHECKER_DIR}/checker.exe" "${input}" "${judge_answer}" "${sol_stdout}"
 	# Not using test_name & sol_stderr
+elif "${HAS_MANAGER}"; then
+	# If there is no checker, then the manager outputs should be in the format of checker outputs.
+	cat "${sol_stdout}"
+	>&2 cat "${sol_stderr}"
+	# Not using test_name & input & judge_answer
 else
-	# There is no checker. Comparing solution standard output with judge answer file.
+	# There is no checker or manager. Comparing solution standard output with judge answer file.
 	# Not using test_name & input & sol_stderr
 	DIFF="diff"
 	DIFF_FLAGS="-bq"

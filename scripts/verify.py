@@ -26,6 +26,7 @@ VALIDATOR_DIR = os.environ.get('VALIDATOR_DIR')
 SOLUTION_DIR = os.environ.get('SOLUTION_DIR')
 CHECKER_DIR = os.environ.get('CHECKER_DIR')
 GRADER_DIR = os.environ.get('GRADER_DIR')
+MANAGER_DIR = os.environ.get('MANAGER_DIR')
 STATEMENT_DIR = os.environ.get('STATEMENT_DIR')
 
 
@@ -74,8 +75,8 @@ if HAS_GRADER == "true":
 
 if HAS_MANAGER == "true":
     necessary_files += [
-        os.path.join(GRADER_DIR, 'Makefile'),
-        os.path.join(GRADER_DIR, 'manager.cpp'),
+        os.path.join(MANAGER_DIR, 'Makefile'),
+        os.path.join(MANAGER_DIR, 'manager.cpp'),
     ]
 
 if HAS_CHECKER == "true":

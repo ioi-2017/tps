@@ -27,6 +27,8 @@ GRADER_DIR="${BASE_DIR}/grader"
 PRE_COMPILE="${TEMPLATES}/pre_compile.sh"
 POST_COMPILE="${TEMPLATES}/post_compile.sh"
 
+MANAGER_DIR="${GRADER_DIR}"
+
 PUBLIC_DIR="${BASE_DIR}/public"
 PUBLIC_EXAMPLES="${PUBLIC_DIR}/examples"
 

@@ -342,6 +342,26 @@ vrun cp "${source_runsh}" "${runsh}"
 replace_tokens "${runsh}"
 vrun chmod +x "${runsh}"
 
+# Compiling manager if needed.
+vecho "HAS_MANAGER=${HAS_MANAGER}"
+if "${HAS_MANAGER}"; then
+	if [ "${GRADER_TYPE}" == "judge" ]; then
+		vecho "Compiling manager as needed when grader type is ${GRADER_TYPE}..."
+		vrun build_with_make "${MANAGER_DIR}"
+		if compile_outputs_list=$(makefile_compile_outputs_list "${MANAGER_DIR}"); then
+			for compile_output in ${compile_outputs_list}; do
+				vecho "Content of '${MANAGER_DIR}/${compile_output}':"
+				cat "${MANAGER_DIR}/${compile_output}"
+			done
+		else
+			vecho "Makefile in '${MANAGER_DIR}' does not have target '${MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET}'."
+		fi
+		vecho "Copying manager executable binary to sandbox..."
+		vrun cp "${MANAGER_DIR}/manager.exe" "${SANDBOX}"
+	else
+		vecho "Manager is not needed when grader type is ${GRADER_TYPE}."
+	fi
+fi
 
 # Running post-compilation hook
 if [ -f "${POST_COMPILE}" ] ; then
