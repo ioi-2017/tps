@@ -1,18 +1,26 @@
 
 # This is the template for running a solution against a testcase
-#  assuming the solution being compiled in the sandbox
+#  assuming the solution being compiled in the sandbox.
 
-# testcase name (provided to be used, just in case!)
+set -euo pipefail
+
+# Testcase name (provided to be used, just in case!)
 test_name="$1"
 
-# location of input file
+# Location of the input file
 input="$2"
 
-# location of solution standard output file
+# Location of the standard output file
 sol_stdout="$3"
 
-# location of solution standard error file
+# Location of the standard error file
 sol_stderr="$4"
 
-bash "${SCRIPTS}/run.sh" < "${input}" > "${sol_stdout}" 2> "${sol_stderr}"
+# Arguments for running the solution
+sol_run_args=()
+
+# Using ${sol_run_args[@]+"${sol_run_args[@]}"} instead of "${sol_run_args[@]}" because
+#   simple usage of empty arrays causes unbound variable error in old versions of bash with 'set -u'.
+
+bash "${SCRIPTS}/run.sh" ${sol_run_args[@]+"${sol_run_args[@]}"} < "${input}" > "${sol_stdout}" 2> "${sol_stderr}"
 

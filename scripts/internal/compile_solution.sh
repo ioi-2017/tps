@@ -80,6 +80,8 @@ if "${HAS_GRADER}"; then
 	else
 		error_exit 1 "Invalid grader type: ${GRADER_TYPE}"
 	fi
+else
+	GRADER_TYPE="judge"
 fi
 
 sensitive check_file_exists "Solution file" "${SOLUTION}"
@@ -322,6 +324,7 @@ function replace_tokens {
 	vrun rm "${the_file}.bak"
 }
 
+# Adding exec.sh
 execsh_name="exec.sh"
 execsh="${SANDBOX}/${execsh_name}"
 vecho "Creating '${execsh_name}' in sandbox..."
@@ -329,12 +332,9 @@ vrun cp "${TEMPLATES}/exec.${LANG}.sh" "${execsh}"
 replace_tokens "${execsh}"
 vrun chmod +x "${execsh}"
 
-if "${HAS_GRADER}"; then
-	source_runsh="${TEMPLATES}/run.${GRADER_TYPE}.sh"
-else
-	source_runsh="${TEMPLATES}/run.judge.sh"
-fi
-
+# Adding run.sh
+source_runsh_name="run.${GRADER_TYPE}.sh"
+source_runsh="${TEMPLATES}/${source_runsh_name}"
 runsh_name="run.sh"
 runsh="${SANDBOX}/${runsh_name}"
 vecho "Creating '${runsh_name}' in sandbox..."

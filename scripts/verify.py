@@ -45,32 +45,41 @@ git_remote_name = "origin"
 valid_problem_types = ('Batch', 'Communication', 'OutputOnly', 'TwoSteps')
 model_solution_verdict = 'model_solution'
 valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error', 'partially_correct')
-necessary_files = (
+
+necessary_files = [
     os.path.join(CHECKER_DIR, 'Makefile'),
     os.path.join(VALIDATOR_DIR, 'Makefile'),
-    os.path.join(GEN_DIR, 'Makefile'), 
-    GEN_DATA
-)
-semi_necessary_files = (
-    os.path.join(CHECKER_DIR, 'checker.cpp'),
-    os.path.join(CHECKER_DIR, 'testlib.h'), 
-    os.path.join(VALIDATOR_DIR, 'testlib.h'), 
-    os.path.join(GEN_DIR, 'testlib.h'),
-)
-
-grader_necessary_files = [
-    os.path.join(GRADER_DIR, 'cpp/%s.h' % PROBLEM_NAME), 
-    os.path.join(GRADER_DIR, 'cpp/grader.cpp'),
+    os.path.join(GEN_DIR, 'Makefile'),
+    GEN_DATA,
 ]
-if java_enabled:
-    grader_necessary_files.append(os.path.join(GRADER_DIR, 'java/grader.java'))
-if pascal_enabled:
-    grader_necessary_files.append(os.path.join(GRADER_DIR, 'pas/grader.pas'))
 
-manager_necessary_files = (
-    os.path.join(GRADER_DIR, 'Makefile'), 
-    os.path.join(GRADER_DIR, 'manager.cpp')
-)
+semi_necessary_files = [
+    os.path.join(CHECKER_DIR, 'checker.cpp'),
+    os.path.join(CHECKER_DIR, 'testlib.h'),
+    os.path.join(VALIDATOR_DIR, 'testlib.h'),
+    os.path.join(GEN_DIR, 'testlib.h'),
+]
+
+if HAS_GRADER == "true":
+    necessary_files += [
+        os.path.join(GRADER_DIR, 'cpp/%s.h' % PROBLEM_NAME),
+        os.path.join(GRADER_DIR, 'cpp/grader.cpp'),
+    ]
+    if java_enabled:
+        necessary_files += [
+            os.path.join(GRADER_DIR, 'java/grader.java'),
+        ]
+    if pascal_enabled:
+        necessary_files += [
+            os.path.join(GRADER_DIR, 'pas/grader.pas'),
+        ]
+
+if HAS_MANAGER == "true":
+    necessary_files += [
+        os.path.join(GRADER_DIR, 'Makefile'),
+        os.path.join(GRADER_DIR, 'manager.cpp'),
+    ]
+
 
 if sys.version_info >= (3,):
     string_types = (str,)
@@ -97,7 +106,7 @@ def check_keys(data, required_keys, json_name=None):
             if json_name:
                 error('{} is required in {}'.format(key, json_name))
             else:
-                error('{} is required'.format(key, json_name))
+                error('{} is required'.format(key))
             key_not_found = True
     if key_not_found:
         raise KeyError
@@ -356,12 +365,6 @@ def verify_gen_data(task_data, subtasks):
         def on_test(self, testset_name, test_name, line, line_number):
             self.tests_map[testset_name].add(test_name)
     
-        def get_test_subtasks(self):
-            test_subtasks = defaultdict(list)
-            for subtask in self.subtasks:
-                for test in self.tests_map[subtask]:
-                    test_subtasks[test].append(subtask)
-            return test_subtasks
     
     gen_data = GenDataVisitor()
     try:
@@ -496,10 +499,6 @@ def verify():
     namespace = 'not found'
     verify_existence(necessary_files)
     verify_existence_warn(semi_necessary_files)
-    if HAS_GRADER == "true":
-        verify_existence(grader_necessary_files)
-    if HAS_MANAGER == "true":
-        verify_existence(manager_necessary_files)
 
     for error in errors:
         cprint(colors.ERROR, error)

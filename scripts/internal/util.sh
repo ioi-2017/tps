@@ -284,12 +284,19 @@ WARNING_TEXT_PATTERN_FOR_CPP="warning:"
 WARNING_TEXT_PATTERN_FOR_PAS="Warning:"
 WARNING_TEXT_PATTERN_FOR_JAVA="warning:"
 
+
+MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET="compile_outputs_list"
+
+function makefile_compile_outputs_list {
+	local make_dir="$1"; shift
+	make --quiet -C "${make_dir}" "${MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET}"
+}
+
 function build_with_make {
 	local make_dir="$1"; shift
 	make -j4 -C "${make_dir}" || return $?
 	if variable_exists "WARN_FILE"; then
-		local compile_outputs_list_target="compile_outputs_list"
-		if compile_outputs_list=$(make --quiet -C "${make_dir}" "${compile_outputs_list_target}"); then
+		if compile_outputs_list=$(makefile_compile_outputs_list "${make_dir}"); then
 			for compile_output in ${compile_outputs_list}; do
 				if [[ "${compile_output}" == *.cpp.* ]] || [[ "${compile_output}" == *.cc.* ]]; then
 					local warning_text_pattern="${WARNING_TEXT_PATTERN_FOR_CPP}"
@@ -308,7 +315,7 @@ function build_with_make {
 				fi
 			done
 		else
-			echo "Makefile does not have target '${compile_outputs_list_target}'." >> "${WARN_FILE}"
+			echo "Makefile in '${make_dir}' does not have target '${MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET}'." >> "${WARN_FILE}"
 		fi
 	fi	
 

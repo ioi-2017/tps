@@ -14,7 +14,7 @@
 
 # Defining some recursively expanded variables
 
-CXXFLAGS=-std=gnu++1y -Wall -Wextra -O2
+CXXFLAGS=-std=gnu++1y -Wall -Wextra -O2 -static
 
 CPP_EXT=cpp
 HEADER_EXT=h

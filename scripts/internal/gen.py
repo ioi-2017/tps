@@ -1,6 +1,5 @@
 import sys
 import os
-from collections import defaultdict
 import shlex
 import subprocess
 
@@ -46,13 +45,6 @@ class MappingVisitor(DataVisitor):
 
     def on_test(self, testset_name, test_name, line, line_number):
         self.tests_map[testset_name].add(test_name)
-
-    def get_test_subtasks(self):
-        test_subtasks = defaultdict(list)
-        for subtask in self.subtasks:
-            for test in self.tests_map[subtask]:
-                test_subtasks[test].append(subtask)
-        return test_subtasks
 
     def print_mapping(self, stream):
         for subtask in self.subtasks:
