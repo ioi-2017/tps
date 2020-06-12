@@ -182,13 +182,15 @@ else
 fi
 echo
 
-printf "%-${STATUS_PAD}scompile" "checker"
-if "${SKIP_CHECK}"; then
-	echo_status "SKIP"
-else
-	sensitive reporting_guard "checker.compile" build_with_make "${CHECKER_DIR}"
+if "${HAS_CHECKER}"; then
+	printf "%-${STATUS_PAD}scompile" "checker"
+	if "${SKIP_CHECK}"; then
+		echo_status "SKIP"
+	else
+		sensitive reporting_guard "checker.compile" build_with_make "${CHECKER_DIR}"
+	fi
+	echo
 fi
-echo
 
 ret=0
 python "${INTERNALS}/invoke.py" "${tests_dir}" "${gen_summary_file}" || ret=$?

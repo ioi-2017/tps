@@ -13,6 +13,7 @@ BASE_DIR = os.environ.get('BASE_DIR')
 PROBLEM_NAME = os.environ.get('PROBLEM_NAME')
 HAS_GRADER = os.environ.get('HAS_GRADER')
 HAS_MANAGER = os.environ.get('HAS_MANAGER')
+HAS_CHECKER = os.environ.get('HAS_CHECKER')
 WEB_TERMINAL = os.environ.get('WEB_TERMINAL')
 
 
@@ -47,15 +48,12 @@ model_solution_verdict = 'model_solution'
 valid_verdicts = (model_solution_verdict, 'correct', 'time_limit', 'memory_limit', 'incorrect', 'runtime_error', 'failed', 'time_limit_and_runtime_error', 'partially_correct')
 
 necessary_files = [
-    os.path.join(CHECKER_DIR, 'Makefile'),
     os.path.join(VALIDATOR_DIR, 'Makefile'),
     os.path.join(GEN_DIR, 'Makefile'),
     GEN_DATA,
 ]
 
 semi_necessary_files = [
-    os.path.join(CHECKER_DIR, 'checker.cpp'),
-    os.path.join(CHECKER_DIR, 'testlib.h'),
     os.path.join(VALIDATOR_DIR, 'testlib.h'),
     os.path.join(GEN_DIR, 'testlib.h'),
 ]
@@ -78,6 +76,15 @@ if HAS_MANAGER == "true":
     necessary_files += [
         os.path.join(GRADER_DIR, 'Makefile'),
         os.path.join(GRADER_DIR, 'manager.cpp'),
+    ]
+
+if HAS_CHECKER == "true":
+    necessary_files += [
+        os.path.join(CHECKER_DIR, 'Makefile'),
+    ]
+    semi_necessary_files += [
+        os.path.join(CHECKER_DIR, 'checker.cpp'),
+        os.path.join(CHECKER_DIR, 'testlib.h'),
     ]
 
 
@@ -230,6 +237,10 @@ def verify_problem():
                 warning('communication problems must have manager')
             if problem['type'] == 'OutputOnly' and problem['has_manager'] is True:
                 warning('output only problems could not have manager')
+
+    if 'has_checker' in problem:
+        if not isinstance(problem['has_checker'], bool):
+            error('has_checker should be a boolean')
 
     if not isinstance(problem['time_limit'], float) or problem['time_limit'] < 0.5:
         error('time_limit should be a number greater or equal to 0.5')

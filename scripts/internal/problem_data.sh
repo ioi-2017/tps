@@ -5,6 +5,7 @@ PROBLEM_NAME="$(python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "name")"
 PROBLEM_TYPE="$(python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "type")"
 HAS_GRADER="$(python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_grader" 2> /dev/null)" || true
 HAS_MANAGER="$(python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_manager" 2> /dev/null)" || true
+HAS_CHECKER="$(python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_checker" 2> /dev/null)" || true
 
 
 function check_bool {
@@ -32,4 +33,13 @@ if [ -z "${HAS_MANAGER}"  ]; then
 	esac
 else
 	check_bool "has_manager" "${HAS_MANAGER}"
+fi
+
+if [ -z "${HAS_CHECKER}"  ]; then
+	case "${PROBLEM_TYPE}" in
+		Communicat*) HAS_CHECKER="false" ;;
+		*) HAS_CHECKER="true" ;;
+	esac
+else
+	check_bool "has_checker" "${HAS_CHECKER}"
 fi

@@ -19,6 +19,25 @@ sol_stdout="$4"
 # Location of solution standard error file
 sol_stderr="$5"
 
-"${CHECKER_DIR}/checker.exe" "${input}" "${judge_answer}" "${sol_stdout}"
-# Not using test_name & sol_stderr
+if "${HAS_CHECKER}"; then
+	"${CHECKER_DIR}/checker.exe" "${input}" "${judge_answer}" "${sol_stdout}"
+	# Not using test_name & sol_stderr
+else
+	# There is no checker. Comparing solution standard output with judge answer file.
+	# Not using test_name & input & sol_stderr
+	DIFF="diff"
+	DIFF_FLAGS="-bq"
+	if ! command -v "${DIFF}" >/dev/null 2>&1 ; then
+		echo "0"
+		>&2 echo "Judge Failure; Contact staff!"
+		>&2 echo "Command '${DIFF}' not found."
+	elif "${DIFF}" "${DIFF_FLAGS}" "${judge_answer}" "${sol_stdout}" >/dev/null; then
+		echo "1"
+		>&2 echo "Correct"
+	else
+		echo "0"
+		>&2 echo "Wrong Answer"
+		>&2 echo "The output differs from the correct answer."
+	fi
+fi
 
