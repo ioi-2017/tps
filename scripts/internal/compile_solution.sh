@@ -83,6 +83,8 @@ if "${HAS_GRADER}"; then
 fi
 
 sensitive check_file_exists "Solution file" "${SOLUTION}"
+export SOLUTION
+vecho "Compiling solution '${SOLUTION}'."
 
 ext="$(extension "${SOLUTION}")"
 
@@ -107,9 +109,12 @@ fi
 
 if "${HAS_GRADER}"; then
 	vecho "The task has grader."
+	export GRADER_TYPE
 	vecho "GRADER_TYPE='${GRADER_TYPE}'"
+	export USED_GRADER_DIR
 	vecho "USED_GRADER_DIR='${USED_GRADER_DIR}'"
 	GRADER_LANG_DIR="${USED_GRADER_DIR}/${LANG}"
+	export GRADER_LANG_DIR
 	vecho "GRADER_LANG_DIR='${GRADER_LANG_DIR}'"
 else
 	vecho "The task does not have grader."
@@ -154,6 +159,15 @@ function check_warning {
 		vecho "variable WARN_FILE is not defined."
 	fi	
 }
+
+
+# Running pre-compilation hook
+if [ -f "${PRE_COMPILE}" ] ; then
+	vecho "Running pre-compilation hook file ${PRE_COMPILE}..."
+	vrun bash "${PRE_COMPILE}"
+else
+	vecho "Pre-compilation hook file '${PRE_COMPILE}' is not present. Nothing to do before compiling."
+fi
 
 
 if [ "${LANG}" == "cpp" ] ; then
@@ -329,18 +343,10 @@ replace_tokens "${runsh}"
 vrun chmod +x "${runsh}"
 
 
-post_compile_name="post_compile.sh"
-post_compile="${TEMPLATES}/${post_compile_name}"
-
-if [ -f "${post_compile}" ] ; then
-	if "${HAS_GRADER}"; then
-		export GRADER_TYPE
-		export USED_GRADER_DIR
-		export GRADER_LANG_DIR
-	fi
-	export SOLUTION
-	vecho "File ${post_compile_name} is present in templates. Executing..."
-	vrun bash "${post_compile}"
+# Running post-compilation hook
+if [ -f "${POST_COMPILE}" ] ; then
+	vecho "Running post-compilation hook file ${POST_COMPILE}..."
+	vrun bash "${POST_COMPILE}"
 else
-	vecho "File ${post_compile_name} is not present in templates. Nothing more to do."
+	vecho "Post-compilation hook file '${POST_COMPILE}' is not present. Nothing more to do."
 fi

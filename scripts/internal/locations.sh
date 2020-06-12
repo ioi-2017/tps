@@ -24,6 +24,8 @@ CHECKER_DIR="${BASE_DIR}/checker"
 SOLUTION_DIR="${BASE_DIR}/solution"
 
 GRADER_DIR="${BASE_DIR}/grader"
+PRE_COMPILE="${TEMPLATES}/pre_compile.sh"
+POST_COMPILE="${TEMPLATES}/post_compile.sh"
 
 PUBLIC_DIR="${BASE_DIR}/public"
 PUBLIC_EXAMPLES="${PUBLIC_DIR}/examples"
