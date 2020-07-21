@@ -5,7 +5,7 @@
 # IOI 2017, Iran
 
 
-readonly tps_version=1.2
+readonly tps_version=1.3
 
 
 set -e
@@ -254,6 +254,14 @@ fi
 
 if "${__tps_bash_completion_mode__}"; then
 	readonly bc_dir="${__tps_scripts_dir__}/bash_completion"
+	# Looking for bash completion script file
+	command_bc_script_file_name="$(__tps_find_runnable_file__ "${__tps_command__}" "${bc_dir}")"
+	readonly command_bc_script_file_name
+	if [ -n "${command_bc_script_file_name}" ]; then
+		readonly command_bc_script_file="${bc_dir}/${command_bc_script_file_name}"
+		__tps_run_file__ "${command_bc_script_file}" "${bc_index}" "${bc_cursor_location}" "$@"
+		exit 0
+	fi
 	# Looking for bash completion options file
 	readonly command_bc_options_file="${bc_dir}/${__tps_command__}.options"
 	if [ -f "${command_bc_options_file}" ]; then
