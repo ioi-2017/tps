@@ -29,37 +29,37 @@ function get_test_validator_commands {
 		check_existance=false
 		case "${validator_name}" in
 		*.cpp | *.pas )
-				#echo "it's cpp|pas"
+				#echo "It is C++ or Pascal."
 				validator_target="${VALIDATOR_DIR}/${validator_name%.*}.exe"
 				validator_command="'${validator_target}' ${validator_args}"
 				check_executability=true
 				;;
 		*.java )
-				#echo "it's java"
+				#echo "It is Java."
 				validator_target="${VALIDATOR_DIR}/${validator_name%.*}.class"
 				validator_command="java -cp '${VALIDATOR_DIR}' '${validator_name%.*}' ${validator_args}"
 				check_existance=true
 				;;
 		*.py )
-				#echo "it's python"
+				#echo "It is Python."
 				validator_target="${VALIDATOR_DIR}/${validator_name}"
 				validator_command="${PYTHON} '${validator_target}' ${validator_args}"
 				check_existance=true
 				;;
 		*.sh )
-				#echo "it's bash"
+				#echo "It is bash."
 				validator_target="${VALIDATOR_DIR}/${validator_name}"
 				validator_command="bash '${validator_target}' ${validator_args}"
 				check_existance=true
 				;;
 		*.* )
-				#echo "it's other executable file"
+				#echo "It is other executable file."
 				validator_target="${VALIDATOR_DIR}/${validator_name}"
 				validator_command="'${validator_target}' ${validator_args}"
 				check_executability=true
 				;;
 		* )
-				#echo "it has no extension"
+				#echo "It has no extension."
 				validator_target="No validator target when the first validator argument has no extension"
 				validator_command="${validator_name} ${validator_args}"
 				;;

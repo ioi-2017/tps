@@ -5,9 +5,10 @@ import platform
 import signal
 import subprocess
 from threading import Timer
+from util import simple_usage_message
 
 
-_is_windows = (platform.system()=="Windows")
+_is_windows = (platform.system() == "Windows")
 
 if not _is_windows:
     try:
@@ -20,7 +21,7 @@ You can install it using:
 or
     python -m pip install psutil
 ''')
-        exit(1)
+        sys.exit(1)
 
 
 def kill_proc_tree(pid, including_parent=True):
@@ -31,8 +32,21 @@ def kill_proc_tree(pid, including_parent=True):
     psutil.wait_procs(procs, timeout=1)
 
 
-class Object:
-    pass
+class ProcessExecutionData:
+    def __init__(self, process, start_time):
+        self.process = process
+        self.start_time = start_time
+        self.end_time = None
+        self.terminated = False
+        self.ret = None
+
+    @property
+    def duration(self):
+        return (self.end_time - self.start_time).total_seconds() if self.end_time is not None else None
+
+    @property
+    def terminated_str(self):
+        return "true" if self.terminated else "false"
 
 
 def terminate(data):
@@ -51,28 +65,23 @@ def timer(time_limit, command):
     else:
         p = subprocess.Popen(command)
 
-    data = Object()
-    data.process = p
-    data.terminated = False
+    data = ProcessExecutionData(p, start_time)
     t = Timer(time_limit, terminate, [data])
     t.start()
 
     try:
         data.ret = p.wait()
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         t.cancel()
-        exit(130)
+        sys.exit(130)
     t.cancel()
 
-    end_time = datetime.datetime.now()
-    data.duration = (end_time - start_time).total_seconds()
-
+    data.end_time = datetime.datetime.now()
     return data
 
 
-if __name__ == '__main__':
+def _main():
     if len(sys.argv) < 5:
-        from util import simple_usage_message
         simple_usage_message("<soft-time-limit> <hard-time-limit> <output-file> <command...>")
 
     soft_time_limit = float(sys.argv[1])
@@ -86,10 +95,14 @@ if __name__ == '__main__':
     del data.process
     with open(output_file, 'w') as f:
         f.write("duration %.3f\n" % data.duration)
-        f.write("terminated %s\n" % ("true" if data.terminated else "false"))
+        f.write("terminated %s\n" % data.terminated_str)
         f.write("ret %d\n" % data.ret)
 
     if data.terminated or data.duration > soft_time_limit:
-        exit(124)
+        sys.exit(124)
     else:
-        exit(data.ret)
+        sys.exit(data.ret)
+
+
+if __name__ == '__main__':
+    _main()

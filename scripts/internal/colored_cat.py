@@ -1,24 +1,26 @@
-import sys
-import os
-from color_util import colored, colors, InvalidColorNameException
-
-
-'''
+"""
 This script gets a color_name as an argument and prints its input with that color.
-For example "echo hello | python colored_cat red" prints hello with red color. 
-'''
+For example "echo hello | python colored_cat.py red" prints hello with red color.
+"""
+import sys
+from color_util import cwrite, colors, InvalidColorNameException
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         from util import simple_usage_message
         simple_usage_message("<color-name>")
 
     color_name = sys.argv[1].upper()
+
+    try:
+        color = colors.get(color_name)
+    except InvalidColorNameException as e:
+        sys.stderr.write("{}\n".format(e))
+        sys.exit(4)
+
     try:
         for line in sys.stdin:
-            sys.stdout.write(colored(colors.get(color_name), line))
-    except InvalidColorNameException:
-        sys.stderr.write('Invalid color name: {}\n'.format(color_name))
-        exit(4)
+            cwrite(sys.stdout, color, line)
     except KeyboardInterrupt:
-        sys.stdout.write(colors.RESET)
-        exit(1)
+        sys.exit(1)

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 import sys
 import os
@@ -6,7 +5,7 @@ import json
 import subprocess
 
 from gen_data_parser import DataVisitor, parse_data_or_throw, DataParseError
-from color_util import colored, cprint, colors
+from color_util import cprint, colors
 
 BASE_DIR = os.environ.get('BASE_DIR')
 
@@ -92,19 +91,43 @@ if HAS_CHECKER == "true":
 if sys.version_info >= (3,):
     string_types = (str,)
 else:
-    string_types = (str, unicode)
+    string_types = (str, eval("unicode")) #pylint: disable=eval-used
 
-errors = []
-warnings = []
-namespace = ''
+
+class Verification:
+    errors = []
+    warnings = []
+    namespace = ''
+    problem = dict()
+
+    @classmethod
+    def error(cls, description):
+        cls.errors.append('ERROR: {} - {}'.format(cls.namespace, description))
+
+    @classmethod
+    def warning(cls, description):
+        cls.warnings.append('WARNING: {} - {}'.format(cls.namespace, description))
+
+    @classmethod
+    def report(cls):
+        for _error in cls.errors:
+            cprint(colors.ERROR, _error)
+
+        if not cls.errors:
+            if cls.warnings:
+                cprint(colors.WARN, "verified, but with some warnings.")
+            else:
+                cprint(colors.OK, "verified.")
+
+        for _warning in cls.warnings:
+            cprint(colors.WARN, _warning)
 
 
 def error(description):
-    errors.append('ERROR: {} - {}'.format(namespace, description))
-
+    Verification.error(description)
 
 def warning(description):
-    warnings.append('WARNING: {} - {}'.format(namespace, description))
+    Verification.warning(description)
 
 
 def check_keys(data, required_keys, json_name=None):
@@ -150,11 +173,11 @@ def load_data(json_file, required_keys=()):
 
 def has_ending(file_name, endings):
     if isinstance(endings, string_types):
-        endings = [ endings ]
-    return any(file_name.endswith(ending) for ending in endings) 
+        endings = [endings]
+    return any(file_name.endswith(ending) for ending in endings)
 
 def is_ignored(file_name):
-    return has_ending(file_name, ['.exe', '.class', '~', '.compile.out']) 
+    return has_ending(file_name, ['.exe', '.class', '~', '.compile.out'])
 
 def get_list_of_files(directory):
     return list(os.listdir(directory))
@@ -173,12 +196,12 @@ def verify_problem():
             return
         try:
             subprocess.check_output(["git", "--version"], stderr=subprocess.STDOUT)
-        except:
+        except subprocess.CalledProcessError:
             warning('git command is not available')
             return
         try:
             subprocess.check_output(["git", "status"], stderr=subprocess.STDOUT)
-        except:
+        except subprocess.CalledProcessError:
             warning('not a git repository')
             return
         try:
@@ -189,20 +212,20 @@ def verify_problem():
             git_main_remote_name = os.path.basename(git_main_remote_url)
             if git_main_remote_name.endswith(".git"):
                 git_main_remote_name = git_main_remote_name[:-4]
-        except:
+        except subprocess.CalledProcessError:
             warning('could not get git remote url for "{}"'.format(git_remote_name))
             return
         if prob_name != git_main_remote_name:
             warning('problem name and git project name are not the same')
-    
+
     check_problem_name(problem['name'])
-    
+
     if not isinstance(problem['title'], string_types):
         error('title is not a string')
 
     if has_markdown_statement:
         try:
-            with open(os.path.join(STATEMENT_DIR, 'index.md')) as f:
+            with open(os.path.join(STATEMENT_DIR, 'index.md'), 'r') as f:
                 first_line = None
                 for line in f.readlines():
                     if line.strip() != '':
@@ -255,7 +278,7 @@ def verify_problem():
 
 def verify_subtasks():
     subtasks_data = load_data(SUBTASKS_JSON, ['subtasks'])
-    
+
     if subtasks_data is None:
         return None
 
@@ -264,14 +287,14 @@ def verify_subtasks():
     if (k_glob not in subtasks_data) and (k_sub not in subtasks_data):
         error('Neither "{}" nor "{}" is present in "{}".'.format(k_glob, k_sub, SUBTASKS_JSON_RELATIVE))
         return None
-    
+
     validator_files = get_list_of_files(VALIDATOR_DIR)
     used_validators = set()
 
     def check_validator_key(parent, key, name, parName=None):
         if key not in parent:
             return
-        validators_list=parent[key]
+        validators_list = parent[key]
         parLoc = '' if parName is None else ' in "{}"'.format(parName)
         if not isinstance(validators_list, list):
             error('"{}" is not an array{}'.format(key, parLoc))
@@ -287,28 +310,27 @@ def verify_subtasks():
                 else:
                     used_validators.add(validator_cmd)
 
-    
+
     check_validator_key(subtasks_data, k_glob, 'global')
     check_validator_key(subtasks_data, k_sub, 'subtask-sensitive')
-    
+
     subtask_placeholder_var = "subtask"
     subtask_placeholder_substitute = "___SUBTASK_PLACEHOLDER_SUBSTITUTE___"
     for subtask_sensitive_validator in subtasks_data.get(k_sub, []):
         try:
             subtask_validator_substituted = subtask_sensitive_validator.format(**{
-                    subtask_placeholder_var : subtask_placeholder_substitute
-                })
+                subtask_placeholder_var : subtask_placeholder_substitute
+            })
         except KeyError as e:
             error('Subtask-sensitive validator "{}" contains unknown placeholder {{{}}}.'.format(subtask_sensitive_validator, e.args[0]))
         else:
             if subtask_placeholder_substitute not in subtask_validator_substituted:
                 error('Subtask-sensitive validator "{}" does not contain the subtask placeholder {{{}}}.'.format(subtask_sensitive_validator, subtask_placeholder_var))
-    
 
     subtasks = subtasks_data['subtasks']
     hasSamples = False
     try:
-        if problem['type'] != 'OutputOnly':
+        if Verification.problem['type'] != 'OutputOnly':
             check_keys(subtasks, ['samples'])
             hasSamples = True
     except KeyError:
@@ -353,7 +375,7 @@ def verify_subtasks():
     return subtasks
 
 
-def verify_gen_data(task_data, subtasks):
+def verify_gen_data(subtasks):
     class GenDataVisitor(DataVisitor):
         def __init__(self):
             DataVisitor.__init__(self)
@@ -361,35 +383,35 @@ def verify_gen_data(task_data, subtasks):
             self.subtasks = []
             self.testsets = []
             self.used_testsets = set()
-    
+
         def on_testset(self, testset_name, line_number):
             self.testsets.append(testset_name)
             self.tests_map[testset_name] = set()
-    
+
         def on_subtask(self, subtask_name, line_number):
             self.subtasks.append(subtask_name)
             self.used_testsets.add(subtask_name)
-        
+
         def on_include(self, testset_name, included_testset, line_number):
             self.used_testsets.add(included_testset)
             self.tests_map[testset_name] |= self.tests_map[included_testset]
-    
+
         def on_test(self, testset_name, test_name, line, line_number):
             self.tests_map[testset_name].add(test_name)
-    
-    
+
+
     gen_data = GenDataVisitor()
     try:
         with open(GEN_DATA, 'r') as f:
             try:
-                parse_data_or_throw(f.readlines(), task_data, gen_data)
+                parse_data_or_throw(f.readlines(), Verification.problem, gen_data)
             except DataParseError as e:
                 error(e.message)
                 return
     except IOError:
         error('file does not exist or is not readable')
         return
-    
+
     json_subtasks = set(subtasks.keys())
     gen_subtasks = set(gen_data.subtasks)
     #Checking the equivalence of subtasks in json file and data file:
@@ -397,7 +419,7 @@ def verify_gen_data(task_data, subtasks):
         error("subtask '{}' is defined in '{}' but not mentioned in '{}'".format(s, SUBTASKS_JSON_RELATIVE, GEN_DATA_RELATIVE))
     for s in gen_subtasks-json_subtasks:
         error("subtask '{}' is mentioned in '{}' but not defined in '{}'".format(s, GEN_DATA_RELATIVE, SUBTASKS_JSON_RELATIVE))
-    
+
     #Checking for empty testsets/subtasks:
     for testset in gen_data.testsets:
         if not gen_data.tests_map[testset]:
@@ -411,7 +433,7 @@ def verify_gen_data(task_data, subtasks):
                     warning("subtask '{}' has no tests".format(testset))
             else:
                 warning("testset '{}' has no tests".format(testset))
-    
+
     #Checking if a testset is defined but not used:
     for ts in set(gen_data.testsets)-set(gen_data.used_testsets):
         warning("testset '{}' is not used anywhere".format(ts))
@@ -422,13 +444,6 @@ def verify_verdict(verdict, key_name):
         error('{} verdict should be one of {}'.format(key_name, '/'.join(valid_verdicts)))
         return False
     return True
-
-
-def get_model_solution(solutions):
-    for solution, data in enumerate(solutions):
-        if isinstance(data, dict) and 'verdict' in data:
-            if data['verdict'] == model_solution_verdict:
-                return solution
 
 
 def verify_solutions(subtasks):
@@ -494,35 +509,23 @@ def verify_existence_warn(files):
 
 
 def verify():
-    global namespace
-    namespace = get_relative(PROBLEM_JSON)
-    global problem
-    problem = verify_problem()
+    Verification.namespace = get_relative(PROBLEM_JSON)
+    Verification.problem = verify_problem()
 
-    namespace = SUBTASKS_JSON_RELATIVE
+    Verification.namespace = SUBTASKS_JSON_RELATIVE
     subtasks = verify_subtasks()
-    
-    namespace = GEN_DATA_RELATIVE
-    verify_gen_data(problem, subtasks)
 
-    namespace = get_relative(SOLUTIONS_JSON)
+    Verification.namespace = GEN_DATA_RELATIVE
+    verify_gen_data(subtasks)
+
+    Verification.namespace = get_relative(SOLUTIONS_JSON)
     verify_solutions(subtasks)
 
-    namespace = 'not found'
+    Verification.namespace = 'not found'
     verify_existence(necessary_files)
     verify_existence_warn(semi_necessary_files)
 
-    for error in errors:
-        cprint(colors.ERROR, error)
-
-    if not errors:
-        if warnings:
-            print(colored(colors.WARN, "verified,") + " but there are some warnings.")
-        else:
-            cprint(colors.OK, "verified.")
-
-    for warning in warnings:
-        cprint(colors.WARN, warning)
+    Verification.report()
 
 
 if __name__ == "__main__":

@@ -1,12 +1,8 @@
 import sys
-import os
 import re
 import fnmatch
 
 from test_name import get_test_name
-
-
-line_number = 0
 
 
 class DataVisitor:
@@ -27,17 +23,21 @@ class DataVisitor:
 
 
 class DataParseError(Exception):
-    pass
+    def __init__(self, line_number, message):
+        self.line_number = line_number
+        self.message = message
+        super().__init__(message)
 
 
-
-'''
-gen_data: list of lines in a gen/data file
-task_data: json of problem.json
-visitor: an instance of DataVisitor
-'''
 def parse_data_or_throw(gen_data, task_data, visitor):
-    global line_number
+    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-branches
+    """
+    gen_data: list of lines in a gen/data file
+    task_data: json of problem.json
+    visitor: an instance of DataVisitor
+    """
+
     line_number = 0
 
     testset_index, testset_name = -1, None
@@ -56,7 +56,7 @@ def parse_data_or_throw(gen_data, task_data, visitor):
         args = line.strip().split()[1:]
 
         if command.startswith("@"):
-            if command == "@subtask" or command == "@testset":
+            if command in ("@subtask", "@testset"):
                 test_offset = 1
                 testset_index += 1
                 testset_name = args[0]
@@ -70,17 +70,17 @@ def parse_data_or_throw(gen_data, task_data, visitor):
                     subtask_index = -1
             elif command == "@include":
                 if testset_index < 0:
-                    raise DataParseError("No subtask/testset is defined.")
+                    raise DataParseError(line_number, "No subtask/testset is defined.")
 
                 for included_testset in args:
                     if included_testset not in defined_testsets:
-                        raise DataParseError("Undefined testset %s" % included_testset)
+                        raise DataParseError(line_number, "Undefined testset %s" % included_testset)
                     visitor.on_include(testset_name, included_testset, line_number)
             else:
-                raise DataParseError("Unknown command %s" % command)
+                raise DataParseError(line_number, "Unknown command %s" % command)
         else:
             if testset_index < 0:
-                raise DataParseError("No subtask/testset is defined.")
+                raise DataParseError(line_number, "No subtask/testset is defined.")
 
             test_name = get_test_name(
                 task_data=task_data,
@@ -98,18 +98,17 @@ def parse_data_or_throw(gen_data, task_data, visitor):
             test_offset += 1
 
 
-'''
-gen_data: list of lines in a gen/data file
-task_data: json of problem.json
-visitor: an instance of DataVisitor
-'''
 def parse_data(gen_data, task_data, visitor):
+    """
+    gen_data: list of lines in a gen/data file
+    task_data: json of problem.json
+    visitor: an instance of DataVisitor
+    """
     try:
         parse_data_or_throw(gen_data, task_data, visitor)
     except DataParseError as e:
-        global line_number
-        sys.stderr.write("Error on line #%d: %s\n" % (line_number, e.message))
-        exit(1)
+        sys.stderr.write("Error on line #%d: %s\n" % (e.line_number, e.message))
+        sys.exit(1)
 
 
 class TestsVisitor(DataVisitor):
@@ -133,23 +132,23 @@ def check_test_exists(gen_data, task_data, test_name):
     parse_data(gen_data, task_data, tests_visitor)
     if not tests_visitor.has_test(test_name):
         sys.stderr.write("Invalid test name '%s'\n" % test_name)
-        exit(2)
+        sys.exit(2)
 
 
 
 def test_name_matches_pattern(test_name, pattern_expression):
-    return any(fnmatch.fnmatchcase(test_name, single_pattern.strip()) 
-               for single_pattern in re.split(",|\|", pattern_expression))
+    patterns = re.split(",|\\|", pattern_expression) # Split by ',' and '|'
+    patterns = map(str.strip, patterns)
+    return any(fnmatch.fnmatchcase(test_name, pattern) for pattern in patterns)
 
 
 def check_test_pattern_exists_in_list(test_names_list, test_pattern):
     if not any(test_name_matches_pattern(test_name, test_pattern) for test_name in test_names_list):
         sys.stderr.write("No test name matches the pattern '%s'\n" % test_pattern)
-        exit(2)
+        sys.exit(2)
 
 
 def check_test_pattern_exists(gen_data, task_data, test_pattern):
     tests_visitor = TestsVisitor()
     parse_data(gen_data, task_data, tests_visitor)
     check_test_pattern_exists_in_list(tests_visitor.tests, test_pattern)
-

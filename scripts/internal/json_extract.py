@@ -17,7 +17,7 @@ def navigate_json(data, path, json_file_name):
                 raise KeyError
         except (KeyError, IndexError):
             sys.stderr.write("Requested key '%s' not found in '%s'\n" % (path, os.path.basename(json_file_name)))
-            exit(4)
+            sys.exit(4)
     return data
 
 

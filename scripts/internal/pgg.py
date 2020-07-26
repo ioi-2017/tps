@@ -1,8 +1,6 @@
-#!python
-'''\
-Public Grader Generator
+"""Public Grader Generator
 Script to generate public graders from judge graders by removing the private lines
-'''
+"""
 
 import sys
 
@@ -15,8 +13,10 @@ def edit_distance(s1, s2):
     n = len(s2) + 1
 
     tbl = {}
-    for i in range(m): tbl[i, 0] = i
-    for j in range(n): tbl[0, j] = j
+    for i in range(m):
+        tbl[i, 0] = i
+    for j in range(n):
+        tbl[0, j] = j
     for i in range(1, m):
         for j in range(1, n):
             cost = 0 if s1[i - 1] == s2[j - 1] else 1
@@ -26,9 +26,8 @@ def edit_distance(s1, s2):
 
 
 def die(msg):
-    global lineNo
     sys.stderr.write('error: line %s: %s\n' % (lineNo, msg))
-    exit(1)
+    sys.exit(1)
 
 
 def canonical(s):

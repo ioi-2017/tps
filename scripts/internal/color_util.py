@@ -13,11 +13,15 @@ import subprocess
 
 
 class InvalidColorNameException(Exception):
-    pass
+    def __init__(self, color_name):
+        self.color_name = color_name
+        self.message = "Invalid color name: '{}'".format(color_name)
+        super().__init__(self.message)
 
-class colors(object):
+
+class colors:
     RESET = "\033[0m"
-    
+
     BLACK = "\033[30m"
     RED = "\033[31m"
     GREEN = "\033[32m"
@@ -26,7 +30,7 @@ class colors(object):
     MAGENTA = "\033[35m"
     CYAN = "\033[36m"
     WHITE = "\033[37m"
-    
+
     INTENSIVE_BLACK = "\033[1;2;30m"
     INTENSIVE_RED = "\033[1;31m"
     INTENSIVE_GREEN = "\033[1;32m"
@@ -35,7 +39,7 @@ class colors(object):
     INTENSIVE_MAGENTA = "\033[1;35m"
     INTENSIVE_CYAN = "\033[1;36m"
     INTENSIVE_WHITE = "\033[1;37m"
-    
+
     FAINT_BLACK = "\033[2;2;30m"
     FAINT_RED = "\033[2;31m"
     FAINT_GREEN = "\033[2;32m"
@@ -44,7 +48,7 @@ class colors(object):
     FAINT_MAGENTA = "\033[2;35m"
     FAINT_CYAN = "\033[2;36m"
     FAINT_WHITE = "\033[2;37m"
-    
+
     OK = GREEN
     SUCCESS = GREEN
     FAIL = RED
@@ -53,17 +57,20 @@ class colors(object):
     SKIPPED = FAINT_WHITE
     IGNORED = FAINT_WHITE
     OTHER = MAGENTA
-    
+
+    @classmethod
+    def has(cls, color_name):
+        return hasattr(cls, color_name)
+
     @classmethod
     def get(cls, color_name):
-        if not hasattr(cls, color_name):
-            raise InvalidColorNameException()
+        if not cls.has(color_name):
+            raise InvalidColorNameException(color_name)
         return getattr(cls, color_name)
-      
 
 
 def _is_windows():
-    return platform.system()=="Windows"
+    return platform.system() == "Windows"
 
 def _is_web():
     return os.environ.get('WEB_TERMINAL') == "true"
@@ -73,32 +80,51 @@ def _is_tty():
 
 def _term_color_support():
     try:
-        return _is_tty() and (8 <= int(subprocess.check_output(["tput", "colors"])))
-    except:
+        return _is_tty() and (int(subprocess.check_output(["tput", "colors"])) >= 8)
+    except (subprocess.CalledProcessError, ValueError):
         return False
 
 def _should_use_colors():
-#     sys.stderr.write("is_windows():  {}\n".format(_is_windows()))
-#     sys.stderr.write("term_color_support():  {}\n".format(_term_color_support()))
-#     sys.stderr.write("is_web():  {}\n".format(_is_web()))
+    # sys.stderr.write("is_windows():  {}\n".format(_is_windows()))
+    # sys.stderr.write("term_color_support():  {}\n".format(_term_color_support()))
+    # sys.stderr.write("is_web():  {}\n".format(_is_web()))
     if not _is_windows():
         return _term_color_support() or _is_web()
     if not _is_tty():
         return _is_web()
     try:
-        import colorama
+        import colorama # pylint: disable=import-outside-toplevel
         colorama.init()
         return True
     except ImportError:
         pass
     return False
 
+
+_use_colors = False # Make sure it is assigned in case of unhandled exceptions in _should_use_colors()
 _use_colors = _should_use_colors()
 
+
 def colored(color, text):
-    global _use_colors
     return color+text+colors.RESET if _use_colors else text
 
-def cprint(color, text):
-    print(colored(color, text))
 
+def reset(stream):
+    if _use_colors:
+        stream.write(colors.RESET)
+
+
+def cwrite(stream, color, text):
+    try:
+        stream.write(colored(color, text))
+    except KeyboardInterrupt:
+        reset(stream)
+        raise
+
+
+def cprint(color, text):
+    try:
+        print(colored(color, text))
+    except KeyboardInterrupt:
+        reset(sys.stdout)
+        raise

@@ -3,7 +3,7 @@ import os
 import shlex
 import subprocess
 
-from util import load_json, wait_process_success
+from util import simple_usage_message, load_json, wait_process_success
 from gen_data_parser import DataVisitor, parse_data, check_test_pattern_exists, test_name_matches_pattern
 
 
@@ -53,29 +53,29 @@ class MappingVisitor(DataVisitor):
 
 
 class GeneratingVisitor(DataVisitor):
+    def __init__(self, tests_dir):
+        self.tests_dir = tests_dir
+        super().__init__()
+
     def on_test(self, testset_name, test_name, line, line_number):
-        global tests_dir
         if SPECIFIC_TESTS == "false" or test_name_matches_pattern(test_name, SPECIFIED_TESTS_PATTERN):
             command = [
-                    'bash',
-                    os.path.join(INTERNALS_DIR, 'gen_test.sh'),
-                    tests_dir,
-                    test_name,
-                ] + shlex.split(line)
+                'bash',
+                os.path.join(INTERNALS_DIR, 'gen_test.sh'),
+                self.tests_dir,
+                test_name,
+            ] + shlex.split(line)
             wait_process_success(subprocess.Popen(command))
 
 
-if __name__ == '__main__':
-    
+def _main():
     if len(sys.argv) != 4:
-        from util import simple_usage_message
         simple_usage_message("<tests-dir> <mapping-file> <gen-summary-file>")
-    
-    global tests_dir
+
     tests_dir = sys.argv[1]
     mapping_file = sys.argv[2]
     gen_summary_file = sys.argv[3]
-    
+
     task_data = load_json(PROBLEM_JSON)
     gen_data = sys.stdin.readlines()
 
@@ -86,10 +86,14 @@ if __name__ == '__main__':
     parse_data(gen_data, task_data, summary_visitor)
     with open(gen_summary_file, 'w') as f:
         summary_visitor.print_summary(f)
-    
+
     mapping_visitor = MappingVisitor()
     parse_data(gen_data, task_data, mapping_visitor)
     with open(mapping_file, 'w') as f:
         mapping_visitor.print_mapping(f)
 
-    parse_data(gen_data, task_data, GeneratingVisitor())
+    parse_data(gen_data, task_data, GeneratingVisitor(tests_dir))
+
+
+if __name__ == '__main__':
+    _main()

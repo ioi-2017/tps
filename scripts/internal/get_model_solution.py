@@ -15,6 +15,6 @@ if __name__ == '__main__':
             model_solutions.append(solution)
     if len(model_solutions) != 1:
         sys.stderr.write("There should be exactly one model solution in '%s'\n" % os.path.basename(SOLUTIONS_JSON))
-        exit(3)
+        sys.exit(3)
 
     print(model_solutions[0])
