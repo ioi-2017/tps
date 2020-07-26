@@ -260,32 +260,30 @@ elif [ "${LANG}" == "java" ] ; then
 	check_warning "${WARNING_TEXT_PATTERN_FOR_JAVA}"
 elif is_in "${LANG}" "py" "py2" ; then
 	function check_py_cmd {
-		CMD="$1"
-		if command_exists "${CMD}" ; then
-			vecho "Python command '${CMD}' exists and is being used."
-			PYTHON_CMD="${CMD}"
-			return 0
-		else
-			return 1
-		fi
+		local CMD="$1"; shift
+		command_exists "${CMD}" || return 1
+		vecho "Python command '${CMD}' exists and is being used."
+		PYTHON_CMD="${CMD}"
+		return 0
 	}
-	if variable_exists "PYTHON" ; then
+	if [ "${LANG}" == "py" ] ; then
+		# Relying on the Python detection code in 'tps_init.sh'.
+		variable_exists "PYTHON" || error_exit 3 "Environment variable 'PYTHON' is not set."
 		vecho "Environment variable PYTHON is set to '${PYTHON}'."
-		check_py_cmd "${PYTHON}" || error_exit 1 "Python command '${PYTHON}' does not exist."
+		check_py_cmd "${PYTHON}" || error_exit 3 "Python command '${PYTHON}' set by environment variable 'PYTHON' does not exist."
+	elif [ "${LANG}" == "py2" ] ; then
+		function find_py2_cmd {
+			check_py_cmd "python2" && return
+			vecho "Python command 'python2' does not exist."
+			check_py_cmd "python" && return
+			vecho "Python command 'python' does not exist."
+			variable_exists "PYTHON" || error_exit 3 "Neither of python commands 'python2' nor 'python' exists and environment variable 'PYTHON' is not set."
+			vecho "Environment variable PYTHON is set to '${PYTHON}'."
+			check_py_cmd "${PYTHON}" || error_exit 3 "Python command '${PYTHON}' set by environment variable 'PYTHON' does not exist."
+		}
+		find_py2_cmd
 	else
-		if [ "${LANG}" == "py" ] ; then
-			if ! check_py_cmd "python3" ; then
-				vecho "Python command 'python3' does not exist."
-				check_py_cmd "python" || error_exit 1 "Neither of python commands 'python3' nor 'python' exists."
-			fi
-		elif [ "${LANG}" == "py2" ] ; then
-			if ! check_py_cmd "python2" ; then
-				vecho "Python command 'python2' does not exist."
-				check_py_cmd "python" || error_exit 1 "Neither of python commands 'python2' nor 'python' exists."
-			fi
-		else
-			error_exit 5 "Illegal state; unhandled python language: ${LANG}"
-		fi
+		error_exit 5 "Illegal state; unhandled python language: ${LANG}"
 	fi
 	files_to_compile=("${prog}")
 	if "${HAS_GRADER}"; then

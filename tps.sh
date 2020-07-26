@@ -5,7 +5,7 @@
 # IOI 2017, Iran
 
 
-readonly tps_version=1.4
+readonly tps_version=1.5
 
 
 set -e
@@ -170,7 +170,21 @@ function __tps_run_file__ {
 	if [ "${ext}" == "sh" ]; then
 		bash "${file2run}" "$@"
 	elif [ "${ext}" == "py" ]; then
-		python "${file2run}" "$@"
+		function __tps__check_py_cmd__ {
+			local -r CMD="$1"
+			command -v "${CMD}" >/dev/null 2>&1 || return 1
+			__tps__python__="${CMD}"
+			return 0
+		}
+		if [ -n "${PYTHON+x}" ] ; then
+			__tps__check_py_cmd__ "${PYTHON}" ||
+			__tps__error_exit__ 2 "Python command '${PYTHON}' set by environment variable 'PYTHON' does not exist."
+		else
+			__tps__check_py_cmd__ "python3" ||
+			__tps__check_py_cmd__ "python" ||
+			__tps__error_exit__ 2 "Environment variable 'PYTHON' is not set and neither of python commands 'python3' nor 'python' exists."
+		fi
+		"${__tps__python__}" "${file2run}" "$@"
 	elif [ "${ext}" == "exe" ]; then
 		"${file2run}" "$@"
 	else

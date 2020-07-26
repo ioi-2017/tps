@@ -14,7 +14,7 @@ sol_stderr="${SANDBOX}/${test_name}.err"
 
 function run_solution {
 	tlog_file="$(job_tlog_file "${sol_job}")"
-	python "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input}" "${sol_stdout}" "${sol_stderr}"
+	"${PYTHON}" "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input}" "${sol_stdout}" "${sol_stderr}"
 }
 
 function run_checker {

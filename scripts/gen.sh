@@ -178,7 +178,7 @@ else
 fi
 
 ret=0
-python "${INTERNALS}/gen.py" "${tests_dir}" "${mapping_file}" "${gen_summary_file}" < "${gen_data_file}" || ret=$?
+"${PYTHON}" "${INTERNALS}/gen.py" "${tests_dir}" "${mapping_file}" "${gen_summary_file}" < "${gen_data_file}" || ret=$?
 
 
 echo

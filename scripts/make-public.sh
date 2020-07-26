@@ -21,7 +21,7 @@ function pgg() {
 	cecho yellow -n "pgg: "
 	echo "$@"
 	check_file_exists "file" "${grader}/$1"
-	python ${INTERNALS}/pgg.py < "${grader}/$1" > "${public}/$1"
+	"${PYTHON}" ${INTERNALS}/pgg.py < "${grader}/$1" > "${public}/$1"
 	fix "$@"
 }
 
@@ -63,7 +63,7 @@ while read raw_line; do
 		sensitive check_file_exists "Generation data file" "${gen_data_file}"
 		#function is needed as "sensitive" does not work with multiple lines
 		function check_tests_exist {
-			python "${INTERNALS}/list_tests.py" < "${gen_data_file}" | while read test_name ; do
+			"${PYTHON}" "${INTERNALS}/list_tests.py" < "${gen_data_file}" | while read test_name ; do
 				generated_input=${generated_tests_dir}/${test_name}.in
 				sensitive check_file_exists "input file" "${generated_input}"
 			done
@@ -72,7 +72,7 @@ while read raw_line; do
 		cecho yellow "Copying inputs in '${relative_generated_tests_dir}' to '$(basename ${public})/${relative_public_tests_dir}'; assuming data to be up to date."
 		absolute_public_tests_dir=${PUBLIC_DIR}/${relative_public_tests_dir}
 		recreate_dir "${absolute_public_tests_dir}"
-		python "${INTERNALS}/list_tests.py" < "${gen_data_file}" | while read test_name ; do
+		"${PYTHON}" "${INTERNALS}/list_tests.py" < "${gen_data_file}" | while read test_name ; do
 			generated_input=${generated_tests_dir}/${test_name}.in
 			relative_public_input=${relative_public_tests_dir}/${test_name}.in
 			absolute_public_input=${PUBLIC_DIR}/${relative_public_input}
@@ -108,7 +108,7 @@ while read raw_line; do
 	if [ "${args[0]}" == "copy_test_inputs" ]; then
 		gen_data_file=${BASE_DIR}/${args[1]}
 		relative_public_tests_dir=${args[2]}
-		python "${INTERNALS}/list_tests.py" < "${gen_data_file}" | while read test_name ; do
+		"${PYTHON}" "${INTERNALS}/list_tests.py" < "${gen_data_file}" | while read test_name ; do
 			relative_public_input=${relative_public_tests_dir}/${test_name}.in
 			echo "${relative_public_input}"
 		done

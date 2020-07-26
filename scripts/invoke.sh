@@ -125,13 +125,13 @@ if variable_not_exists "solution" ; then
 	exit 2
 fi
 
-if ! is_windows && ! python -c "import psutil" >/dev/null 2>/dev/null; then
+if ! is_windows && ! "${PYTHON}" -c "import psutil" >/dev/null 2>/dev/null; then
 	cerrcho error -n "Error: "
 	errcho "Package 'psutil' is not installed."
 	errcho "You can install it using:"
 	errcho -e "\tpip install psutil"
 	errcho "or:"
-	errcho -e "\tpython -m pip install psutil"
+	errcho -e "\t${PYTHON} -m pip install psutil"
 	exit 1
 fi
 
@@ -146,7 +146,7 @@ if ! check_float "${SOFT_TL}"; then
 fi
 
 if variable_not_exists "HARD_TL" ; then
-	HARD_TL="$(python -c "print(${SOFT_TL} + 2)")"
+	HARD_TL="$("${PYTHON}" -c "print(${SOFT_TL} + 2)")"
 fi
 
 if ! check_float "${HARD_TL}"; then
@@ -155,7 +155,7 @@ if ! check_float "${HARD_TL}"; then
 	exit 2
 fi
 
-if python -c "exit(0 if ${HARD_TL} <= ${SOFT_TL} else 1)"; then
+if "${PYTHON}" -c "exit(0 if ${HARD_TL} <= ${SOFT_TL} else 1)"; then
 	errcho "Provided hard time limit (${HARD_TL}) is not greater than the soft time limit (${SOFT_TL})."
 	usage
 	exit 2
@@ -193,7 +193,7 @@ if "${HAS_CHECKER}"; then
 fi
 
 ret=0
-python "${INTERNALS}/invoke.py" "${tests_dir}" "${gen_summary_file}" || ret=$?
+"${PYTHON}" "${INTERNALS}/invoke.py" "${tests_dir}" "${gen_summary_file}" || ret=$?
 
 
 echo

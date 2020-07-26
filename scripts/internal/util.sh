@@ -85,7 +85,7 @@ function is_web {
 
 function cecho {
 	color="$1"; shift
-	echo "$@" | python "${INTERNALS}/colored_cat.py" "${color}"
+	echo "$@" | "${PYTHON}" "${INTERNALS}/colored_cat.py" "${color}"
 }
 
 #colored errcho

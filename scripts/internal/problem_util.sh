@@ -2,19 +2,19 @@
 
 
 function get_model_solution {
-	model_solution_name="$(python "${INTERNALS}/get_model_solution.py")" || return $?
+	model_solution_name="$("${PYTHON}" "${INTERNALS}/get_model_solution.py")" || return $?
 	echo "${SOLUTION_DIR}/${model_solution_name}"
 }
 
 function get_time_limit {
-	python "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "time_limit"
+	"${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "time_limit"
 }
 
 function get_test_validators {
 	tests_dir="$1"; shift
 	test_name="$1"; shift
 	mapping_file="${tests_dir}/${MAPPING_FILE_NAME}"
-	python "${INTERNALS}/get_test_validators.py" "${test_name}" "${mapping_file}"
+	"${PYTHON}" "${INTERNALS}/get_test_validators.py" "${test_name}" "${mapping_file}"
 }
 
 
@@ -43,7 +43,7 @@ function get_test_validator_commands {
 		*.py )
 				#echo "it's python"
 				validator_target="${VALIDATOR_DIR}/${validator_name}"
-				validator_command="python '${validator_target}' ${validator_args}"
+				validator_command="${PYTHON} '${validator_target}' ${validator_args}"
 				check_existance=true
 				;;
 		*.sh )
