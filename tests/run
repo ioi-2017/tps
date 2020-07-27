@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+set -a
+
+TESTS_DIR="$(dirname "$0")"
+
+UTILS_DIR="${TESTS_DIR}/utils"
+source "${UTILS_DIR}/all.sh"
+
+set +a
+
+ret=0
+bash "$@" || ret=$?
+if [ "${ret}" -eq 0 ]; then
+	errcho "OK"
+else
+	errcho "FAILED"
+fi
+
+exit "${ret}"

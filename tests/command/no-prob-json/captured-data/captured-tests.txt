@@ -1,0 +1,11 @@
+no-cmd
+no-cmd-d
+cmd
+cmd-d
+cmd-p
+cmd-p-d
+bc-0
+bc-1-0
+bc-1-1
+bc-2-0
+bc-2-1

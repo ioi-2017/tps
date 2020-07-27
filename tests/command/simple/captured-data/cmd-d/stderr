@@ -1,0 +1,2 @@
+Error: command 'a_command' not found in 'scripts'.
+Searched for 'a_command.sh', 'a_command.py', 'a_command.exe'.
