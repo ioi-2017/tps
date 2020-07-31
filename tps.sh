@@ -5,7 +5,7 @@
 # IOI 2017, Iran
 
 
-readonly tps_version=1.3
+readonly tps_version=1.4
 
 
 set -e
@@ -204,6 +204,15 @@ if "${__tps_bash_completion_mode__}"; then
 fi
 
 if "${__tps_help_mode__}"; then
+	readonly version_file="${__tps_scripts_dir__}/internal/version"
+	if [ -f "${version_file}" ]; then
+		scripts_version="$(sed -n 1p "${version_file}")"
+		readonly scripts_version
+		readonly scripts_version_info="Scripts version: ${scripts_version}
+"
+	else
+		readonly scripts_version_info=""
+	fi
 	available_commands="$(__tps_list_commands__)"
 	readonly available_commands
 	if [ -z "${available_commands}" ]; then
@@ -220,7 +229,7 @@ if "${__tps_help_mode__}"; then
 $(echo "${available_commands}" | add_prefix '  ')"
 		readonly commands_info
 	fi
-	__tps__help_exit__ "${commands_info}"
+	__tps__help_exit__ "${scripts_version_info}${commands_info}"
 fi
 
 

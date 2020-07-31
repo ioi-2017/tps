@@ -2,5 +2,6 @@ TPS version 1.4
 
 Usage: tps <command> <arguments>...
 
+Scripts version: 1.2
 In a TPS repository with the following commands available:
-  show
+  say

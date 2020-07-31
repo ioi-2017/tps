@@ -58,17 +58,43 @@ fi
 problem_scripts="${problem_dir}/scripts"
 source_scripts="scripts"
 old_scripts="old"
-problem_old_scripts_version_file="${problem_dir}/.scripts_version"
+problem_scripts_version_file="${problem_dir}/scripts/internal/version"
+problem_scripts_version_legacy_file_name=".scripts_version"
+problem_scripts_version_legacy_file="${problem_dir}/${problem_scripts_version_legacy_file_name}"
 
 
-if [ -f "${problem_old_scripts_version_file}" ]; then
-    old_scripts_version="$(cat "${problem_old_scripts_version_file}")"
+function ask_yes_no {
+    local prompt="$1"; shift
+    local res
+    read -p "${prompt} [y/n] " res
+    while : ; do
+        res="$(echo "${res}" | tr '[:upper:]' '[:lower:]')"
+        [ "${res}" == "y" ] && return 0
+        [ "${res}" == "n" ] && return 1
+        read -p "Please, respond with 'y' or 'n': " res
+    done
+}
+
+function check_proceed {
+    local exit_code="$1"; shift
+    local prompt="$1"; shift
+    if ! ask_yes_no "${prompt}"; then
+        exit "${exit_code}"
+    fi
+}
+
+
+if [ -f "${problem_scripts_version_file}" ]; then
+    old_scripts_version="$(cat "${problem_scripts_version_file}")"
+    old_scripts_commit="v${old_scripts_version}"
+elif [ -f "${problem_scripts_version_legacy_file}" ]; then
+    old_scripts_commit="$(cat "${problem_scripts_version_legacy_file}")"
 else
-    old_scripts_version="$(git log --pretty=format:"%H" | tail -n 1)"
+    old_scripts_commit="$(git log --pretty=format:"%H" | tail -n 1)"
 fi
 
-if ! git show -s --oneline "${old_scripts_version}" > /dev/null; then
-    cecho red >&2 "Problem scripts version '${old_scripts_version}' not found in this source repo"
+if ! git show -s --oneline "${old_scripts_commit}" > /dev/null; then
+    cecho red >&2 "Problem scripts commit '${old_scripts_commit}' not found in this source repository."
     exit 4
 fi
 
@@ -85,31 +111,26 @@ function check_repo_is_clean {
 }
 
 if ! check_repo_is_clean "$(dirname ${problem_scripts})"; then
-    cecho red >&2 "There are uncommitted changes in problem repo"
-    read -p "Are you sure you want to proceed? [y/N]" res
-    if [ "${res}" != "y" ]; then
-        exit 1
-    else
-        echo
-    fi
+    cecho red >&2 "There are uncommitted changes in the problem repository."
+    check_proceed 1 "Are you sure you want to proceed?"
+    echo
 fi
 
 if ! check_repo_is_clean "$(dirname ${source_scripts})"; then
-    cecho red >&2 "There are uncommitted changes in source scripts repo"
-    read -p "Are you sure you want to proceed? [y/N]" res
-    if [ "${res}" != "y" ]; then
-        exit 1
-    else
-        echo
-    fi
+    cecho red >&2 "There are uncommitted changes in source scripts repository."
+    check_proceed 1 "Are you sure you want to proceed?"
+    echo
 fi
 
 ret=0
 tag="$(git describe --tags | head -1)" || ret=$?
-if [ "${ret}" -eq 0 ]; then
-    source_current_scripts_version="${tag}"
+if [ "${ret}" -eq 0 ] && [[ ${tag} == v* ]]; then
+    source_current_scripts_version="${tag#*v}"
 else
-    source_current_scripts_version="$(git log --pretty=format:'%H' -n 1)"
+    cecho red >&2 "There is no version tag on the current source scripts repository commit."
+    check_proceed 1 "Are you sure you want to proceed with commit hash as a version?"
+    echo
+    source_current_scripts_version="$(git log --pretty=format:"%H" -n 1)"
 fi
 
 function list_dir_files {
@@ -161,7 +182,7 @@ while read file; do
 
     a_exists="true"
     mkdir -p "$(dirname "${a}")"
-    git show "${old_scripts_version}:${source_scripts}/${file}" > "${a}" 2> /dev/null || a_exists="false"
+    git show "${old_scripts_commit}:${source_scripts}/${file}" > "${a}" 2> /dev/null || a_exists="false"
 
     b_exists="true"
     [ -f "${b}" ] || b_exists="false"
@@ -176,7 +197,11 @@ while read file; do
     if "${b_exists}"; then
         if "${c_exists}"; then
             if are_same "${b}" "${c}"; then
-                message="not changed"
+                if "${a_exists}" && are_same "${a}" "${b}"; then
+                    message="not changed"
+                else
+                    message="both problem and script source changed this file in the same way"
+                fi
             elif "${a_exists}" && are_same "${a}" "${b}"; then
                 message="keeping changes in problem"
             elif "${a_exists}" && are_same "${a}" "${c}"; then
@@ -225,20 +250,19 @@ while read file; do
     fi
 done <<< "$(get_all_scripts_files)"
 
-if ! "${dry_run}"; then
+if ! "${dry_run}" && [ -e "${problem_scripts_version_legacy_file}" ]; then
     errcho
 
-    do_update_version="true"
+    remove_legacy_version="true"
     if "${has_conflicts}"; then
-        do_update_version="false"
-        read -p "There are some conflicts. Should the .scripts_version file be updated? [y/N]" res
-        if [ "${res}" == "y" ]; then
-            do_update_version="true"
+        remove_legacy_version="false"
+        if ask_yes_no "There are some conflicts. Should the legacy file '${problem_scripts_version_legacy_file_name}' be deleted?"; then
+            remove_legacy_version="true"
         fi
     fi
-    if "${do_update_version}"; then
-        echo "${source_current_scripts_version}" > "${problem_old_scripts_version_file}"
-        cecho yellow "updated .script_version file in problem to '${source_current_scripts_version}'"
+    if "${remove_legacy_version}"; then
+        rm -f "${problem_scripts_version_legacy_file}"
+        cecho yellow "Removed legacy file '${problem_scripts_version_legacy_file_name}' in problem."
     fi
 fi
 
