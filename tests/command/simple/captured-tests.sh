@@ -3,7 +3,7 @@
 
 stage_dir "stage"
 
-expect_exec -oh7 "TPS version 1.1" "" "Usage: tps <command> <arguments>..." "" "Available commands:" "foo" "say" -eempty -r 1 tps
+expect_exec -o "captured-data/no-cmd/stdout" -eempty -r 1 tps
 expect_exec -oempty -e "captured-data/cmd/stderr" -r 2 tps a_command
 expect_exec -oempty -e "captured-data/cmd-p/stderr" -r 2 tps a_command a_param
 expect_exec -oh "" -eempty tps say
@@ -42,23 +42,23 @@ expect_exec -oh "say " -eempty tps_bc 1 1 so a_param
 expect_exec -oempty -eempty tps_bc 1 2 so a_param
 expect_exec -oempty -eempty tps_bc 1 3 so a_param
 
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 a_command
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 a_command a_param
-expect_exec -oh2 "a_dir" "a_file" -eempty tps_bc 2 1 a_command a_param
-expect_exec -oh2 "a_dir" "a_file" -eempty tps_bc 2 2 a_command a_param
+expect_exec -oempty -eempty tps_bc 2 0 a_command
+expect_exec -oempty -eempty tps_bc 2 0 a_command a_param
+expect_exec -oempty -eempty tps_bc 2 1 a_command a_param
+expect_exec -oempty -eempty tps_bc 2 2 a_command a_param
 expect_exec -oempty -eempty tps_bc 2 3 a_command a_param
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 say
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 say a_param
-expect_exec -oh2 "a_dir" "a_file" -eempty tps_bc 2 1 say a_param
-expect_exec -oh2 "a_dir" "a_file" -eempty tps_bc 2 2 say a_param
+expect_exec -oh4 "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 say
+expect_exec -oh4 "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 say a_param
+expect_exec -oh2 "a_dir/" "a_file " -eempty tps_bc 2 1 say a_param
+expect_exec -oh2 "a_dir/" "a_file " -eempty tps_bc 2 2 say a_param
 expect_exec -oempty -eempty tps_bc 2 3 say a_param
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 say
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 say -a_param
+expect_exec -oh4 "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 say
+expect_exec -oh4 "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 say -a_param
 expect_exec -oempty -eempty tps_bc 2 1 say -a_param
 expect_exec -oempty -eempty tps_bc 2 2 say -a_param
 expect_exec -oempty -eempty tps_bc 2 3 say -a_param
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 say
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 say --a_param
+expect_exec -oh4 "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 say
+expect_exec -oh4 "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 say --a_param
 expect_exec -oempty -eempty tps_bc 2 1 say --a_param
 expect_exec -oempty -eempty tps_bc 2 2 say --a_param
 expect_exec -oempty -eempty tps_bc 2 3 say --a_param
@@ -68,45 +68,45 @@ expect_exec -oempty -eempty tps_bc 2 11 say --a_param=a
 expect_exec -oempty -eempty tps_bc 2 9 say --a_param=b
 expect_exec -oempty -eempty tps_bc 2 10 say --a_param=b
 expect_exec -oempty -eempty tps_bc 2 11 say --a_param=b
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo a_param
-expect_exec -oh2 "a_dir" "a_file" -eempty tps_bc 2 1 foo a_param
-expect_exec -oh2 "a_dir" "a_file" -eempty tps_bc 2 2 foo a_param
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo a_param
+expect_exec -oh2 "a_dir/" "a_file " -eempty tps_bc 2 1 foo a_param
+expect_exec -oh2 "a_dir/" "a_file " -eempty tps_bc 2 2 foo a_param
 expect_exec -oempty -eempty tps_bc 2 3 foo a_param
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo -a_param
-expect_exec -oempty -eempty tps_bc 2 1 foo -a_param
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo -a_param
+expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 1 foo -a_param
 expect_exec -oempty -eempty tps_bc 2 2 foo -a_param
 expect_exec -oempty -eempty tps_bc 2 3 foo -a_param
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo --a_param
-expect_exec -oempty -eempty tps_bc 2 1 foo --a_param
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo --a_param
+expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 1 foo --a_param
 expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 2 foo --a_param
 expect_exec -oempty -eempty tps_bc 2 3 foo --a_param
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo hello
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo hello
 expect_exec -oempty -eempty tps_bc 2 1 foo hello
 expect_exec -oempty -eempty tps_bc 2 2 foo hello
 expect_exec -oempty -eempty tps_bc 2 3 foo hello
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo -hello
-expect_exec -oempty -eempty tps_bc 2 1 foo -hello
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo -hello
+expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 1 foo -hello
 expect_exec -oempty -eempty tps_bc 2 2 foo -hello
 expect_exec -oempty -eempty tps_bc 2 3 foo -hello
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 0 foo --hello
-expect_exec -oempty -eempty tps_bc 2 1 foo --hello
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo
+expect_exec -oh6 "--hello " "--type=" "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 0 foo --hello
+expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 1 foo --hello
 expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 2 foo --hello
 expect_exec -oh "--hello " -eempty tps_bc 2 3 foo --hello
 expect_exec -oh "--type=" -eempty tps_bc 2 6 foo --type=a
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 7 foo --type=a
-expect_exec -oh2 "a_dir" "a_file" -eempty tps_bc 2 8 foo --type=a
+expect_exec -oh4 "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 7 foo --type=a
+expect_exec -oh2 "a_dir/" "a_file " -eempty tps_bc 2 8 foo --type=a
 expect_exec -oh "--type=" -eempty tps_bc 2 6 foo --type=b
-expect_exec -oh4 "a_dir" "a_file" "problem.json" "scripts" -eempty tps_bc 2 7 foo --type=b
+expect_exec -oh4 "a_dir/" "a_file " "problem.json " "scripts/" -eempty tps_bc 2 7 foo --type=b
 expect_exec -oempty -eempty tps_bc 2 8 foo --type=b
 
 set_exec_cwd "a_dir"
-expect_exec -oh7 "TPS version 1.1" "" "Usage: tps <command> <arguments>..." "" "Available commands:" "foo" "say" -eempty -r 1 tps
+expect_exec -o "captured-data/no-cmd-d/stdout" -eempty -r 1 tps
 expect_exec -oempty -e "captured-data/cmd-d/stderr" -r 2 tps a_command
 expect_exec -oempty -e "captured-data/cmd-p-d/stderr" -r 2 tps a_command a_param
 expect_exec -oh "" -eempty tps say
@@ -145,23 +145,23 @@ expect_exec -oh "say " -eempty tps_bc 1 1 so a_param
 expect_exec -oempty -eempty tps_bc 1 2 so a_param
 expect_exec -oempty -eempty tps_bc 1 3 so a_param
 
-expect_exec -oh "a_file" -eempty tps_bc 2 0 a_command
-expect_exec -oh "a_file" -eempty tps_bc 2 0 a_command a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 1 a_command a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 2 a_command a_param
+expect_exec -oempty -eempty tps_bc 2 0 a_command
+expect_exec -oempty -eempty tps_bc 2 0 a_command a_param
+expect_exec -oempty -eempty tps_bc 2 1 a_command a_param
+expect_exec -oempty -eempty tps_bc 2 2 a_command a_param
 expect_exec -oempty -eempty tps_bc 2 3 a_command a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 0 say
-expect_exec -oh "a_file" -eempty tps_bc 2 0 say a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 1 say a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 2 say a_param
+expect_exec -oh "a_file " -eempty tps_bc 2 0 say
+expect_exec -oh "a_file " -eempty tps_bc 2 0 say a_param
+expect_exec -oh "a_file " -eempty tps_bc 2 1 say a_param
+expect_exec -oh "a_file " -eempty tps_bc 2 2 say a_param
 expect_exec -oempty -eempty tps_bc 2 3 say a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 0 say
-expect_exec -oh "a_file" -eempty tps_bc 2 0 say -a_param
+expect_exec -oh "a_file " -eempty tps_bc 2 0 say
+expect_exec -oh "a_file " -eempty tps_bc 2 0 say -a_param
 expect_exec -oempty -eempty tps_bc 2 1 say -a_param
 expect_exec -oempty -eempty tps_bc 2 2 say -a_param
 expect_exec -oempty -eempty tps_bc 2 3 say -a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 0 say
-expect_exec -oh "a_file" -eempty tps_bc 2 0 say --a_param
+expect_exec -oh "a_file " -eempty tps_bc 2 0 say
+expect_exec -oh "a_file " -eempty tps_bc 2 0 say --a_param
 expect_exec -oempty -eempty tps_bc 2 1 say --a_param
 expect_exec -oempty -eempty tps_bc 2 2 say --a_param
 expect_exec -oempty -eempty tps_bc 2 3 say --a_param
@@ -171,40 +171,40 @@ expect_exec -oempty -eempty tps_bc 2 11 say --a_param=a
 expect_exec -oempty -eempty tps_bc 2 9 say --a_param=b
 expect_exec -oempty -eempty tps_bc 2 10 say --a_param=b
 expect_exec -oempty -eempty tps_bc 2 11 say --a_param=b
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 1 foo a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 2 foo a_param
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo a_param
+expect_exec -oh "a_file " -eempty tps_bc 2 1 foo a_param
+expect_exec -oh "a_file " -eempty tps_bc 2 2 foo a_param
 expect_exec -oempty -eempty tps_bc 2 3 foo a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo -a_param
-expect_exec -oempty -eempty tps_bc 2 1 foo -a_param
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo -a_param
+expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 1 foo -a_param
 expect_exec -oempty -eempty tps_bc 2 2 foo -a_param
 expect_exec -oempty -eempty tps_bc 2 3 foo -a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo --a_param
-expect_exec -oempty -eempty tps_bc 2 1 foo --a_param
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo --a_param
+expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 1 foo --a_param
 expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 2 foo --a_param
 expect_exec -oempty -eempty tps_bc 2 3 foo --a_param
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo hello
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo hello
 expect_exec -oempty -eempty tps_bc 2 1 foo hello
 expect_exec -oempty -eempty tps_bc 2 2 foo hello
 expect_exec -oempty -eempty tps_bc 2 3 foo hello
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo -hello
-expect_exec -oempty -eempty tps_bc 2 1 foo -hello
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo -hello
+expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 1 foo -hello
 expect_exec -oempty -eempty tps_bc 2 2 foo -hello
 expect_exec -oempty -eempty tps_bc 2 3 foo -hello
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo
-expect_exec -oh "a_file" -eempty tps_bc 2 0 foo --hello
-expect_exec -oempty -eempty tps_bc 2 1 foo --hello
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo
+expect_exec -oh3 "--hello " "--type=" "a_file " -eempty tps_bc 2 0 foo --hello
+expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 1 foo --hello
 expect_exec -oh2 "--hello " "--type=" -eempty tps_bc 2 2 foo --hello
 expect_exec -oh "--hello " -eempty tps_bc 2 3 foo --hello
 expect_exec -oh "--type=" -eempty tps_bc 2 6 foo --type=a
-expect_exec -oh "a_file" -eempty tps_bc 2 7 foo --type=a
-expect_exec -oh "a_file" -eempty tps_bc 2 8 foo --type=a
+expect_exec -oh "a_file " -eempty tps_bc 2 7 foo --type=a
+expect_exec -oh "a_file " -eempty tps_bc 2 8 foo --type=a
 expect_exec -oh "--type=" -eempty tps_bc 2 6 foo --type=b
-expect_exec -oh "a_file" -eempty tps_bc 2 7 foo --type=b
+expect_exec -oh "a_file " -eempty tps_bc 2 7 foo --type=b
 expect_exec -oempty -eempty tps_bc 2 8 foo --type=b
 unset_exec_cwd

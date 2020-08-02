@@ -5,161 +5,282 @@
 # IOI 2017, Iran
 
 
-tps_version=1.1
-
+readonly tps_version=1.2
 
 
 set -e
 
-function errcho {
+function __tps__errcho__ {
 	>&2 echo "$@"
 }
 
 
 
-__tps_target_file__="problem.json"
+if [ $# -eq 0 ]; then
+	readonly __tps_help_mode__="true"
+	echo "\
+TPS version ${tps_version}
 
-#looking for ${__tps_target_file__} in current and parent directories...
-__tps_curr__="$PWD"
-while [ "${__tps_curr__}" != "${__tps_prev__}" ] ; do
-	if [ -f "${__tps_curr__}/${__tps_target_file__}" ] ; then
-		BASE_DIR="${__tps_curr__}"
-		break
-	fi
-	__tps_prev__="${__tps_curr__}"
-	__tps_curr__="$(dirname "${__tps_curr__}")"
-done
-
-
-
-__tps_scripts__="scripts"
-__tps_scripts_dir__="${BASE_DIR}/${__tps_scripts__}"
-
-
-function __tps_list_commands__ {
-	ls -a -1 "${__tps_scripts_dir__}" 2>/dev/null | grep -E ".\\.(sh|py|exe)$" | while read f; do echo ${f%.*} ; done
-}
-
-function __tps_unify_elements__ {
-	_sort=$(which -a "sort" | grep -iv "windows" | head -1)
-	if [ -z "${_sort}" ] ; then
-		_sort="cat"
-	fi
-	${_sort} | uniq
-}
-
-function __tps_help__ {
-	echo "TPS version ${tps_version}"
-	echo ""
-	echo "Usage: tps <command> <arguments>..."
-	echo ""
-	if [ -z "${BASE_DIR+x}" ]; then
-		echo "Currently not in a TPS repository ('${__tps_target_file__}' not found in any of the parent directories)."
-	elif [ ! -d "${__tps_scripts_dir__}" ] ; then
-		echo "Directory '${__tps_scripts__}' is not available."
-	elif [ -z "$(__tps_list_commands__)" ] ; then
-		echo "No commands available in '${__tps_scripts__}'."
-	else
-		echo "Available commands:"
-		__tps_list_commands__ | __tps_unify_elements__
-	fi
-	exit 1
-}
-
-
-[ $# -gt 0 ] || __tps_help__
-__tps_command__="$1"; shift
-
-if [ "${__tps_command__}" == "--bash-completion" ] ; then
-	[ $# -gt 1 ] || exit 0
-	[ ! -z "${BASE_DIR+x}" -a -d "${__tps_scripts_dir__}" ] || exit 0
-	
-	index="$1"; shift
-	[ ${index} -gt 0 ] || exit 0
-
-	cursor_location="$1"; shift
-	[ ${cursor_location} -ge 0 ] || exit 0
-	
-	# removing 'tps'
-	shift
-
-	cur="${!index}"
-	cur="${cur:0:${cursor_location}}"
-
-	if [ ${index} -eq 1 ]; then
-		opts="$(__tps_list_commands__)"
-		compgen -W "${opts}" -- "${cur}" | {
-			while read -r tmp; do
-				printf '%s \n' "$tmp"
-			done
-		}
-		exit 0
-	fi
-
-	command="$1"; shift
-	
-	command_bc_options_file="${__tps_scripts_dir__}/bash_completion/${command}.options"
-
-	if [ -f "${command_bc_options_file}" ] && [[ ${cur} == --* ]]; then
-		if ! [[ ${cur} == *=* ]]; then
-			compgen -W "$(cat "${command_bc_options_file}")" -- "${cur}" | {
-				while read -r tmp; do
-					if [[ ${tmp} != *= ]]; then
-						printf '%s \n' "$tmp"
-					else
-						printf '%s\n' "$tmp"
-					fi
-				done
-			}
-			exit 0
-		else
-			value="${cur#*=}"
-			compgen -f -- "${value}"
-			exit 0
-		fi
-	fi
-
-	compgen -f -- "${cur}"
-	exit 0
+Usage: tps <command> <arguments>...
+"
+	function __tps__help_exit__ {
+		local -r message="$1"; shift
+		echo "${message}"
+		exit 1
+	}
+else
+	readonly __tps_help_mode__="false"
+	__tps_command__="$1"; shift
 fi
 
 
-if [ -z "${BASE_DIR+x}" ]; then
-	errcho "Error: Not in a TPS repository ('${__tps_target_file__}' not found in any of the parent directories)"
-	exit 2
+if ! "${__tps_help_mode__}" && [ "${__tps_command__}" == "--bash-completion" ]; then
+	readonly __tps_bash_completion_mode__="true"
+
+	function add_space_all {
+		local tmp
+		while read -r tmp; do
+			printf '%s \n' "${tmp}"
+		done
+	}
+
+	function add_space_options {
+		local tmp
+		while read -r tmp; do
+			if [[ ${tmp} != *= ]]; then
+				printf '%s \n' "${tmp}"
+			else
+				printf '%s\n' "${tmp}"
+			fi
+		done
+	}
+
+	function fix_file_endings {
+		local tmp
+		while read -r tmp; do
+			if [ -d "${tmp}" ]; then
+				printf '%s/\n' "${tmp}"
+			else
+				printf '%s \n' "${tmp}"
+			fi
+		done
+	}
+
+	function complete_with_files {
+		compgen -f -- "$1" | __tps_unified_sort__ | fix_file_endings || true
+	}
+
+	[ $# -gt 1 ] || exit 0
+
+	bc_index="$1"; shift
+	[ ${bc_index} -gt 0 ] || exit 0
+
+	readonly bc_cursor_location="$1"; shift
+	[ ${bc_cursor_location} -ge 0 ] || exit 0
+
+	# Removing the token 'tps'
+	shift
+
+	if [ "${bc_index}" -le $# ]; then
+		readonly bc_current_token="${!bc_index}"
+	else
+		readonly bc_current_token=""
+	fi
+	readonly bc_current_token_prefix="${bc_current_token:0:${bc_cursor_location}}"
+else
+	readonly __tps_bash_completion_mode__="false"
+fi
+
+
+function __tps__error_exit__ {
+	"${__tps_bash_completion_mode__}" && exit 0
+	local -r exit_code="$1"; shift
+	local -r message="$1"; shift
+	__tps__errcho__ "Error: ${message}"
+	exit "${exit_code}"
+}
+
+
+function __tps_unified_sort__ {
+	local _sort
+	_sort=$(which -a "sort" | grep -iv "windows" | head -1)
+	readonly _sort
+	if [ -n "${_sort}" ] ; then
+		"${_sort}" -u "$@"
+	else
+		cat "$@"
+	fi
+}
+
+
+__tps_target_file__="problem.json"
+__tps_scripts__="scripts"
+
+function __tps_find_basedir__ {
+	#looking for ${__tps_target_file__} in current and parent directories...
+	local __tps_curr__="$PWD"
+	local __tps_prev__=""
+	while [ "${__tps_curr__}" != "${__tps_prev__}" ]; do
+		if [ -f "${__tps_curr__}/${__tps_target_file__}" ]; then
+			readonly __in_tps_repo__="true"
+			readonly BASE_DIR="${__tps_curr__}"
+			readonly __tps_scripts_dir__="${BASE_DIR}/${__tps_scripts__}"
+			return
+		fi
+		__tps_prev__="${__tps_curr__}"
+		__tps_curr__="$(dirname "${__tps_curr__}")"
+	done
+	readonly __in_tps_repo__="false"
+}
+__tps_find_basedir__
+
+
+if ! "${__in_tps_repo__}"; then
+	if "${__tps_bash_completion_mode__}"; then
+		if [ ${bc_index} -eq 1 ]; then
+			# No commands available out of a TPS repository
+			exit 0
+		fi
+		# Extracting the command name
+		__tps_command__="$1"; shift; ((bc_index--))
+		# bc_index >= 1
+	fi
+	"${__tps_help_mode__}" && __tps__help_exit__ "Currently not in a TPS repository ('${__tps_target_file__}' not found in any of the parent directories)."
+	__tps__error_exit__ 2 "Not in a TPS repository ('${__tps_target_file__}' not found in any of the parent directories)."
 fi
 
 
 export BASE_DIR
 
-#keeping the lower-case variable 'base_dir' for backward compatibility.
+# Keeping the lower-case variable 'base_dir' for backward compatibility.
 export base_dir="${BASE_DIR}"
 
 
-if [ ! -d "${__tps_scripts_dir__}" ] ; then
-	errcho "Error: Directory '${__tps_scripts__}' not found."
-	exit 2
+if [ ! -d "${__tps_scripts_dir__}" ]; then
+	"${__tps_help_mode__}" && __tps__help_exit__ "In a TPS repository without directory '${__tps_scripts__}'."
+	__tps__error_exit__ 2 "Directory '${__tps_scripts__}' not found."
 fi
 
-__tps_init__="${__tps_scripts__}/internal/tps_init.sh"
-__tps_init_file__="${BASE_DIR}/${__tps_init__}"
 
-if [ ! -f "${__tps_init_file__}" ] ; then
-	errcho "Error: File '${__tps_init__}' not found."
-	exit 2
+readonly __tps_runnable_extensions__=("sh" "py" "exe")
+
+function __tps_run_file__ {
+	local -r file2run="$1"; shift
+	local -r ext="${file2run##*.}"
+	if [ "${ext}" == "sh" ]; then
+		bash "${file2run}" "$@"
+	elif [ "${ext}" == "py" ]; then
+		python "${file2run}" "$@"
+	elif [ "${ext}" == "exe" ]; then
+		"${file2run}" "$@"
+	else
+		__tps__error_exit__ 3 "Unknown extension '${ext}' for running (illegal state)."
+	fi
+}
+
+
+function __tps_list_commands__ {
+	local extensions=""
+	for ext in "${__tps_runnable_extensions__[@]}"; do
+		[ -n "${extensions}" ] && extensions="${extensions}|"
+		extensions="${extensions}${ext}"
+	done
+	local f
+	ls -a -1 "${__tps_scripts_dir__}" 2>/dev/null | grep -E ".\\.(${extensions})$" | while read f; do echo ${f%.*}; done | __tps_unified_sort__ || true
+}
+
+if "${__tps_bash_completion_mode__}"; then
+	if [ ${bc_index} -eq 1 ]; then
+		available_commands="$(__tps_list_commands__)"
+		readonly available_commands
+		if [ -n "${available_commands}" ]; then
+			compgen -W "${available_commands}" -- "${bc_current_token_prefix}" | add_space_all || true
+		fi
+		exit 0
+	fi
+	# Extracting the command name
+	__tps_command__="$1"; shift; ((bc_index--))
+	# bc_index >= 1
 fi
 
-source "${__tps_init_file__}"
+if "${__tps_help_mode__}"; then
+	available_commands="$(__tps_list_commands__)"
+	readonly available_commands
+	if [ -z "${available_commands}" ]; then
+		readonly commands_info="In a TPS repository with no commands available in '${__tps_scripts__}'."
+	else
+		function add_prefix {
+			local -r prefix="$1"; shift
+			local x
+			while read -r x; do
+				printf '%s%s\n' "${prefix}" "${x}"
+			done
+		}
+		commands_info="In a TPS repository with the following commands available:
+$(echo "${available_commands}" | add_prefix '  ')"
+		readonly commands_info
+	fi
+	__tps__help_exit__ "${commands_info}"
+fi
 
-if [ -f "${__tps_scripts_dir__}/${__tps_command__}.sh" ]; then
-	bash "${__tps_scripts_dir__}/${__tps_command__}.sh" "$@"
-elif [ -f "${__tps_scripts_dir__}/${__tps_command__}.py" ]; then
-	python "${__tps_scripts_dir__}/${__tps_command__}.py" "$@"
-elif [ -f "${__tps_scripts_dir__}/${__tps_command__}.exe" ]; then
-	"${__tps_scripts_dir__}/${__tps_command__}.exe" "$@"
+
+function __tps_find_runnable_file__ {
+	local -r cmd="$1"; shift
+	local -r dir="$1"; shift
+	local ext
+	for ext in "${__tps_runnable_extensions__[@]}"; do
+		local file_name="${cmd}.${ext}"
+		if [ -f "${dir}/${file_name}" ]; then
+			echo "${file_name}"
+			return
+		fi
+	done
+}
+
+
+__tps_command_file_name__="$(__tps_find_runnable_file__ "${__tps_command__}" "${__tps_scripts_dir__}")"
+readonly __tps_command_file_name__
+
+if [ -z "${__tps_command_file_name__}" ]; then
+	searched_files=""
+	for ext in "${__tps_runnable_extensions__[@]}"; do
+		[ -n "${searched_files}" ] && searched_files="${searched_files}, "
+		searched_files="${searched_files}'${__tps_command__}.${ext}'"
+	done
+	__tps__error_exit__ 2 "Command '${__tps_command__}' not found in '${__tps_scripts__}'.
+Searched for ${searched_files}."
+fi
+
+
+if "${__tps_bash_completion_mode__}"; then
+	readonly bc_dir="${__tps_scripts_dir__}/bash_completion"
+	# Looking for bash completion options file
+	readonly command_bc_options_file="${bc_dir}/${__tps_command__}.options"
+	if [ -f "${command_bc_options_file}" ]; then
+		if [[ ${bc_current_token_prefix} == --*=* ]]; then
+			complete_with_files "${bc_current_token_prefix#*=}"
+		else
+			compgen -W "$(cat "${command_bc_options_file}")" -- "${bc_current_token_prefix}" | add_space_options || true
+			complete_with_files "${bc_current_token_prefix}"
+		fi
+		exit 0
+	fi
+	# No specific bash completion method. Using files.
+	complete_with_files "${bc_current_token_prefix}"
+	exit 0
+fi
+
+
+readonly __tps_init_relative_path__="${__tps_scripts__}/internal/tps_init.sh"
+readonly __tps_init_file__="${BASE_DIR}/${__tps_init_relative_path__}"
+
+if [ -f "${__tps_init_file__}" ]; then
+	source "${__tps_init_file__}"
 else
-	errcho "Error: command '${__tps_command__}' not found in '${__tps_scripts__}'".
-	errcho "Searched for '${__tps_command__}.sh', '${__tps_command__}.py', '${__tps_command__}.exe'."
-	exit 2
+	: "File '${__tps_init_relative_path__}' not found."
 fi
+
+
+readonly __tps_command_file__="${__tps_scripts_dir__}/${__tps_command_file_name__}"
+__tps_run_file__ "${__tps_command_file__}" "$@"
 

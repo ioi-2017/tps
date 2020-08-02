@@ -1,0 +1,7 @@
+TPS version 1.2
+
+Usage: tps <command> <arguments>...
+
+In a TPS repository with the following commands available:
+  foo
+  say

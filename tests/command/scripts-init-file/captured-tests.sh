@@ -3,10 +3,10 @@
 
 stage_dir "stage-without-init"
 
-expect_exec -oh6 "TPS version 1.1" "" "Usage: tps <command> <arguments>..." "" "Available commands:" "show" -eempty -r 1 tps
-expect_exec -oempty -eh "Error: File 'scripts/internal/tps_init.sh' not found." -r 2 tps show
+expect_exec -o "captured-data/no-cmd-wo/stdout" -eempty -r 1 tps
+expect_exec -oh "The variable is ''." -eempty tps show
 
 stage_dir "stage-with-init"
 
-expect_exec -oh6 "TPS version 1.1" "" "Usage: tps <command> <arguments>..." "" "Available commands:" "show" -eempty -r 1 tps
+expect_exec -o "captured-data/no-cmd-w/stdout" -eempty -r 1 tps
 expect_exec -oh "The variable is 'the_init_value'." -eempty tps show

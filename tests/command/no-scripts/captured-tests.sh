@@ -3,7 +3,7 @@
 
 stage_dir "stage"
 
-expect_exec -oh5 "TPS version 1.1" "" "Usage: tps <command> <arguments>..." "" "Directory 'scripts' is not available." -eempty -r 1 tps
+expect_exec -o "captured-data/no-cmd/stdout" -eempty -r 1 tps
 expect_exec -oempty -eh "Error: Directory 'scripts' not found." -r 2 tps a_command
 expect_exec -oempty -eh "Error: Directory 'scripts' not found." -r 2 tps a_command a_param
 

@@ -11,7 +11,7 @@ function tps_bc {
 	fi
 	local -r index="$1"; shift
 	local -r cursor_location="$1"; shift
-	tps "--bash-completion" "${index}" "${cursor_location}" "tps" "$@" | linux_sort || true
+	tps "--bash-completion" "${index}" "${cursor_location}" "tps" "$@"
 }
 
 SCRIPTS_DIR="${ROOT}/scripts"
