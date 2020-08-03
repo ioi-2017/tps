@@ -136,6 +136,16 @@ if [ -t 2 ]; then
 	coloring_enabled="true"
 fi
 
+function set_coloring_flag {
+	local -r do_color_flag="$1"; shift
+	local -r dont_color_flag="$1"; shift
+	if "${coloring_enabled}" ; then
+		coloring_flag="${do_color_flag}"
+	else
+		coloring_flag="${dont_color_flag}"
+	fi
+}
+
 
 vecho "Entering the sandbox."
 pushd "${SANDBOX}" > /dev/null
@@ -150,17 +160,20 @@ function capture_compile {
 function check_warning {
 	local warning_text_pattern="$1"
 	if variable_exists "WARN_FILE"; then
-		vecho "WARN_FILE='${WARN_FILE}'"
 		if grep -q "${warning_text_pattern}" "${compiler_out}"; then
 			vecho "Text pattern '${warning_text_pattern}' found in compiler outputs."
 			echo "Text pattern '${warning_text_pattern}' found in compiler outputs." >> "${WARN_FILE}"
 		else
 			vecho "Text pattern '${warning_text_pattern}' not found in compiler outputs."
 		fi
-	else
-		vecho "variable WARN_FILE is not defined."
 	fi	
 }
+
+if variable_exists "WARN_FILE"; then
+	vecho "WARN_FILE='${WARN_FILE}'"
+else
+	vecho "variable WARN_FILE is not defined."
+fi
 
 
 # Running pre-compilation hook
@@ -173,17 +186,13 @@ fi
 
 
 if [ "${LANG}" == "cpp" ] ; then
-	variable_not_exists "CPP_STD_OPT" && CPP_STD_OPT="--std=gnu++14"
+	variable_exists "CPP_STD_OPT" || CPP_STD_OPT="--std=gnu++14"
 	vecho "CPP_STD_OPT='${CPP_STD_OPT}'"
-	variable_not_exists "CPP_WARNING_OPTS" && CPP_WARNING_OPTS="-Wall -Wextra -Wshadow"
+	variable_exists "CPP_WARNING_OPTS" || CPP_WARNING_OPTS="-Wall -Wextra -Wshadow"
 	vecho "CPP_WARNING_OPTS='${CPP_WARNING_OPTS}'"
-	variable_not_exists "CPP_OPTS" && CPP_OPTS="-DEVAL ${CPP_STD_OPT} ${CPP_WARNING_OPTS} -O2"
+	variable_exists "CPP_OPTS" || CPP_OPTS="-DEVAL ${CPP_STD_OPT} ${CPP_WARNING_OPTS} -O2"
 	vecho "CPP_OPTS='${CPP_OPTS}'"
-	if "${coloring_enabled}" ; then
-		coloring_flag="-fdiagnostics-color=always"
-	else
-		coloring_flag="-fdiagnostics-color=never"
-	fi
+	set_coloring_flag "-fdiagnostics-color=always" "-fdiagnostics-color=never"
 	files_to_compile=("${prog}")
 	if is_windows; then
 		vecho "It is Windows. Needed disabling runtime error dialog."
@@ -210,7 +219,7 @@ if [ "${LANG}" == "cpp" ] ; then
 	vrun capture_compile g++ ${CPP_OPTS} "${files_to_compile[@]}" -o "${exe_file}" "${coloring_flag}"
 	check_warning "${WARNING_TEXT_PATTERN_FOR_CPP}"
 elif [ "${LANG}" == "pas" ] ; then
-	variable_not_exists "PAS_OPTS" && PAS_OPTS="-dEVAL -XS -O2"
+	variable_exists "PAS_OPTS" || PAS_OPTS="-dEVAL -XS -O2"
 	vecho "PAS_OPTS='${PAS_OPTS}'"
 	files_to_compile=()
 	if "${HAS_GRADER}"; then
@@ -235,9 +244,9 @@ elif [ "${LANG}" == "pas" ] ; then
 	fi
 	check_warning "${WARNING_TEXT_PATTERN_FOR_PAS}"
 elif [ "${LANG}" == "java" ] ; then
-	variable_not_exists "JAVAC_WARNING_OPTS" && JAVAC_WARNING_OPTS="-Xlint:all"
+	variable_exists "JAVAC_WARNING_OPTS" || JAVAC_WARNING_OPTS="-Xlint:all"
 	vecho "JAVAC_WARNING_OPTS='${JAVAC_WARNING_OPTS}'"
-	variable_not_exists "JAVAC_OPTS" && JAVAC_OPTS="${JAVAC_WARNING_OPTS}"
+	variable_exists "JAVAC_OPTS" || JAVAC_OPTS="${JAVAC_WARNING_OPTS}"
 	vecho "JAVAC_OPTS='${JAVAC_OPTS}'"
 	files_to_compile=("${prog}")
 	if "${HAS_GRADER}"; then
@@ -297,8 +306,42 @@ elif is_in "${LANG}" "py" "py2" ; then
 	fi
 	vecho "files_to_compile: ${files_to_compile[@]}"
 	vecho "Compiling python sources..."
+	capture_compile echo "Running py_compile..."
 	vrun capture_compile "${PYTHON_CMD}" -m py_compile "${MAIN_FILE_NAME}.py"
-	#check_warning "${WARNING_TEXT_PATTERN_FOR_PY}" TODO
+	# Using pylint as a static code analyzer
+	static_code_analyzer="pylint"
+	set_coloring_flag "--output-format=colorized" "--output-format=text"
+	if command_exists "${static_code_analyzer}"; then
+		vecho "Static code analyzer '${static_code_analyzer}' is available."
+		variable_exists "PYLINT_OPTS" || PYLINT_OPTS="--persistent=n --disable=R,C"
+		vecho "PYLINT_OPTS='${PYLINT_OPTS}'"
+		capture_compile echo "Running ${static_code_analyzer}..."
+		if vrun capture_compile "${static_code_analyzer}" ${PYLINT_OPTS} "${coloring_flag}" "${MAIN_FILE_NAME}.py"; then
+			vecho "No errors found by static code analyzer '${static_code_analyzer}'."
+		else
+			vecho "Errors found by static code analyzer '${static_code_analyzer}'."
+			echo "Errors found by static code analyzer '${static_code_analyzer}'." >> "${WARN_FILE}"
+		fi
+	else
+		vecho "Static code analyzer '${static_code_analyzer}' is not available."
+	fi
+	# Using mypy as a static type checker
+	static_type_checker="mypy"
+	set_coloring_flag "--color-output" "--no-color-output"
+	if command_exists "${static_type_checker}"; then
+		vecho "Static type checker '${static_type_checker}' is available."
+		variable_exists "MYPY_OPTS" || MYPY_OPTS=""
+		vecho "MYPY_OPTS='${MYPY_OPTS}'"
+		capture_compile echo "Running ${static_type_checker}..."
+		if vrun capture_compile "${static_type_checker}" ${MYPY_OPTS} "${coloring_flag}" "${MAIN_FILE_NAME}.py"; then
+			vecho "No errors found by static type checker '${static_type_checker}'."
+		else
+			vecho "Errors found by static type checker '${static_type_checker}'."
+			echo "Errors found by static type checker '${static_type_checker}'." >> "${WARN_FILE}"
+		fi
+	else
+		vecho "Static type checker '${static_type_checker}' is not available."
+	fi
 else
 	error_exit 5 "Illegal state; unknown language: ${LANG}"
 fi
