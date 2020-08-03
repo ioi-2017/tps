@@ -39,11 +39,11 @@ touch "${solution_in}"
 cat > "${manager_in}"
 "${sandbox}/manager.exe" "${pipe_sol2mgr}" "${pipe_mgr2sol}" "${manager_log}" < "${manager_in}" > "${manager_out}" 2> "${manager_err}" &
 manager_pid=$!
-bash "${sandbox}/exec.sh" "${pipe_mgr2sol}" "${pipe_sol2mgr}" < "${solution_in}" > "${solution_out}" 2> "${solution_err}"
-solution_ret_value=$?
+solution_ret_value=0
+bash "${sandbox}/exec.sh" "${pipe_mgr2sol}" "${pipe_sol2mgr}" < "${solution_in}" > "${solution_out}" 2> "${solution_err}" || solution_ret_value=$?
 echo ${solution_ret_value} > "${solution_ret}"
-wait $manager_pid
-manager_ret_value=$?
+manager_ret_value=0
+wait $manager_pid || manager_ret_value=$?
 echo ${manager_ret_value} > "${manager_ret}"
 cat "${manager_out}"
 1>&2 cat "${manager_err}"
