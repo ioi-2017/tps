@@ -119,36 +119,24 @@ class TestsVisitor(DataVisitor):
     def on_test(self, testset_name, test_name, line, line_number):
         self.tests.append(test_name)
 
-    def has_test(self, test_name):
-        return test_name in self.tests
 
-    def print_tests(self, stream):
-        for test in self.tests:
-            stream.write("%s\n" % test)
-
-
-def check_test_exists(gen_data, task_data, test_name):
+def get_test_names_by_gen_data(gen_data, task_data):
     tests_visitor = TestsVisitor()
     parse_data(gen_data, task_data, tests_visitor)
-    if not tests_visitor.has_test(test_name):
-        sys.stderr.write("Invalid test name '%s'\n" % test_name)
+    return tests_visitor.tests
+
+
+def test_name_matches_pattern(test_name, pattern):
+    pattern_terms = re.split(",|\\|", pattern) # Split by ',' and '|'
+    pattern_terms = map(str.strip, pattern_terms)
+    return any(fnmatch.fnmatchcase(test_name, pattern_term) for pattern_term in pattern_terms)
+
+
+def test_name_pattern_matcher(pattern):
+    return lambda test_name: test_name_matches_pattern(test_name, pattern)
+
+
+def check_pattern_exists_in_test_names(pattern, test_names):
+    if not any(map(test_name_pattern_matcher(pattern), test_names)):
+        sys.stderr.write("No test name matches the pattern '%s'\n" % pattern)
         sys.exit(2)
-
-
-
-def test_name_matches_pattern(test_name, pattern_expression):
-    patterns = re.split(",|\\|", pattern_expression) # Split by ',' and '|'
-    patterns = map(str.strip, patterns)
-    return any(fnmatch.fnmatchcase(test_name, pattern) for pattern in patterns)
-
-
-def check_test_pattern_exists_in_list(test_names_list, test_pattern):
-    if not any(test_name_matches_pattern(test_name, test_pattern) for test_name in test_names_list):
-        sys.stderr.write("No test name matches the pattern '%s'\n" % test_pattern)
-        sys.exit(2)
-
-
-def check_test_pattern_exists(gen_data, task_data, test_pattern):
-    tests_visitor = TestsVisitor()
-    parse_data(gen_data, task_data, tests_visitor)
-    check_test_pattern_exists_in_list(tests_visitor.tests, test_pattern)

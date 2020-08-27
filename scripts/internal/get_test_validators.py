@@ -8,20 +8,27 @@ from json_extract import navigate_json
 SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 
 
-def get_test_subtasks(target_test_name, mapping_file):
+def get_test_subtasks_from_tests_dir(test_name, tests_dir):
+    if not os.path.isdir(tests_dir):
+        sys.stderr.write("Tests directory not found or not a valid directory: '{}'\n".format(tests_dir))
+        sys.exit(3)
+    MAPPING_FILE_NAME = os.environ.get('MAPPING_FILE_NAME')
+    mapping_file = os.path.join(tests_dir, MAPPING_FILE_NAME)
     check_file_exists(mapping_file)
-    subtasks = []
     with open(mapping_file, 'r') as f:
-        for line in f.readlines():
-            line_subtask, line_test_name = line.split()
-            if line_test_name == target_test_name:
-                subtasks.append(line_subtask)
-    return subtasks
+        subtask_test_relations = [tuple(line.split()) for line in f.readlines()]
+    if not all(len(rel) == 2 for rel in subtask_test_relations):
+        sys.stderr.write("Subtasks mapping file '{}' does not have the correct format.".format(mapping_file))
+        sys.exit(3)
+    return [
+        rel_subtask
+        for rel_subtask, rel_test_name in subtask_test_relations
+        if rel_test_name == test_name
+    ]
 
 
-
-def get_test_validators(test_name, mapping_file):
-    test_subtasks = get_test_subtasks(test_name, mapping_file)
+def get_test_validators(test_name, tests_dir):
+    test_subtasks = get_test_subtasks_from_tests_dir(test_name, tests_dir)
 
     if len(test_subtasks) == 0:
         log_warning("Test '%s' is in no subtasks." % test_name)
@@ -67,7 +74,7 @@ def get_test_validators(test_name, mapping_file):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        simple_usage_message("<test-name> <mapping-file>")
+        simple_usage_message("<test-name> <tests-dir>")
 
-    for validator in get_test_validators(test_name=sys.argv[1], mapping_file=sys.argv[2]):
+    for validator in get_test_validators(test_name=sys.argv[1], tests_dir=sys.argv[2]):
         print(validator)

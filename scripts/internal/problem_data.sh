@@ -17,7 +17,7 @@ function check_bool {
 	fi
 }
 
-if [ -z "${HAS_GRADER}"  ]; then
+if [ -z "${HAS_GRADER}" ]; then
 	case "${PROBLEM_TYPE}" in
 		Output*) HAS_GRADER="false" ;;
 		*) HAS_GRADER="true" ;;
@@ -26,7 +26,7 @@ else
 	check_bool "has_grader" "${HAS_GRADER}"
 fi
 
-if [ -z "${HAS_MANAGER}"  ]; then
+if [ -z "${HAS_MANAGER}" ]; then
 	case "${PROBLEM_TYPE}" in
 		Communicat*) HAS_MANAGER="true" ;;
 		*) HAS_MANAGER="false" ;;
@@ -35,7 +35,7 @@ else
 	check_bool "has_manager" "${HAS_MANAGER}"
 fi
 
-if [ -z "${HAS_CHECKER}"  ]; then
+if [ -z "${HAS_CHECKER}" ]; then
 	case "${PROBLEM_TYPE}" in
 		Communicat*) HAS_CHECKER="false" ;;
 		*) HAS_CHECKER="true" ;;

@@ -4,16 +4,18 @@ import os
 import json
 import subprocess
 
+from util import get_bool_environ
 from gen_data_parser import DataVisitor, parse_data_or_throw, DataParseError
 from color_util import cprint, colors
 
 BASE_DIR = os.environ.get('BASE_DIR')
 
+WEB_TERMINAL = get_bool_environ('WEB_TERMINAL')
+
 PROBLEM_NAME = os.environ.get('PROBLEM_NAME')
-HAS_GRADER = os.environ.get('HAS_GRADER')
-HAS_MANAGER = os.environ.get('HAS_MANAGER')
-HAS_CHECKER = os.environ.get('HAS_CHECKER')
-WEB_TERMINAL = os.environ.get('WEB_TERMINAL')
+HAS_GRADER = get_bool_environ('HAS_GRADER')
+HAS_MANAGER = get_bool_environ('HAS_MANAGER')
+HAS_CHECKER = get_bool_environ('HAS_CHECKER')
 
 
 PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
@@ -35,9 +37,10 @@ def get_relative(full_path):
 GEN_DATA_RELATIVE = get_relative(GEN_DATA)
 SUBTASKS_JSON_RELATIVE = get_relative(SUBTASKS_JSON)
 
-#TODO read these 3 variables from problem.json
+#TODO read these variables from problem.json
 java_enabled = True
 pascal_enabled = False
+python_enabled = False
 has_markdown_statement = True
 
 git_enabled = True
@@ -58,7 +61,7 @@ semi_necessary_files = [
     os.path.join(GEN_DIR, 'testlib.h'),
 ]
 
-if HAS_GRADER == "true":
+if HAS_GRADER:
     necessary_files += [
         os.path.join(GRADER_DIR, 'cpp/%s.h' % PROBLEM_NAME),
         os.path.join(GRADER_DIR, 'cpp/grader.cpp'),
@@ -71,14 +74,18 @@ if HAS_GRADER == "true":
         necessary_files += [
             os.path.join(GRADER_DIR, 'pas/grader.pas'),
         ]
+    if python_enabled:
+        necessary_files += [
+            os.path.join(GRADER_DIR, 'py/grader.py'),
+        ]
 
-if HAS_MANAGER == "true":
+if HAS_MANAGER:
     necessary_files += [
         os.path.join(MANAGER_DIR, 'Makefile'),
         os.path.join(MANAGER_DIR, 'manager.cpp'),
     ]
 
-if HAS_CHECKER == "true":
+if HAS_CHECKER:
     necessary_files += [
         os.path.join(CHECKER_DIR, 'Makefile'),
     ]
@@ -192,7 +199,7 @@ def verify_problem():
         if not isinstance(prob_name, string_types):
             error('name is not a string')
             return
-        if not git_enabled or WEB_TERMINAL == "true":
+        if not git_enabled or WEB_TERMINAL:
             return
         try:
             subprocess.check_output(["git", "--version"], stderr=subprocess.STDOUT)

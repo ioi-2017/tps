@@ -133,9 +133,6 @@ if ! "${SKIP_SOL}"; then
 fi
 
 
-gen_summary_file="${tests_dir}/${GEN_SUMMARY_FILE_NAME}"
-mapping_file="${tests_dir}/${MAPPING_FILE_NAME}"
-
 sensitive check_file_exists "Generation data file" "${gen_data_file}"
 
 command_exists dos2unix || cecho yellow "WARNING: dos2unix is not available. Line endings might be incorrect."
@@ -178,7 +175,7 @@ else
 fi
 
 ret=0
-"${PYTHON}" "${INTERNALS}/gen.py" "${tests_dir}" "${mapping_file}" "${gen_summary_file}" < "${gen_data_file}" || ret=$?
+"${PYTHON}" "${INTERNALS}/gen.py" "${gen_data_file}" "${tests_dir}" || ret=$?
 
 
 echo

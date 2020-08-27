@@ -46,12 +46,20 @@ function recreate_dir {
 	done
 }
 
+
+function get_sort_command {
+	which -a "sort" | grep -iv "windows" | sed -n 1p
+}
+
 function _sort {
-	sort_command=$(which -a "sort" | grep -iv "windows" | sed -n 1p)
-	if [ -z "${sort_command}" ] ; then
-		sort_command="cat"
+	local sort_command
+	sort_command="$(get_sort_command)"
+	readonly sort_command
+	if [ -n "${sort_command}" ] ; then
+		"${sort_command}" "$@"
+	else
+		cat "$@"
 	fi
-	"${sort_command}" "$@"
 }
 
 function sensitive {
@@ -355,7 +363,7 @@ function check_any_type_file_exists {
 	fi
 	
 	if [ ! "$test_flag" "${file_path}" ]; then
-		errcho -n "${error_prefix}"
+		errcho -ne "${error_prefix}"
 		errcho "${file_title} '$(basename "${file_path}")' ${the_problem}."
 		errcho "Given address: '${file_path}'"
 		return 4

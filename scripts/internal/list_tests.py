@@ -1,17 +1,20 @@
 import sys
 import os
 
-from util import load_json
-from gen_data_parser import TestsVisitor, parse_data
-
-
-PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
+from util import simple_usage_message, load_json
+from gen_data_parser import get_test_names_by_gen_data
 
 
 if __name__ == '__main__':
-    task_data = load_json(PROBLEM_JSON)
-    gen_data = sys.stdin.readlines()
+    if len(sys.argv) != 2:
+        simple_usage_message("<gen-data-file>")
+    gen_data_file = sys.argv[1]
 
-    testsVisitor = TestsVisitor()
-    parse_data(gen_data, task_data, testsVisitor)
-    testsVisitor.print_tests(sys.stdout)
+    PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
+    task_data = load_json(PROBLEM_JSON)
+    with open(gen_data_file, 'r') as gdf:
+        gen_data = gdf.readlines()
+    tests = get_test_names_by_gen_data(gen_data, task_data)
+
+    for test in tests:
+        print(test)

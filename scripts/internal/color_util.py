@@ -73,6 +73,7 @@ def _is_windows():
     return platform.system() == "Windows"
 
 def _is_web():
+    # Not using util.get_bool_environ() for better performance (not importing util).
     return os.environ.get('WEB_TERMINAL') == "true"
 
 def _is_tty():
@@ -122,9 +123,17 @@ def cwrite(stream, color, text):
         raise
 
 
-def cprint(color, text):
+def cprint(color, *texts):
+    text = " ".join(texts)
     try:
         print(colored(color, text))
     except KeyboardInterrupt:
         reset(sys.stdout)
         raise
+
+
+def cprinterr(color, *texts):
+    """Equivalent of cprint for stderr"""
+    text = " ".join(texts)
+    cwrite(sys.stderr, color, text)
+    sys.stderr.write("\n")

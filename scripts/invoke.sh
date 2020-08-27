@@ -161,11 +161,8 @@ if "${PYTHON}" -c "import sys; sys.exit(0 if ${HARD_TL} <= ${SOFT_TL} else 1)"; 
 	exit 2
 fi
 
-gen_summary_file="${tests_dir}/${GEN_SUMMARY_FILE_NAME}"
-
 sensitive check_file_exists "Solution file" "${solution}"
 sensitive check_directory_exists "Tests directory" "${tests_dir}"
-sensitive check_file_exists "Test generation summary file" "${gen_summary_file}" "Tests are not correctly generated.\n"
 
 export SHOW_REASON SENSITIVE_RUN WARNING_SENSITIVE_RUN SPECIFIC_TESTS SPECIFIED_TESTS_PATTERN SKIP_CHECK SOFT_TL HARD_TL
 
@@ -193,7 +190,7 @@ if "${HAS_CHECKER}"; then
 fi
 
 ret=0
-"${PYTHON}" "${INTERNALS}/invoke.py" "${tests_dir}" "${gen_summary_file}" || ret=$?
+"${PYTHON}" "${INTERNALS}/invoke.py" "${tests_dir}" || ret=$?
 
 
 echo

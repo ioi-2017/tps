@@ -5,7 +5,7 @@ import platform
 import signal
 import subprocess
 from threading import Timer
-from util import simple_usage_message
+from util import simple_usage_message, bool2bash
 
 
 _is_windows = (platform.system() == "Windows")
@@ -46,7 +46,7 @@ class ProcessExecutionData:
 
     @property
     def terminated_str(self):
-        return "true" if self.terminated else "false"
+        return bool2bash(self.terminated)
 
 
 def terminate(data):

@@ -41,6 +41,21 @@ def load_json(file_path):
     return None
 
 
+def bool2bash(b):
+    return "true" if b else "false"
+
+
+def get_bool_environ(var_name, default_value=None):
+    var_value = os.environ.get(var_name)
+    if var_value is None:
+        return default_value
+    if var_value == "true":
+        return True
+    if var_value == "false":
+        return False
+    raise ValueError("Invalid value '{}' for environment variable '{}'.".format(var_value, var_name))
+
+
 def log_warning(message):
     warnfile = os.environ.get('WARN_FILE')
 
