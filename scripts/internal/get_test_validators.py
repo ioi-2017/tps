@@ -1,34 +1,20 @@
 import sys
 import os
 
-from util import simple_usage_message, check_file_exists, load_json, log_warning
+from util import simple_usage_message, load_json, log_warning
 from json_extract import navigate_json
+import tests_util as tu
 
 
 SUBTASKS_JSON = os.environ.get('SUBTASKS_JSON')
 
 
-def get_test_subtasks_from_tests_dir(test_name, tests_dir):
-    if not os.path.isdir(tests_dir):
-        sys.stderr.write("Tests directory not found or not a valid directory: '{}'\n".format(tests_dir))
-        sys.exit(3)
-    MAPPING_FILE_NAME = os.environ.get('MAPPING_FILE_NAME')
-    mapping_file = os.path.join(tests_dir, MAPPING_FILE_NAME)
-    check_file_exists(mapping_file)
-    with open(mapping_file, 'r') as f:
-        subtask_test_relations = [tuple(line.split()) for line in f.readlines()]
-    if not all(len(rel) == 2 for rel in subtask_test_relations):
-        sys.stderr.write("Subtasks mapping file '{}' does not have the correct format.".format(mapping_file))
-        sys.exit(3)
-    return [
-        rel_subtask
-        for rel_subtask, rel_test_name in subtask_test_relations
-        if rel_test_name == test_name
-    ]
-
-
 def get_test_validators(test_name, tests_dir):
-    test_subtasks = get_test_subtasks_from_tests_dir(test_name, tests_dir)
+    try:
+        test_subtasks = tu.get_test_subtasks_from_tests_dir(test_name, tests_dir)
+    except tu.MalformedTestsException as e:
+        sys.stderr.write("{}\n".format(e))
+        sys.exit(3)
 
     if len(test_subtasks) == 0:
         log_warning("Test '%s' is in no subtasks." % test_name)

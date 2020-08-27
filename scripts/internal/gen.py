@@ -4,7 +4,8 @@ import shlex
 import subprocess
 
 from util import get_bool_environ, simple_usage_message, load_json, wait_process_success
-from gen_data_parser import DataVisitor, parse_data, check_pattern_exists_in_test_names, get_test_names_by_gen_data, test_name_matches_pattern
+from gen_data_parser import DataVisitor, parse_data
+import tests_util as tu
 
 
 PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
@@ -70,7 +71,7 @@ class GeneratingVisitor(DataVisitor):
         super().__init__()
 
     def on_test(self, testset_name, test_name, line, line_number):
-        if not SPECIFIC_TESTS or test_name_matches_pattern(test_name, SPECIFIED_TESTS_PATTERN):
+        if not SPECIFIC_TESTS or tu.test_name_matches_pattern(test_name, SPECIFIED_TESTS_PATTERN):
             command = [
                 'bash',
                 os.path.join(INTERNALS_DIR, 'gen_test.sh'),
@@ -91,7 +92,7 @@ def _main():
         gen_data = gdf.readlines()
 
     if SPECIFIC_TESTS:
-        check_pattern_exists_in_test_names(SPECIFIED_TESTS_PATTERN, get_test_names_by_gen_data(gen_data, task_data))
+        tu.check_pattern_exists_in_test_names(SPECIFIED_TESTS_PATTERN, tu.get_test_names_by_gen_data(gen_data, task_data))
 
     summary_visitor = SummaryVisitor()
     parse_data(gen_data, task_data, summary_visitor)

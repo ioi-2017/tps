@@ -2,7 +2,7 @@ import sys
 import os
 
 from util import simple_usage_message, load_json
-from gen_data_parser import get_test_names_by_gen_data
+from tests_util import get_test_names_by_gen_data
 
 
 if __name__ == '__main__':

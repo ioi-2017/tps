@@ -1,6 +1,4 @@
 import sys
-import re
-import fnmatch
 
 from test_name import get_test_name
 
@@ -109,34 +107,3 @@ def parse_data(gen_data, task_data, visitor):
     except DataParseError as e:
         sys.stderr.write("Error on line #%d: %s\n" % (e.line_number, e.message))
         sys.exit(1)
-
-
-class TestsVisitor(DataVisitor):
-    def __init__(self):
-        DataVisitor.__init__(self)
-        self.tests = []
-
-    def on_test(self, testset_name, test_name, line, line_number):
-        self.tests.append(test_name)
-
-
-def get_test_names_by_gen_data(gen_data, task_data):
-    tests_visitor = TestsVisitor()
-    parse_data(gen_data, task_data, tests_visitor)
-    return tests_visitor.tests
-
-
-def test_name_matches_pattern(test_name, pattern):
-    pattern_terms = re.split(",|\\|", pattern) # Split by ',' and '|'
-    pattern_terms = map(str.strip, pattern_terms)
-    return any(fnmatch.fnmatchcase(test_name, pattern_term) for pattern_term in pattern_terms)
-
-
-def test_name_pattern_matcher(pattern):
-    return lambda test_name: test_name_matches_pattern(test_name, pattern)
-
-
-def check_pattern_exists_in_test_names(pattern, test_names):
-    if not any(map(test_name_pattern_matcher(pattern), test_names)):
-        sys.stderr.write("No test name matches the pattern '%s'\n" % pattern)
-        sys.exit(2)
