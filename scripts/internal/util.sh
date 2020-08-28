@@ -33,6 +33,39 @@ function check_variable {
 	fi
 }
 
+function set_variable {
+	local -r var_name="$1"; shift
+	local -r var_value="$1"; shift
+	printf -v "${var_name}" '%s' "${var_value}"
+}
+
+function increment {
+	# Calling ((v++)) causes unexpected exit in some versions of bash if used with 'set -e'.
+	# Usage:
+	# v=3
+	# increment v
+	# increment v 2
+	local -r var_name="$1"; shift
+	if [ $# -gt 0 ]; then
+		local -r c="$1"; shift
+	else
+		local -r c=1
+	fi
+	set_variable "${var_name}" "$((${var_name}+c))"
+}
+
+function decrement {
+	# Similar to increment
+	local -r var_name="$1"; shift
+	if [ $# -gt 0 ]; then
+		local -r c="$1"; shift
+	else
+		local -r c=1
+	fi
+	set_variable "${var_name}" "$((${var_name}-c))"
+}
+
+
 function are_same {
 	diff "$1" "$2" > /dev/null 2>&1
 }
@@ -61,6 +94,18 @@ function _sort {
 		cat "$@"
 	fi
 }
+
+function unified_sort {
+	local sort_command
+	sort_command="$(get_sort_command)"
+	readonly sort_command
+	if [ -n "${sort_command}" ] ; then
+		"${sort_command}" -u "$@"
+	else
+		cat "$@"
+	fi
+}
+
 
 function sensitive {
 	"$@"
@@ -345,6 +390,20 @@ function hspace {
 }
 
 
+function decorate_lines {
+	local -r prefix="$1"; shift
+	if [ $# -ge 1 ]; then
+		local -r suffix="$1"; shift
+	else
+		local -r suffix=""
+	fi
+	local x
+	while read -r x; do
+		printf '%s%s%s\n' "${prefix}" "${x}" "${suffix}"
+	done
+}
+
+
 function check_any_type_file_exists {
 	test_flag="$1"; shift
 	the_problem="$1"; shift
@@ -477,4 +536,70 @@ function argument_parser {
 
 		shift "${shifts}"
 	done
+}
+
+
+# Prepares the environment for bash completion
+# arguments should be in the form:
+# <bc_index> <bc_cursor_offset> <arguments...>
+# It sets these variables:
+#  shifts: You should run "shift ${shifts}" if you want to parse the arguments.
+#  bc_index: Index of the token on which the cursor is (1-based).
+#  bc_cursor_offset: Location (offset) of the cursor on the current token (0-based).
+#  bc_current_token: The token on which the cursor is (possibly empty).
+#  bc_current_token_prefix: The part of the current token which is before the cursor.
+# Example:
+#  setup_bash_completion 1 2 param1 param2
+# Result:
+#  shifts=2, bc_index=1, bc_cursor_offset=2,
+#  bc_current_token=param1, bc_current_token_prefix=pa
+function setup_bash_completion {
+	function add_space_all {
+		local tmp
+		while read -r tmp; do
+			printf '%s \n' "${tmp}"
+		done
+	}
+
+	function add_space_options {
+		local tmp
+		while read -r tmp; do
+			if [[ ${tmp} != *= ]]; then
+				printf '%s \n' "${tmp}"
+			else
+				printf '%s\n' "${tmp}"
+			fi
+		done
+	}
+
+	function fix_file_endings {
+		local tmp
+		while read -r tmp; do
+			if [ -d "${tmp}" ]; then
+				printf '%s/\n' "${tmp}"
+			else
+				printf '%s \n' "${tmp}"
+			fi
+		done
+	}
+
+	function complete_with_files {
+		compgen -f -- "$1" | unified_sort | fix_file_endings || true
+	}
+
+	[ $# -gt 1 ] || exit 0
+
+	shifts=0
+	bc_index="$1"; shift; increment shifts
+	[ ${bc_index} -gt 0 ] || exit 0
+
+	readonly bc_cursor_offset="$1"; shift; increment shifts
+	[ ${bc_cursor_offset} -ge 0 ] || exit 0
+
+	if [ "${bc_index}" -le $# ]; then
+		readonly bc_current_token="${!bc_index}"
+	else
+		readonly bc_current_token=""
+	fi
+	readonly bc_current_token_prefix="${bc_current_token:0:${bc_cursor_offset}}"
 }

@@ -2,6 +2,7 @@ import sys
 import os
 import re
 import fnmatch
+from collections import defaultdict
 
 from gen_data_parser import DataVisitor, parse_data
 from test_exists import test_exists
@@ -73,7 +74,7 @@ def divide_tests_by_availability(test_names, tests_dir):
     return available_tests, missing_tests
 
 
-def get_test_subtasks_from_tests_dir(test_name, tests_dir):
+def get_subtask_test_relations_from_tests_dir(tests_dir):
     if not os.path.isdir(tests_dir):
         raise MalformedTestsException("Tests directory not found or not a valid directory: '{}'".format(tests_dir))
     MAPPING_FILE_NAME = os.environ.get('MAPPING_FILE_NAME')
@@ -84,8 +85,21 @@ def get_test_subtasks_from_tests_dir(test_name, tests_dir):
         subtask_test_relations = [tuple(line.split()) for line in f.readlines()]
     if not all(len(rel) == 2 for rel in subtask_test_relations):
         raise MalformedTestsException("Subtasks mapping file '{}' does not have the correct format.".format(mapping_file))
+    return subtask_test_relations
+
+
+def get_test_subtasks_from_tests_dir(test_name, tests_dir):
+    subtask_test_relations = get_subtask_test_relations_from_tests_dir(tests_dir)
     return [
         rel_subtask
         for rel_subtask, rel_test_name in subtask_test_relations
         if rel_test_name == test_name
     ]
+
+
+def get_subtasks_tests_dict_from_tests_dir(tests_dir):
+    subtask_test_relation = get_subtask_test_relations_from_tests_dir(tests_dir)
+    subtasks_tests = defaultdict(list)
+    for subtask, test_name in subtask_test_relation:
+        subtasks_tests[subtask].append(test_name)
+    return subtasks_tests
