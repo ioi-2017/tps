@@ -2,6 +2,7 @@
 import sys
 import os
 import json
+import re
 import subprocess
 
 from util import get_bool_environ
@@ -16,6 +17,8 @@ PROBLEM_NAME = os.environ.get('PROBLEM_NAME')
 HAS_GRADER = get_bool_environ('HAS_GRADER')
 HAS_MANAGER = get_bool_environ('HAS_MANAGER')
 HAS_CHECKER = get_bool_environ('HAS_CHECKER')
+if HAS_GRADER:
+    GRADER_NAME = os.environ.get('GRADER_NAME')
 
 
 PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
@@ -64,19 +67,19 @@ semi_necessary_files = [
 if HAS_GRADER:
     necessary_files += [
         os.path.join(GRADER_DIR, 'cpp/%s.h' % PROBLEM_NAME),
-        os.path.join(GRADER_DIR, 'cpp/grader.cpp'),
+        os.path.join(GRADER_DIR, 'cpp/%s.cpp' % GRADER_NAME),
     ]
     if java_enabled:
         necessary_files += [
-            os.path.join(GRADER_DIR, 'java/grader.java'),
+            os.path.join(GRADER_DIR, 'java/%s.java' % GRADER_NAME),
         ]
     if pascal_enabled:
         necessary_files += [
-            os.path.join(GRADER_DIR, 'pas/grader.pas'),
+            os.path.join(GRADER_DIR, 'pas/%s.pas' % GRADER_NAME),
         ]
     if python_enabled:
         necessary_files += [
-            os.path.join(GRADER_DIR, 'py/grader.py'),
+            os.path.join(GRADER_DIR, 'py/%s.py' % GRADER_NAME),
         ]
 
 if HAS_MANAGER:
@@ -259,6 +262,16 @@ def verify_problem():
         else:
             if problem['type'] == 'OutputOnly' and problem['has_grader'] is True:
                 warning('output only problems could not have grader')
+
+    if 'grader_name' in problem:
+        if not HAS_GRADER:
+            warning('grader_name is given while the task does not have grader')
+        grader_name = problem['grader_name']
+        if not isinstance(grader_name, str):
+            error('grader_name must be a string')
+        else:
+            if not re.match("[_A-Za-z][_a-zA-Z0-9]*$", grader_name):
+                error('grader_name must be a valid identifier: "%s"' % grader_name)
 
     if 'has_manager' in problem:
         if not isinstance(problem['has_manager'], bool):

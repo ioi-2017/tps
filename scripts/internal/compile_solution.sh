@@ -9,6 +9,8 @@
 #		They are naturally set and exported in locations.sh during TPS initialization.
 #	* Environment variable HAS_GRADER must be set to either "true" or "false".
 #		It is naturally specified by problem_data.sh in TPS initialization.
+#	* If HAS_GRADER is "true", environment variable GRADER_NAME must be set to a valid identifier (like "grader").
+#		It is naturally specified by problem_data.sh in TPS initialization.
 #	* Environment variable GRADER_TYPE determines the type of grader (meaningful if HAS_GRADER is "true").
 #		Its value must be either "judge" or "public".
 #		If it is not set, it will be considered to be "judge".
@@ -80,6 +82,7 @@ if "${HAS_GRADER}"; then
 	else
 		error_exit 1 "Invalid grader type: ${GRADER_TYPE}"
 	fi
+	check_variable GRADER_NAME
 else
 	GRADER_TYPE="judge"
 fi
@@ -203,14 +206,14 @@ if [ "${LANG}" == "cpp" ] ; then
 	fi
 	if "${HAS_GRADER}"; then
 		grader_header="${PROBLEM_NAME}.h"
-		grader_cpp="grader.cpp"
+		grader_cpp="${GRADER_NAME}.cpp"
 		vecho "Copying '${grader_header}' and '${grader_cpp}' to sandbox..."
 		vrun cp "${GRADER_LANG_DIR}/${grader_header}" "${GRADER_LANG_DIR}/${grader_cpp}" "."
 		vecho "Compiling grader..."
-		vrun capture_compile g++ ${CPP_OPTS} -c "${grader_cpp}" -o "grader.o" "${coloring_flag}"
+		vrun capture_compile g++ ${CPP_OPTS} -c "${grader_cpp}" -o "${GRADER_NAME}.o" "${coloring_flag}"
 		vecho "Removing grader source..."
 		vrun rm "${grader_cpp}"
-		files_to_compile+=("grader.o")
+		files_to_compile+=("${GRADER_NAME}.o")
 		vecho "Added grader object file to the list of files to compile."
 	fi
 	vecho "files_to_compile: ${files_to_compile[@]}"
@@ -223,10 +226,10 @@ elif [ "${LANG}" == "pas" ] ; then
 	vecho "PAS_OPTS='${PAS_OPTS}'"
 	files_to_compile=()
 	if "${HAS_GRADER}"; then
-		grader_pas="grader.pas"
+		grader_pas="${GRADER_NAME}.pas"
 		vecho "Copying '${grader_pas}' to sandbox..."
 		vrun cp "${GRADER_LANG_DIR}/${grader_pas}" "."
-		graderlib="graderlib.pas"
+		graderlib="${GRADER_NAME}lib.pas"
 		if [ -f "${GRADER_LANG_DIR}/${graderlib}" ] ; then
 			vecho "Copying '${graderlib}' to sandbox..."
 			vrun cp "${GRADER_LANG_DIR}/${graderlib}" "."
@@ -250,11 +253,11 @@ elif [ "${LANG}" == "java" ] ; then
 	vecho "JAVAC_OPTS='${JAVAC_OPTS}'"
 	files_to_compile=("${prog}")
 	if "${HAS_GRADER}"; then
-		grader_java="grader.java"
+		grader_java="${GRADER_NAME}.java"
 		vecho "Copying '${grader_java}' to sandbox..."
 		vrun cp "${GRADER_LANG_DIR}/${grader_java}" "."
 		files_to_compile+=("${grader_java}")
-		main_class="grader"
+		main_class="${GRADER_NAME}"
 	else
 		main_class="${PROBLEM_NAME}"
 	fi
@@ -296,11 +299,11 @@ elif is_in "${LANG}" "py" "py2" ; then
 	fi
 	files_to_compile=("${prog}")
 	if "${HAS_GRADER}"; then
-		grader_py="grader.py"
+		grader_py="${GRADER_NAME}.py"
 		vecho "Copying '${grader_py}' to sandbox..."
 		vrun cp "${GRADER_LANG_DIR}/${grader_py}" "."
 		files_to_compile+=("${grader_py}")
-		MAIN_FILE_NAME="grader"
+		MAIN_FILE_NAME="${GRADER_NAME}"
 	else
 		MAIN_FILE_NAME="${PROBLEM_NAME}"
 	fi

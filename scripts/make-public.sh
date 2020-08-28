@@ -40,7 +40,8 @@ if [ -f "${extention_point}" ]; then
 fi
 
 function replace_tokens {
-	sed -e "s/PROBLEM_NAME_PLACE_HOLDER/${PROBLEM_NAME}/g"
+	sed -e "s/PROBLEM_NAME_PLACE_HOLDER/${PROBLEM_NAME}/g" \
+	    -e "s/GRADER_NAME_PLACE_HOLDER/${GRADER_NAME}/g"
 }
 
 sensitive check_file_exists "Public package description file" "${public_files}"
