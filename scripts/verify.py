@@ -20,6 +20,10 @@ HAS_CHECKER = get_bool_environ('HAS_CHECKER')
 if HAS_GRADER:
     GRADER_NAME = os.environ.get('GRADER_NAME')
 
+HAS_LANG_CPP = get_bool_environ('HAS_LANG_CPP')
+HAS_LANG_JAVA = get_bool_environ('HAS_LANG_JAVA')
+HAS_LANG_PASCAL = get_bool_environ('HAS_LANG_PASCAL')
+HAS_LANG_PYTHON = get_bool_environ('HAS_LANG_PYTHON')
 
 PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
 SOLUTIONS_JSON = os.environ.get('SOLUTIONS_JSON')
@@ -41,9 +45,6 @@ GEN_DATA_RELATIVE = get_relative(GEN_DATA)
 SUBTASKS_JSON_RELATIVE = get_relative(SUBTASKS_JSON)
 
 #TODO read these variables from problem.json
-java_enabled = True
-pascal_enabled = False
-python_enabled = False
 has_markdown_statement = True
 
 git_enabled = True
@@ -65,19 +66,20 @@ semi_necessary_files = [
 ]
 
 if HAS_GRADER:
-    necessary_files += [
-        os.path.join(GRADER_DIR, 'cpp/%s.h' % PROBLEM_NAME),
-        os.path.join(GRADER_DIR, 'cpp/%s.cpp' % GRADER_NAME),
-    ]
-    if java_enabled:
+    if HAS_LANG_CPP:
+        necessary_files += [
+            os.path.join(GRADER_DIR, 'cpp/%s.h' % PROBLEM_NAME),
+            os.path.join(GRADER_DIR, 'cpp/%s.cpp' % GRADER_NAME),
+        ]
+    if HAS_LANG_JAVA:
         necessary_files += [
             os.path.join(GRADER_DIR, 'java/%s.java' % GRADER_NAME),
         ]
-    if pascal_enabled:
+    if HAS_LANG_PASCAL:
         necessary_files += [
             os.path.join(GRADER_DIR, 'pas/%s.pas' % GRADER_NAME),
         ]
-    if python_enabled:
+    if HAS_LANG_PYTHON:
         necessary_files += [
             os.path.join(GRADER_DIR, 'py/%s.py' % GRADER_NAME),
         ]

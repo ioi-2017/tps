@@ -8,6 +8,11 @@ HAS_MANAGER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has
 HAS_CHECKER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_checker" 2> /dev/null)" || true
 GRADER_NAME="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "grader_name" 2> /dev/null)" || true
 
+HAS_LANG_CPP="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "cpp_enabled" 2> /dev/null)" || true
+HAS_LANG_JAVA="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "java_enabled" 2> /dev/null)" || true
+HAS_LANG_PASCAL="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "pascal_enabled" 2> /dev/null)" || true
+HAS_LANG_PYTHON="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "python_enabled" 2> /dev/null)" || true
+
 
 function check_bool {
 	local var_name="$1"; shift
@@ -47,4 +52,17 @@ fi
 
 if [ -z "${GRADER_NAME}" ]; then
 	GRADER_NAME="grader"
+fi
+
+if [ -z "${HAS_LANG_CPP}" ]; then
+	HAS_LANG_CPP="true"
+fi
+if [ -z "${HAS_LANG_JAVA}" ]; then
+	HAS_LANG_JAVA="true"
+fi
+if [ -z "${HAS_LANG_PASCAL}" ]; then
+	HAS_LANG_PASCAL="false"
+fi
+if [ -z "${HAS_LANG_PYTHON}" ]; then
+	HAS_LANG_PYTHON="false"
 fi
