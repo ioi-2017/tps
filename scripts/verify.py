@@ -512,7 +512,7 @@ def verify_solutions(subtasks):
 
     for unused_solution in set(solution_files) - used_solutions:
         if not is_ignored(unused_solution):
-            error('{} is not represented'.format(unused_solution))
+            warning('{} is not represented'.format(unused_solution))
 
     return solutions
 
