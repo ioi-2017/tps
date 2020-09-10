@@ -1393,63 +1393,6 @@ div.pdf {
 	padding: 4.5em 5.5em;
 }
 
-.header {
-	font-family: IRANSans, Helvetica, Arial, sans-serif;
-	font-size: 14px;
-	letter-spacing: -.04em;
-	font-weight: 400;
-}
-
-.header .title {
-	display: inline-block;
-	float: left;
-	line-height: 1.25em;
-}
-
-.header .title div:first-child {
-	font-weight: 500;
-	font-size: 1.1em;
-	letter-spacing: -.03em;
-	margin: 0px 0px 3px;
-}
-
-.header .logo {
-	display: inline-block;
-	float: left;
-	margin-right: 0px;
-	margin-top: -2px;
-}
-
-.header .logo img {
-	height: 70px;
-	margin-top: -1px;
-	padding-right: 15px;
-}
-
-.header .meta {
-	display: inline-block;
-	float: right;
-	text-align: right;
-	margin-top: 28px;
-	font-size: 12px;
-}
-
-.header .meta div:first-child {
-	font-family: "Courier New", monospace;
-	font-weight: bold;
-	font-size: 18px;
-	letter-spacing: -.03em;
-	line-height: 25px;
-	margin: 0px;
-}
-
-.header hr {
-	margin: 10px 0 30px;
-	border: none;
-	border-top: 1px solid #666;
-	height: 1px;
-}
-
 .pdf.markdown-body {
 	color: black;
 	font-size: 16px;
@@ -1483,7 +1426,6 @@ footer>p:hover {
 }
 .credit {
 	display: none;
-	width: 450px;
 	position: fixed;
 	bottom: 30px;
 	background-color: #ccc;
