@@ -127,6 +127,9 @@ Temporary Items
 /.cproject
 /.classpath
 
+# VS Code
+/.vscode/
+
 # CMake
 cmake-build-debug/
 
