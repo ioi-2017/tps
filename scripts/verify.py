@@ -265,6 +265,13 @@ def verify_problem():
             if problem['type'] == 'OutputOnly' and problem['has_grader'] is True:
                 warning('output only problems could not have grader')
 
+    if 'num_processes' in problem:
+        if problem['type'] != 'Communication':
+            warning('"num_processes" is only used in communication tasks')
+        else:
+            if not isinstance(problem['num_processes'], int):
+                error('"num_processes" must be an integer')
+
     if 'grader_name' in problem:
         if not HAS_GRADER:
             warning('grader_name is given while the task does not have grader')

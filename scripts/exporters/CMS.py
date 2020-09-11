@@ -102,14 +102,24 @@ class JSONExporter:
         PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
         task_data = load_json(PROBLEM_JSON)
 
+        task_type = task_data["type"]
+        vp.print_var("task_type", task_type)
+
+        task_type_params = task_data.get("type_params", {})
+
+        if task_type == "Communication":
+            num_processes = task_data.get("num_processes")
+            if num_processes is not None:
+                task_type_params["task_type_parameters_Communication_num_processes"] = num_processes
+
         problem_data_dict = {
             "code": task_data["name"],
             "name": task_data["title"],
             "time_limit": task_data["time_limit"],
             "memory_limit": task_data["memory_limit"]*1024*1024,
             "score_precision": task_data.get("score_precision", 2),
-            "task_type": task_data["type"],
-            "task_type_params": task_data.get("type_params", None),
+            "task_type": task_type,
+            "task_type_params": json.dumps(task_type_params),
         }
 
         problem_data_str = json.dumps(problem_data_dict)
@@ -173,7 +183,7 @@ class JSONExporter:
         MANAGER_DIR = os.environ.get('MANAGER_DIR')
         check_dir_exists(MANAGER_DIR, "Manager directory")
         manager_files = []
-        for p in ["*.cpp", "*.h", "Makefile"]:
+        for p in ["*.cpp", "*.h"]:
             manager_files += glob.glob(os.path.join(MANAGER_DIR, p))
         self.create_directory(self.MANAGER_DIR_NAME)
         for f in manager_files:
@@ -188,7 +198,7 @@ class JSONExporter:
         CHECKER_DIR = os.environ.get('CHECKER_DIR')
         check_dir_exists(CHECKER_DIR, "Checker directory")
         checker_files = []
-        for p in ["*.cpp", "*.h", "Makefile"]:
+        for p in ["*.cpp", "*.h"]:
             checker_files += glob.glob(os.path.join(CHECKER_DIR, p))
         self.create_directory(self.CHECKER_DIR_NAME)
         for f in checker_files:

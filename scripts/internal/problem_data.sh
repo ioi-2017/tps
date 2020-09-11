@@ -7,6 +7,7 @@ HAS_GRADER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_
 HAS_MANAGER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_manager" 2> /dev/null)" || true
 HAS_CHECKER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_checker" 2> /dev/null)" || true
 GRADER_NAME="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "grader_name" 2> /dev/null)" || true
+NUM_SOL_PROCESSES="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "num_processes" 2> /dev/null)" || true
 
 HAS_LANG_CPP="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "cpp_enabled" 2> /dev/null)" || true
 HAS_LANG_JAVA="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "java_enabled" 2> /dev/null)" || true
@@ -52,6 +53,10 @@ fi
 
 if [ -z "${GRADER_NAME}" ]; then
 	GRADER_NAME="grader"
+fi
+
+if [ -z "${NUM_SOL_PROCESSES}" ]; then
+	NUM_SOL_PROCESSES="1"
 fi
 
 if [ -z "${HAS_LANG_CPP}" ]; then

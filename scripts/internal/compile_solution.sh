@@ -365,6 +365,9 @@ function replace_tokens {
 	if variable_exists "PYTHON_CMD" ; then
 		vrun sed -i.bak -e "s/PYTHON_CMD_PLACE_HOLDER/${PYTHON_CMD}/g" "${the_file}"
 	fi
+	if variable_exists "NUM_SOL_PROCESSES" ; then
+		vrun sed -i.bak -e "s/NUM_SOL_PROCESSES_PLACE_HOLDER/${NUM_SOL_PROCESSES}/g" "${the_file}"
+	fi
 	vrun rm "${the_file}.bak"
 }
 
