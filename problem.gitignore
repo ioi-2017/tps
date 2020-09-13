@@ -3,6 +3,11 @@
 /logs/
 /public/tests
 
+#Ignoring the extension-less executable binary in public/cpp
+/public/cpp/*
+!/public/cpp/*.*
+
+
 # C++.gitignore
 
 # Compiled Object files
