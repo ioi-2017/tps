@@ -116,7 +116,7 @@ class JSONExporter:
             "code": task_data["name"],
             "name": task_data["title"],
             "time_limit": task_data["time_limit"],
-            "memory_limit": task_data["memory_limit"]*1024*1024,
+            "memory_limit": task_data["memory_limit"],
             "score_precision": task_data.get("score_precision", 2),
             "task_type": task_type,
             "task_type_params": json.dumps(task_type_params),
