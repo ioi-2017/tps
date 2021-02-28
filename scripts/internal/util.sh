@@ -189,6 +189,15 @@ function echo_verdict {
 	boxed_echo "${color}" "${verdict}"
 }
 
+function test_score_file {
+	local test_name="$1"
+	echo "${LOGS_DIR}/${test_name}.score"
+}
+
+function test_verdict_file {
+	local test_name="$1"
+	echo "${LOGS_DIR}/${test_name}.verdict"
+}
 
 function has_warnings {
 	local job="$1"
