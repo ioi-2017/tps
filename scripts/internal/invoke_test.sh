@@ -123,6 +123,9 @@ if "${SHOW_REASON}"; then
 	printf "%s" "${reason}"
 fi
 
+echo "${score}" > "${LOGS_DIR}/${test_name}.score"
+echo "${verdict}" > "${LOGS_DIR}/${test_name}.verdict"
+
 echo
 
 
