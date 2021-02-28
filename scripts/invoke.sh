@@ -190,7 +190,7 @@ if "${HAS_CHECKER}"; then
 fi
 
 ret=0
-"${PYTHON}" "${INTERNALS}/invoke.py" "${tests_dir}" || ret=$?
+"${PYTHON}" "${INTERNALS}/invoke.py" "${tests_dir}" "${solution}" || ret=$?
 
 
 echo
