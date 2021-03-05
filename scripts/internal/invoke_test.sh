@@ -123,8 +123,8 @@ if "${SHOW_REASON}"; then
 	printf "%s" "${reason}"
 fi
 
-echo "${score}" > "$(test_score_file ${test_name})"
-echo "${verdict}" > "$(test_verdict_file ${test_name})"
+echo "${score}" > "${LOGS_DIR}/${test_name}.score"
+echo "${verdict}" > "${LOGS_DIR}/${test_name}.verdict"
 
 echo
 
