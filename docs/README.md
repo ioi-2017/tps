@@ -401,8 +401,8 @@ That's because the `make` command does not perform the compilation again
  if the executables are already built and up-to-date.
 So, if it was implemented that way, no warning could be detected in such cases.
 
-[A well-implemented version of `Makefile` (named `Makefile.sample`)](Makefile.sample)
- is available besides this documentation.
+[A well-implemented version of `Makefile` (named `Makefile.sample`)](../extra-assets/Makefile.sample)
+ is available in the [`extra-assets` directory](../extra-assets/).
 
 # TPS commands
 
