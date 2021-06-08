@@ -15,17 +15,17 @@
  *
  * Also read about wnext() to generate off-center random distribution.
  *
- * See http://code.google.com/p/testlib/ to get latest version or bug tracker.
+ * See https://github.com/MikeMirzayanov/testlib/ to get latest version or bug tracker.
  */
 
 #ifndef _TESTLIB_H_
 #define _TESTLIB_H_
 
 /*
- * Copyright (c) 2005-2017
+ * Copyright (c) 2005-2018
  */
 
-#define VERSION "0.9.12"
+#define VERSION "0.9.21"
 
 /* 
  * Mike Mirzayanov
@@ -63,6 +63,18 @@
  */
 
 const char* latestFeatures[] = {
+                          "Fixed stringstream repeated usage issue",
+                          "Fixed compilation in g++ (for std=c++03)",
+                          "Batch of println functions (support collections, iterator ranges)",
+                          "Introduced rnd.perm(size, first = 0) to generate a `first`-indexed permutation",
+                          "Allow any whitespace in readInts-like functions for non-validators",
+                          "Ignore 4+ command line arguments ifdef EJUDGE",
+                          "Speed up of vtos",
+                          "Show line number in validators in case of incorrect format",
+                          "Truncate huge checker/validator/interactor message",
+                          "Fixed issue with readTokenTo of very long tokens, now aborts with _pe/_fail depending of a stream type",
+                          "Introduced InStream::ensure/ensuref checking a condition, returns wa/fail depending of a stream type",
+                          "Fixed compilation in VS 2015+",
                           "Introduced space-separated read functions: readWords/readTokens, multilines read functions: readStrings/readLines",
                           "Introduced space-separated read functions: readInts/readIntegers/readLongs/readUnsignedLongs/readDoubles/readReals/readStrictDoubles/readStrictReals",
                           "Introduced split/tokenize functions to separate string by given char",
@@ -118,7 +130,8 @@ const char* latestFeatures[] = {
                           "Added \'ensure(condition, message = \"\")\' feature, it works like assert()",
                           "Fixed compatibility with MS C++ 7.1",
                           "Added footer with exit code information",
-                          "Added compatibility with EJUDGE (compile with EJUDGE directive)"
+                          "Added compatibility with EJUDGE (compile with EJUDGE directive)",
+                          "Added compatibility with Contester (compile with CONTESTER directive)"
                          };
 
 #ifdef _MSC_VER
@@ -142,6 +155,7 @@ const char* latestFeatures[] = {
 #include <map>
 #include <set>
 #include <cmath>
+#include <iostream>
 #include <sstream>
 #include <fstream>
 #include <cstring>
@@ -149,7 +163,7 @@ const char* latestFeatures[] = {
 #include <stdarg.h>
 #include <fcntl.h>
 
-#if ( _WIN32 || __WIN32__ || _WIN64 || __WIN64__ )
+#if ( _WIN32 || __WIN32__ || _WIN64 || __WIN64__ || __CYGWIN__ )
 #   if !defined(_MSC_VER) || _MSC_VER>1400
 #       define NOMINMAX 1
 #       include <windows.h>
@@ -159,8 +173,18 @@ const char* latestFeatures[] = {
 #   endif
 #   include <io.h>
 #   define ON_WINDOWS
+#   if defined(_MSC_VER) && _MSC_VER>1400
+#       pragma warning( disable : 4127 )
+#       pragma warning( disable : 4146 )
+#       pragma warning( disable : 4458 )
+#   endif
 #else
 #   define WORD unsigned short
+#   include <unistd.h>
+#endif
+
+#if defined(FOR_WINDOWS) && defined(FOR_LINUX)
+#error Only one target system is allowed
 #endif
 
 #ifndef LLONG_MIN
@@ -178,12 +202,18 @@ const char* latestFeatures[] = {
 #define EOFC (255)
 
 #ifndef OK_EXIT_CODE
-#   define OK_EXIT_CODE 0
+#   ifdef CONTESTER
+#       define OK_EXIT_CODE 0xAC
+#   else
+#       define OK_EXIT_CODE 0
+#   endif
 #endif
 
 #ifndef WA_EXIT_CODE
 #   ifdef EJUDGE
 #       define WA_EXIT_CODE 5
+#   elif defined(CONTESTER)
+#       define WA_EXIT_CODE 0xAB
 #   else
 #       define WA_EXIT_CODE 1
 #   endif
@@ -192,6 +222,8 @@ const char* latestFeatures[] = {
 #ifndef PE_EXIT_CODE
 #   ifdef EJUDGE
 #       define PE_EXIT_CODE 4
+#   elif defined(CONTESTER)
+#       define PE_EXIT_CODE 0xAA
 #   else
 #       define PE_EXIT_CODE 2
 #   endif
@@ -200,6 +232,8 @@ const char* latestFeatures[] = {
 #ifndef FAIL_EXIT_CODE
 #   ifdef EJUDGE
 #       define FAIL_EXIT_CODE 6
+#   elif defined(CONTESTER)
+#       define FAIL_EXIT_CODE 0xA3
 #   else
 #       define FAIL_EXIT_CODE 3
 #   endif
@@ -260,8 +294,9 @@ static int __testlib_format_buffer_usage_count = 0;
             __testlib_format_buffer_usage_count++;                                         \
             va_list ap;                                                                    \
             va_start(ap, fmt);                                                             \
-            std::vsprintf(__testlib_format_buffer, cstr, ap);                              \
+            vsnprintf(__testlib_format_buffer, sizeof(__testlib_format_buffer), cstr, ap); \
             va_end(ap);                                                                    \
+            __testlib_format_buffer[sizeof(__testlib_format_buffer) - 1] = 0;              \
             result = std::string(__testlib_format_buffer);                                 \
             __testlib_format_buffer_usage_count--;                                         \
 
@@ -313,7 +348,7 @@ std::string format(const char* fmt, ...)
     return result;
 }
 
-std::string format(const std::string& fmt, ...)
+std::string format(const std::string fmt, ...)
 {
     FMT_TO_RESULT(fmt, fmt.c_str(), result);
     return result;
@@ -329,7 +364,7 @@ static bool __testlib_isNaN(double r)
     std::memcpy((void*)&llr1, (void*)&ra, sizeof(double)); 
     ra = -ra;
     std::memcpy((void*)&llr2, (void*)&ra, sizeof(double)); 
-    long long llnan = 0xFFF8000000000000;
+    long long llnan = 0xFFF8000000000000LL;
     return __testlib_prelimIsNaN(r) || llnan == llr1 || llnan == llr2;
 }
 
@@ -337,7 +372,7 @@ static double __testlib_nan()
 {
     __TESTLIB_STATIC_ASSERT(sizeof(double) == sizeof(long long));
 #ifndef NAN
-    long long llnan = 0xFFF8000000000000;
+    long long llnan = 0xFFF8000000000000LL;
     double nan;
     std::memcpy(&nan, &llnan, sizeof(double));
     return nan;
@@ -409,8 +444,10 @@ inline double doubleDelta(double expected, double result)
         return absolute;
 }
 
+#if !defined(_MSC_VER) || _MSC_VER<1900
 #ifndef _fileno
 #define _fileno(_stream)  ((_stream)->_file)
+#endif
 #endif
 
 #ifndef O_BINARY
@@ -973,6 +1010,26 @@ public:
             __testlib_fail("random_t::any(const Iter& begin, const Iter& end, int type): range must have positive length");
         return *(begin + wnext(size, type));
     }
+
+    template<typename T, typename E>
+    std::vector<E> perm(T size, E first)
+    {
+        if (size <= 0)
+            __testlib_fail("random_t::perm(T size, E first = 0): size must be positive");
+        std::vector<E> p(size);
+        for (T i = 0; i < size; i++)
+            p[i] = first + i;
+        if (size > 1)
+            for (T i = 1; i < size; i++)
+                std::swap(p[i], p[next(i + 1)]);
+        return p;
+    }
+
+    template<typename T>
+    std::vector<T> perm(T size)
+    {
+        return perm(size, T(0));
+    }
 };
 
 const int random_t::lim = 25;
@@ -1390,6 +1447,7 @@ public:
     virtual std::string getName() = 0;
     virtual bool eof() = 0;
     virtual void close() = 0;
+    virtual int getLine() = 0;
     virtual ~InputStreamReader() = 0;
 };
 
@@ -1448,6 +1506,11 @@ public:
         return __testlib_part(s);
     }
 
+    int getLine()
+    {
+        return -1;
+    }
+
     bool eof()
     {
         return pos >= s.length();
@@ -1464,6 +1527,8 @@ class FileInputStreamReader: public InputStreamReader
 private:
     std::FILE* file;
     std::string name;
+    int line;
+    std::vector<int> undoChars;
 
     inline int postprocessGetc(int getcResult)
     {
@@ -1473,8 +1538,32 @@ private:
             return EOFC;
     }
 
+    int getc(FILE* file)
+    {
+        int c;
+        if (undoChars.empty())
+            c = ::getc(file);
+        else
+        {
+            c = undoChars.back();
+            undoChars.pop_back();
+        }
+
+        if (c == LF)
+            line++;
+        return c;
+    }
+
+    int ungetc(int c/*, FILE* file*/)
+    {
+        if (c == LF)
+            line--;
+        undoChars.push_back(c);
+        return c;
+    }
+
 public:
-    FileInputStreamReader(std::FILE* file, const std::string& name): file(file), name(name)
+    FileInputStreamReader(std::FILE* file, const std::string& name): file(file), name(name), line(1)
     {
         // No operations.
     }
@@ -1486,7 +1575,7 @@ public:
         else
         {
             int c = getc(file);
-            ungetc(c, file);
+            ungetc(c/*, file*/);
             return postprocessGetc(c);
         }
     }
@@ -1506,12 +1595,17 @@ public:
 
     void unreadChar(int c)
     {   
-        ungetc(c, file);
+        ungetc(c/*, file*/);
     }
 
     std::string getName()
     {
         return name;
+    }
+
+    int getLine()
+    {
+        return line;
     }
 
     bool eof()
@@ -1551,6 +1645,7 @@ private:
     size_t bufferSize;
 
     std::string name;
+    int line;
 
     bool refill()
     {
@@ -1580,8 +1675,16 @@ private:
             return true;
     }
 
+    char increment()
+    {
+        char c;
+        if ((c = buffer[bufferPos++]) == LF)
+            line++;
+        return c;
+    }
+
 public:
-    BufferedFileInputStreamReader(std::FILE* file, const std::string& name): file(file), name(name)
+    BufferedFileInputStreamReader(std::FILE* file, const std::string& name): file(file), name(name), line(1)
     {
         buffer = new char[BUFFER_SIZE];
         isEof = new bool[BUFFER_SIZE];
@@ -1616,12 +1719,12 @@ public:
         if (!refill())
             return EOFC;
 
-        return isEof[bufferPos] ? EOFC : buffer[bufferPos++];
+        return isEof[bufferPos] ? EOFC : increment();
     }
 
     void skipChar()
     {
-        bufferPos++;
+        increment();
     }
 
     void unreadChar(int c)
@@ -1631,11 +1734,18 @@ public:
             __testlib_fail("BufferedFileInputStreamReader::unreadChar(int): bufferPos < 0");
         isEof[bufferPos] = (c == EOFC);
         buffer[bufferPos] = char(c);
+        if (c == LF)
+            line--;
     }
 
     std::string getName()
     {
         return name;
+    }
+
+    int getLine()
+    {
+        return line;
     }
     
     bool eof()
@@ -1671,6 +1781,7 @@ struct InStream
     InStream(const InStream& baseStream, std::string content);
 
     InputStreamReader* reader;
+    int lastLine;
 
     std::string name;
     TMode mode;
@@ -1682,6 +1793,9 @@ struct InStream
     std::string _tmpReadToken;
 
     int readManyIteration;
+    size_t maxFileSize;
+    size_t maxTokenLength;
+    size_t maxMessageLength;
 
     void init(std::string fileName, TMode mode);
     void init(std::FILE* f, TMode mode);
@@ -1889,6 +2003,16 @@ struct InStream
      * input/answer streams replace any result to FAIL.
      */
     NORETURN void quits(TResult result, std::string msg);
+
+    /* 
+     * Checks condition and aborts a program if codition is false.
+     * Returns _wa for ouf and _fail on any other streams.
+     */
+    #ifdef __GNUC__
+    __attribute__ ((format (printf, 3, 4)))
+    #endif
+    void ensuref(bool cond, const char* format, ...);
+    void __testlib_ensure(bool cond, std::string message);
 
     void close();
 
@@ -2125,15 +2249,59 @@ std::fstream tout;
 /* implementation
  */
 
-template <typename T>
-static std::string vtos(const T& t)
+#if __cplusplus > 199711L || defined(_MSC_VER)
+template<typename T>
+static std::string vtos(const T& t, std::true_type)
+{ 
+    if (t == 0)
+        return "0";
+    else
+    {
+        T n(t);
+        bool negative = n < 0;
+        std::string s;
+        while (n != 0) {
+            T digit = n % 10;
+            if (digit < 0)
+                digit = -digit;
+            s += char('0' + digit);
+            n /= 10;
+        }
+        std::reverse(s.begin(), s.end());
+        return negative ? "-" + s : s;
+    }
+}
+
+template<typename T>
+static std::string vtos(const T& t, std::false_type)
 {
     std::string s;
-    std::stringstream ss;
+    static std::stringstream ss;
+    ss.str(std::string());
+    ss.clear();
     ss << t;
     ss >> s;
     return s;
 }
+
+template <typename T>
+static std::string vtos(const T& t)
+{
+    return vtos(t, std::is_integral<T>());
+}
+#else
+template<typename T>
+static std::string vtos(const T& t)
+{
+    std::string s;
+    static std::stringstream ss;
+    ss.str(std::string());
+    ss.clear();
+    ss << t;
+    ss >> s;
+    return s;
+}
+#endif
 
 template <typename T>
 static std::string toString(const T& t)
@@ -2144,22 +2312,30 @@ static std::string toString(const T& t)
 InStream::InStream()
 {
     reader = NULL;
+    lastLine = -1;
     name = "";
     mode = _input;
     strict = false;
     stdfile = false;
     wordReserveSize = 4;
     readManyIteration = NO_INDEX;
+    maxFileSize = 128 * 1024 * 1024; // 128MB.
+    maxTokenLength = 32 * 1024 * 1024; // 32MB.
+    maxMessageLength = 32000;
 }
 
 InStream::InStream(const InStream& baseStream, std::string content)
 {
     reader = new StringInputStreamReader(content);
+    lastLine = -1;
     opened = true;
     strict = baseStream.strict;
     mode = baseStream.mode;
     name = "based on " + baseStream.name;
     readManyIteration = NO_INDEX;
+    maxFileSize = 128 * 1024 * 1024; // 128MB.
+    maxTokenLength = 32 * 1024 * 1024; // 32MB.
+    maxMessageLength = 32000;
 }
 
 InStream::~InStream()
@@ -2211,7 +2387,7 @@ void InStream::textColor(
     HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(handle, color);
 #endif
-#if !defined(ON_WINDOWS) && defined(__CNUC__)
+#if !defined(ON_WINDOWS) && defined(__GNUC__)
     if (isatty(2))
     {
         switch (color)
@@ -2257,13 +2433,28 @@ NORETURN void InStream::quit(TResult result, const char* msg)
     if (TestlibFinalizeGuard::alive)
         testlibFinalizeGuard.quitCount++;
 
+    // You can change maxMessageLength.
+    // Example: 'inf.maxMessageLength = 1024 * 1024;'.
+    if (strlen(msg) > maxMessageLength)
+    {
+        std::string message(msg);
+        std::string warn = "message length exceeds " + vtos(maxMessageLength)
+            + ", the message is truncated: ";
+        msg = (warn + message.substr(0, maxMessageLength - warn.length())).c_str();
+    }
+
 #ifndef ENABLE_UNEXPECTED_EOF
     if (result == _unexpected_eof)
         result = _pe;
 #endif
 
     if (mode != _output && result != _fail)
-        quits(_fail, std::string(msg) + " (" + name + ")");
+    {
+        if (mode == _input && testlibMode == _validator && lastLine != -1)
+            quits(_fail, std::string(msg) + " (" + name + ", line " + vtos(lastLine) + ")");
+        else
+            quits(_fail, std::string(msg) + " (" + name + ")");
+    }
 
     std::FILE * resultFile;
     std::string errorName;
@@ -2473,25 +2664,37 @@ void InStream::init(std::string fileName, TMode mode)
     stdfile = false;
     this->mode = mode;
     
+    std::ifstream stream;
+    stream.open(fileName.c_str(), std::ios::in);
+    if (stream.is_open())
+    {
+        std::streampos start = stream.tellg();
+        stream.seekg(0, std::ios::end);
+        std::streampos end = stream.tellg();
+        size_t fileSize = size_t(end - start);
+        stream.close();
+        
+        // You can change maxFileSize.
+        // Example: 'inf.maxFileSize = 256 * 1024 * 1024;'.
+        if (fileSize > maxFileSize)
+            quitf(_pe, "File size exceeds %d bytes, size is %d", int(maxFileSize), int(fileSize));
+    }
+
     reset();
 }
 
 void InStream::init(std::FILE* f, TMode mode)
 {
     opened = false;
-    
     name = "untitled";
+    this->mode = mode;
     
     if (f == stdin)
         name = "stdin", stdfile = true;
-    
     if (f == stdout)
         name = "stdout", stdfile = true;
-    
     if (f == stderr)
         name = "stderr", stdfile = true;
-
-    this->mode = mode;
 
     reset(f);
 }
@@ -2513,6 +2716,7 @@ char InStream::readChar()
 
 char InStream::readChar(char c)
 {
+    lastLine = reader->getLine();
     char found = readChar();
     if (c != found)
     {
@@ -2556,6 +2760,7 @@ void InStream::readWordTo(std::string& result)
     if (!strict)
         skipBlanks();
 
+    lastLine = reader->getLine();
     int cur = reader->nextChar();
 
     if (cur == EOFC)
@@ -2569,6 +2774,12 @@ void InStream::readWordTo(std::string& result)
     while (!(isBlanks(cur) || cur == EOFC))
     {
         result += char(cur);
+        
+        // You can change maxTokenLength.
+        // Example: 'inf.maxTokenLength = 128 * 1024 * 1024;'.
+        if (result.length() > maxTokenLength)
+            quitf(_pe, "Length of token exceeds %d, token is '%s...'", int(maxTokenLength), __testlib_part(result).c_str());
+
         cur = reader->nextChar();
     }
 
@@ -2609,7 +2820,7 @@ static std::string __testlib_part(const std::string& s)
     {                                                                           \
         result[i] = readOne;                                                    \
         readManyIteration++;                                                    \
-        if (space && i + 1 < size)                                              \
+        if (strict && space && i + 1 < size)                                              \
             readSpace();                                                        \
     }                                                                           \
                                                                                 \
@@ -3298,7 +3509,7 @@ bool InStream::eoln()
     {
         bool returnCr = false;
 
-#ifdef ON_WINDOWS
+#if (defined(ON_WINDOWS) && !defined(FOR_LINUX)) || defined(FOR_WINDOWS)
         if (c != CR)
         {
             reader->unreadChar(c);
@@ -3325,12 +3536,14 @@ bool InStream::eoln()
 
 void InStream::readEoln()
 {
+    lastLine = reader->getLine();
     if (!eoln())
         quit(_pe, "Expected EOLN");
 }
 
 void InStream::readEof()
 {
+    lastLine = reader->getLine();
     if (!eof())
         quit(_pe, "Expected EOF");
 
@@ -3365,18 +3578,25 @@ void InStream::readStringTo(std::string& result)
         quit(_pe, "Expected line");
 
     result.clear();
-    int cur;
 
     for (;;)
     {
-        cur = reader->curChar();
+        int cur = reader->curChar();
 
-        if (isEoln(cur))
+        if (cur == LF || cur == EOFC)
             break;
 
-        if (cur == EOFC)
-            break;
+        if (cur == CR)
+        {
+            cur = reader->nextChar();
+            if (reader->curChar() == LF)
+            {
+                reader->unreadChar(cur);
+                break;
+            }
+        }
 
+        lastLine = reader->getLine();
         result += char(reader->nextChar());
     }
 
@@ -3493,6 +3713,24 @@ std::vector<std::string> InStream::readLines(int size, const std::string& ptrn, 
     __testlib_readMany(readLines, readString(p, variablesName), std::string, false)
 }
 
+#ifdef __GNUC__
+__attribute__ ((format (printf, 3, 4)))
+#endif
+void InStream::ensuref(bool cond, const char* format, ...)
+{
+    if (!cond)
+    {
+        FMT_TO_RESULT(format, format, message);
+        this->__testlib_ensure(cond, message);
+    }
+}
+
+void InStream::__testlib_ensure(bool cond, std::string message)
+{
+    if (!cond)
+        this->quit(_wa, message.c_str());        
+}
+
 void InStream::close()
 {
     if (NULL != reader)
@@ -3597,8 +3835,8 @@ void quitif(bool condition, TResult result, const char* format, ...)
 NORETURN void __testlib_help()
 {
     InStream::textColor(InStream::LightCyan);
-    std::fprintf(stderr, "TESTLIB %s, http://code.google.com/p/testlib/ ", VERSION);
-    std::fprintf(stderr, "by Mike Mirzayanov, copyright(c) 2005-2017\n");
+    std::fprintf(stderr, "TESTLIB %s, https://github.com/MikeMirzayanov/testlib/ ", VERSION);
+    std::fprintf(stderr, "by Mike Mirzayanov, copyright(c) 2005-2018\n");
     std::fprintf(stderr, "Checker name: \"%s\"\n", checkerName.c_str());
     InStream::textColor(InStream::LightGray);
 
@@ -3657,10 +3895,14 @@ void registerGen(int argc, char* argv[])
 }
 #else
 #ifdef __GNUC__
+#if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 4))
     __attribute__ ((deprecated("Use registerGen(argc, argv, 0) or registerGen(argc, argv, 1)."
             " The third parameter stands for the random generator version."
             " If you are trying to compile old generator use macro -DUSE_RND_AS_BEFORE_087 or registerGen(argc, argv, 0)."
             " Version 1 has been released on Spring, 2013. Use it to write new generators.")))
+#else
+    __attribute__ ((deprecated))
+#endif
 #endif
 #ifdef _MSC_VER
     __declspec(deprecated("Use registerGen(argc, argv, 0) or registerGen(argc, argv, 1)."
@@ -3701,6 +3943,7 @@ void registerInteraction(int argc, char* argv[])
         appesMode = false;
     }
 
+#ifndef EJUDGE
     if (argc == 5)
     {
         resultName = argv[4];
@@ -3720,6 +3963,7 @@ void registerInteraction(int argc, char* argv[])
             appesMode = true;
         }
     }
+#endif
 
     inf.init(argv[1], _input);
 
@@ -3868,6 +4112,9 @@ static inline void __testlib_ensure(bool cond, const std::string& msg)
         quit(_fail, msg.c_str());
 }
 
+#ifdef __GNUC__
+    __attribute__((unused)) 
+#endif
 static inline void __testlib_ensure(bool cond, const char* msg)
 {
     if (!cond)
@@ -3919,7 +4166,7 @@ void shuffle(_RandomAccessIter __first, _RandomAccessIter __last)
 
 
 template<typename _RandomAccessIter>
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 __attribute__ ((error("Don't use random_shuffle(), use shuffle() instead")))
 #endif
 void random_shuffle(_RandomAccessIter , _RandomAccessIter )
@@ -3933,7 +4180,7 @@ void random_shuffle(_RandomAccessIter , _RandomAccessIter )
 #  define RAND_THROW_STATEMENT
 #endif
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 __attribute__ ((error("Don't use rand(), use rnd.next() instead")))
 #endif
 #ifdef _MSC_VER
@@ -3947,7 +4194,7 @@ int rand() RAND_THROW_STATEMENT
     //throw "Don't use rand(), use rnd.next() instead";
 }
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 __attribute__ ((error("Don't use srand(), you should use " 
         "'registerGen(argc, argv, 1);' to initialize generator seed "
         "by hash code of the command line params. The third parameter "
@@ -4241,4 +4488,194 @@ NORETURN void expectedButFound<long double>(TResult result, long double expected
     __testlib_expectedButFound(result, double(expected), double(found), prepend.c_str());
 }
 
+#endif
+
+#if __cplusplus > 199711L || defined(_MSC_VER)
+template <typename T>
+struct is_iterable
+{
+    template <typename U>
+    static char test(typename U::iterator* x);
+ 
+    template <typename U>
+    static long test(U* x);
+ 
+    static const bool value = sizeof(test<T>(0)) == 1;
+};
+
+template<bool B, class T = void>
+struct __testlib_enable_if {};
+ 
+template<class T>
+struct __testlib_enable_if<true, T> { typedef T type; };
+
+template <typename T>
+typename __testlib_enable_if<!is_iterable<T>::value, void>::type __testlib_print_one(const T& t)
+{
+    std::cout << t;
+}
+ 
+template <typename T>
+typename __testlib_enable_if<is_iterable<T>::value, void>::type __testlib_print_one(const T& t)
+{
+    bool first = true;
+    for (typename T::const_iterator i = t.begin(); i != t.end(); i++)
+    {
+        if (first)
+            first = false;
+        else
+            std::cout << " ";
+        std::cout << *i;
+    }
+}
+
+template<>
+typename __testlib_enable_if<is_iterable<std::string>::value, void>::type __testlib_print_one<std::string>(const std::string& t)
+{
+    std::cout << t;
+}
+ 
+template<typename A, typename B>
+void __println_range(A begin, B end)
+{
+    bool first = true;
+    for (B i = B(begin); i != end; i++)
+    {
+        if (first)
+            first = false;
+        else
+            std::cout << " ";
+        __testlib_print_one(*i);
+    }
+    std::cout << std::endl;
+}
+
+template<class T, class Enable = void>
+struct is_iterator
+{   
+    static T makeT();
+    typedef void * twoptrs[2];
+    static twoptrs & test(...);
+    template<class R> static typename R::iterator_category * test(R);
+    template<class R> static void * test(R *);
+    static const bool value = sizeof(test(makeT())) == sizeof(void *); 
+};
+
+template<class T>
+struct is_iterator<T, typename __testlib_enable_if<std::is_array<T>::value >::type>
+{
+    static const bool value = false; 
+};
+
+template <typename A, typename B>
+typename __testlib_enable_if<!is_iterator<B>::value, void>::type println(const A& a, const B& b)
+{
+    __testlib_print_one(a);
+    std::cout << " ";
+    __testlib_print_one(b);
+    std::cout << std::endl;
+}
+ 
+template <typename A, typename B>
+typename __testlib_enable_if<is_iterator<B>::value, void>::type println(const A& a, const B& b)
+{
+    __println_range(a, b);
+}
+
+template <typename A>
+void println(const A* a, const A* b)
+{
+    __println_range(a, b);
+}
+
+template <>
+void println<char>(const char* a, const char* b)
+{
+    __testlib_print_one(a);
+    std::cout << " ";
+    __testlib_print_one(b);
+    std::cout << std::endl;
+}
+
+template<typename T>
+void println(const T& x)
+{
+    __testlib_print_one(x);
+    std::cout << std::endl;
+}
+
+template<typename A, typename B, typename C>
+void println(const A& a, const B& b, const C& c)
+{
+    __testlib_print_one(a);
+    std::cout << " ";
+    __testlib_print_one(b);
+    std::cout << " ";
+    __testlib_print_one(c);
+    std::cout << std::endl;
+}
+
+template<typename A, typename B, typename C, typename D>
+void println(const A& a, const B& b, const C& c, const D& d)
+{
+    __testlib_print_one(a);
+    std::cout << " ";
+    __testlib_print_one(b);
+    std::cout << " ";
+    __testlib_print_one(c);
+    std::cout << " ";
+    __testlib_print_one(d);
+    std::cout << std::endl;
+}
+
+template<typename A, typename B, typename C, typename D, typename E>
+void println(const A& a, const B& b, const C& c, const D& d, const E& e)
+{
+    __testlib_print_one(a);
+    std::cout << " ";
+    __testlib_print_one(b);
+    std::cout << " ";
+    __testlib_print_one(c);
+    std::cout << " ";
+    __testlib_print_one(d);
+    std::cout << " ";
+    __testlib_print_one(e);
+    std::cout << std::endl;
+}
+
+template<typename A, typename B, typename C, typename D, typename E, typename F>
+void println(const A& a, const B& b, const C& c, const D& d, const E& e, const F& f)
+{
+    __testlib_print_one(a);
+    std::cout << " ";
+    __testlib_print_one(b);
+    std::cout << " ";
+    __testlib_print_one(c);
+    std::cout << " ";
+    __testlib_print_one(d);
+    std::cout << " ";
+    __testlib_print_one(e);
+    std::cout << " ";
+    __testlib_print_one(f);
+    std::cout << std::endl;
+}
+
+template<typename A, typename B, typename C, typename D, typename E, typename F, typename G>
+void println(const A& a, const B& b, const C& c, const D& d, const E& e, const F& f, const G& g)
+{
+    __testlib_print_one(a);
+    std::cout << " ";
+    __testlib_print_one(b);
+    std::cout << " ";
+    __testlib_print_one(c);
+    std::cout << " ";
+    __testlib_print_one(d);
+    std::cout << " ";
+    __testlib_print_one(e);
+    std::cout << " ";
+    __testlib_print_one(f);
+    std::cout << " ";
+    __testlib_print_one(g);
+    std::cout << std::endl;
+}
 #endif
