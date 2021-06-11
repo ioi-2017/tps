@@ -60,8 +60,8 @@
  *
  * * For partial scoring, forced quitp() functions to accept only scores in the range [0,1].
  *   If the partial score is less than 1e-5, it becomes 1e-5, because 0 grades are considered wrong in CMS.
- *   Grades in range [1e-5, 0.001) are printed exactly (to prevent rounding to zero).
- *   Grades in [0.001, 1] are printed with 3 digits after decimal point.
+ *   Grades in range [1e-5, 0.0001) are printed exactly (to prevent rounding to zero).
+ *   Grades in [0.0001, 1] are printed with 4 digits after decimal point.
  *
  * * Added the following utility functions/methods: 
  *     void InStream::readSecret(string secret)
@@ -2550,11 +2550,11 @@ NORETURN void InStream::quit(TResult result, const char* msg)
             break;
         case _points:
             if (__testlib_points < 1e-5)
-                pointsStr = "0.00001";//prevent zero scores in CMS as zero is considered wrong
-            else if (__testlib_points < 0.001)
-                pointsStr = format("%lf", __testlib_points);//prevent rounding the numbers below 0.001
+                pointsStr = "0.00001"; // Prevent zero scores in CMS as zero is considered wrong
+            else if (__testlib_points < 0.0001)
+                pointsStr = format("%lf", __testlib_points); // Prevent rounding the numbers below 0.0001
             else
-                pointsStr = format("%.3lf", __testlib_points);
+                pointsStr = format("%.4lf", __testlib_points);
             color = LightYellow;
             errorName = "Partially Correct";
             break;
