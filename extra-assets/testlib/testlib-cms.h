@@ -63,7 +63,13 @@
  *   Grades in range [1e-5, 0.0001) are printed exactly (to prevent rounding to zero).
  *   Grades in [0.0001, 1] are printed with 4 digits after decimal point.
  *
- * * Added the following utility functions/methods: 
+ * * Added the following utility types/variables/functions/methods:
+ *     type HaltListener (as a function with no parameters or return values)
+ *     vector<HaltListener> __haltListeners
+ *     void registerHaltListener(HaltListener haltListener)
+ *     void callHaltListeners()  (which is called in quit)
+ *     void closeOnHalt(FILE* file)
+ *     void closeOnHalt(F& f) (template using f.close())
  *     void InStream::readSecret(string secret, TResult mismatchResult, string mismatchMessage)
  *     void InStream::readGraderResult()
  *         +supporting conversion of graderResult to CMS result
@@ -187,6 +193,7 @@ const char* latestFeatures[] = {
 #include <algorithm>
 #undef random
 
+#include <functional>
 #include <cstdio>
 #include <cctype>
 #include <string>
@@ -331,7 +338,40 @@ const char* latestFeatures[] = {
 #else
 #   define NORETURN
 #endif
-                   
+
+/**************** HaltListener material ****************/
+#if __cplusplus > 199711L || defined(_MSC_VER)
+typedef std::function<void()> HaltListener;
+#else
+typedef void (*HaltListener)();
+#endif
+
+std::vector<HaltListener> __haltListeners;
+
+inline void registerHaltListener(HaltListener haltListener) {
+    __haltListeners.push_back(haltListener);
+}
+
+inline void callHaltListeners() {
+    // Removing and calling haltListeners in reverse order.
+    while (!__haltListeners.empty()) {
+        HaltListener haltListener = __haltListeners.back();
+        __haltListeners.pop_back();
+        haltListener();
+    }
+}
+
+#if __cplusplus > 199711L || defined(_MSC_VER)
+inline void closeOnHalt(FILE* file) {
+    registerHaltListener([file] { fclose(file); });
+}
+template<typename F>
+inline void closeOnHalt(F& f) {
+    registerHaltListener([&f] { f.close(); });
+}
+#endif
+/*******************************************************/
+
 static char __testlib_format_buffer[16777216];
 static int __testlib_format_buffer_usage_count = 0;
 
@@ -2477,6 +2517,7 @@ void InStream::textColor(
 
 NORETURN void halt(int exitCode)
 {
+    callHaltListeners();
 #ifdef FOOTER
     InStream::textColor(InStream::LightGray);
     std::fprintf(stderr, "Checker: \"%s\"\n", checkerName.c_str());
@@ -4885,7 +4926,7 @@ NORETURN void skip_ok()
     if (testlibMode != _validator)
         quitf(_fail, "skip_ok() only works in validators");
     testlibFinalizeGuard.quitCount++;
-    exit(0);
+    halt(0);
 }
 
 /// 1 -> 1st, 2 -> 2nd, 3 -> 3rd, 4 -> 4th, ...
