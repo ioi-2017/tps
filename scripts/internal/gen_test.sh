@@ -4,6 +4,7 @@ set -euo pipefail
 
 source "${INTERNALS}/util.sh"
 source "${INTERNALS}/problem_util.sh"
+source "${INTERNALS}/run_util.sh"
 
 tests_dir="$1"; shift
 test_name="$1"; shift
@@ -15,15 +16,33 @@ output="${tests_dir}/${test_name}.out"
 
 function gen_input {
 	temp_input=${input}.tmp
-	if [ "${command}" == "manual" ]; then
+	pushd "${GEN_DIR}" > /dev/null
+	if is_in "${command}" "manual" "copy"; then
 		if [ ${#args[@]} -ne 1 ] ; then
-			errcho "There must be exactly one argument for manual tests, but found ${#args[@]} arguments."
+			errcho "There must be exactly one argument for test generation command '${command}', but found ${#args[@]} arguments."
 			return 1
 		fi
-		cp "${GEN_DIR}/manual/${args[0]}" "${temp_input}" || return $?
+		source_file="${args[0]}"
+		if [ "${command}" == "manual" ] ; then
+			source_file="./manual/${source_file}"
+		fi
+		readonly source_file
+		check_file_exists "Source file" "${source_file}" || return $?
+		cp "${source_file}" "${temp_input}" || return $?
 	else
-		"${GEN_DIR}/${command}.exe" "${args[@]}" > "${temp_input}" || return $?
+		gen_file_name="$(find_runnable_file "${command}" ".")"
+		readonly gen_file_name
+		if [ -z "${gen_file_name}" ]; then
+			errcho "Generator '${command}' not found in '${GEN_DIR}'.
+Searched for $(searched_runnable_files_str "${command}" ".")."
+			return 4
+		fi
+		readonly gen_file="./${gen_file_name}"
+		# Using ${args[@]+"${args[@]}"} instead of "${args[@]}" because
+		#   simple usage of empty arrays causes unbound variable error in old versions of bash with 'set -u'.
+		run_file "${gen_file}" ${args[@]+"${args[@]}"} > "${temp_input}" || return $?
 	fi
+	popd > /dev/null
 	
 	header_file=${GEN_DIR}/input.header
 	footer_file=${GEN_DIR}/input.footer
