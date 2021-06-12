@@ -52,7 +52,7 @@
  *    from <input-file> <output-file> <answer-file>
  *    to <input-file> <answer-file> <output-file>
  *
- * * Added "Security Violation" as a new result type.
+ * * Added "Security Violation" & "Protocol Violation" as new result types.
  *
  * * Changed checker quit behaviors to make it compliant with CMS.
  *
@@ -296,6 +296,10 @@ const char* latestFeatures[] = {
 
 #ifndef SV_EXIT_CODE
 #   define SV_EXIT_CODE 20
+#endif
+
+#ifndef PV_EXIT_CODE
+#   define PV_EXIT_CODE 21
 #endif
 
 #ifndef PC_BASE_EXIT_CODE
@@ -1446,6 +1450,7 @@ enum TResult
     _points = 5,
     _unexpected_eof = 8,
     _sv = 10,
+    _pv = 11,
     _partially = 16
 };
 
@@ -1473,7 +1478,7 @@ const std::string outcomes[] = {
     "unexpected-eof",
     "reserved",
     "security-violation",
-    "reserved",
+    "protocol-violation",
     "reserved",
     "reserved",
     "reserved",
@@ -2080,6 +2085,7 @@ struct InStream
 private:
     InStream(const InStream&);
     InStream& operator =(const InStream&);
+    void quitByGraderResult(TResult result, std::string defaultMessage);
 };
 
 InStream inf;
@@ -2423,6 +2429,8 @@ int resultExitCode(TResult r)
 #endif
     if (r == _sv)
         return SV_EXIT_CODE;
+    if (r == _pv)
+        return PV_EXIT_CODE;
     if (r >= _partially)
         return PC_BASE_EXIT_CODE + (r - _partially);
     return FAIL_EXIT_CODE;
@@ -2547,6 +2555,10 @@ NORETURN void InStream::quit(TResult result, const char* msg)
         case _sv:
             color = LightMagenta;
             errorName = "Security Violation";
+            break;
+        case _pv:
+            color = LightMagenta;
+            errorName = "Protocol Violation";
             break;
         case _points:
             if (__testlib_points < 1e-5)
@@ -4809,6 +4821,7 @@ void registerChecker(std::string probName, int argc, char* argv[])
 
 const std::string _grader_OK = "OK";
 const std::string _grader_SV = "SV";
+const std::string _grader_PV = "PV";
 const std::string _grader_WA = "WA";
 const std::string _grader_FAIL = "FAIL";
 
@@ -4826,6 +4839,17 @@ void readBothSecrets(std::string secret)
     ouf.readSecret(secret);
 }
 
+
+void InStream::quitByGraderResult(TResult result, std::string defaultMessage)
+{
+    std::string msg = "";
+    if (!eof())
+        msg = readLine();
+    if (msg.empty())
+        quits(result, defaultMessage);
+    quits(result, msg);
+}
+
 void InStream::readGraderResult()
 {
     std::string result = readWord();
@@ -4833,26 +4857,13 @@ void InStream::readGraderResult()
     if (result == _grader_OK)
         return;
     if (result == _grader_SV)
-    {
-        if (eof())
-           quitf(_sv, "Security violation in grader");
-        std::string msg = readLine();
-        quitf(_wa, "Security violation in grader: %s", msg.c_str());
-    }
+        quitByGraderResult(_sv, "Security violation detected in grader");
+    if (result == _grader_PV)
+        quitByGraderResult(_pv, "Protocol violation detected in grader");
     if (result == _grader_WA)
-    {
-        if (eof())
-            quitf(_wa, "WA in grader");
-        std::string msg = readLine();
-        quitf(_wa, "WA in grader: %s", msg.c_str());
-    }
+        quitByGraderResult(_wa, "Wrong answer detected in grader");
     if (result == _grader_FAIL)
-    {
-        if (eof())
-            quitf(_fail, "FAIL in grader");
-        std::string msg = readLine();
-        quitf(_fail, "FAIL in grader: %s", msg.c_str());
-    }
+        quitByGraderResult(_fail, "Failure in grader");
     quitf(_fail, "Unknown grader result");
 }
 
