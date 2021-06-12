@@ -2532,6 +2532,14 @@ static bool __testlib_shouldCheckDirt(TResult result)
     return result == _ok || result == _points || result >= _partially;
 }
 
+
+std::string RESULT_MESSAGE_CORRECT = "Output is correct";
+std::string RESULT_MESSAGE_PARTIALLY_CORRECT = "Output is partially correct";
+std::string RESULT_MESSAGE_WRONG = "Output isn't correct";
+std::string RESULT_MESSAGE_SECURITY_VIOLATION = "Security Violation";
+std::string RESULT_MESSAGE_PROTOCOL_VIOLATION = "Protocol Violation";
+std::string RESULT_MESSAGE_FAIL = "Judge Failure; Contact staff!";
+
 NORETURN void InStream::quit(TResult result, const char* msg)
 {
     if (TestlibFinalizeGuard::alive)
@@ -2580,26 +2588,26 @@ NORETURN void InStream::quit(TResult result, const char* msg)
         case _ok:
             pointsStr = format("%d", 1);
             color = LightGreen;
-            errorName = "Correct";
+            errorName = RESULT_MESSAGE_CORRECT;
             break;
         case _wa:
         case _pe:
         case _dirt:
         case _unexpected_eof:
             color = LightRed;
-            errorName = "Wrong Answer";
+            errorName = RESULT_MESSAGE_WRONG;
             break;
         case _fail:
             color = LightMagenta;
-            errorName = "Judge Failure; Contact staff!";
+            errorName = RESULT_MESSAGE_FAIL;
             break;
         case _sv:
             color = LightMagenta;
-            errorName = "Security Violation";
+            errorName = RESULT_MESSAGE_SECURITY_VIOLATION;
             break;
         case _pv:
             color = LightMagenta;
-            errorName = "Protocol Violation";
+            errorName = RESULT_MESSAGE_PROTOCOL_VIOLATION;
             break;
         case _points:
             if (__testlib_points < 1e-5)
@@ -2609,7 +2617,7 @@ NORETURN void InStream::quit(TResult result, const char* msg)
             else
                 pointsStr = format("%.4lf", __testlib_points);
             color = LightYellow;
-            errorName = "Partially Correct";
+            errorName = RESULT_MESSAGE_PARTIALLY_CORRECT;
             break;
         default:
             if (result >= _partially)
