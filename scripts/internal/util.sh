@@ -66,6 +66,16 @@ function decrement {
 }
 
 
+function py_test {
+	# Similar to Bash "test" command, but with a pythonic expression.
+	# Ends with zero exit code iff the expression evaluates to True.
+	# Usage: py_test "...pythonic-expression..."
+	# Usage example: if py_test "$a < $b"; then ...
+	local -r expr="$1"; shift
+	"${PYTHON}" -c "import sys; sys.exit(0 if (${expr}) else 1)"
+}
+
+
 function are_same {
 	diff "$1" "$2" > /dev/null 2>&1
 }
