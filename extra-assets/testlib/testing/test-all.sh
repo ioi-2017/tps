@@ -4,7 +4,7 @@ if ! make ; then
 fi
 
 
-T="emp onosec gmis ginv gsv gwe gwr mis dif ext ext2 cor "
+T="emp onosec gmis ginv gsv gpve gpvr gwe gwr mis dif ext ext2 cor "
 for i in $T ; do
 	echo out $i:
 	./checker.exe 01.in 01.out $i.out

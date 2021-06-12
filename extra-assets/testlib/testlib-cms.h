@@ -64,7 +64,7 @@
  *   Grades in [0.0001, 1] are printed with 4 digits after decimal point.
  *
  * * Added the following utility functions/methods: 
- *     void InStream::readSecret(string secret)
+ *     void InStream::readSecret(string secret, TResult mismatchResult, string mismatchMessage)
  *     void InStream::readGraderResult()
  *         +supporting conversion of graderResult to CMS result
  *     void quitp(double), quitp(int)
@@ -2079,7 +2079,7 @@ struct InStream
     static void quitscrS(WORD color, std::string msg);
     void xmlSafeWrite(std::FILE * file, const char* msg);
 
-    void readSecret(std::string secret);
+    void readSecret(std::string secret, TResult mismatchResult=_pv, std::string mismatchMessage="Secret mismatch");
     void readGraderResult();
 
 private:
@@ -4826,17 +4826,17 @@ const std::string _grader_WA = "WA";
 const std::string _grader_FAIL = "FAIL";
 
 
-void InStream::readSecret(std::string secret)
+void InStream::readSecret(std::string secret, TResult mismatchResult, std::string mismatchMessage)
 {
     if (readWord() != secret)
-        quitf(_sv, "secret mismatch");
+        quits(mismatchResult, mismatchMessage);
     eoln();
 }
 
 void readBothSecrets(std::string secret)
 {
-    ans.readSecret(secret);
-    ouf.readSecret(secret);
+    ans.readSecret(secret, _fail, "Secret mismatch in the (correct) answer file");
+    ouf.readSecret(secret, _pv, "Possible tampering with the output");
 }
 
 
