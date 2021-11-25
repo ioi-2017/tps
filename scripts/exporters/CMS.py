@@ -112,6 +112,14 @@ class JSONExporter:
             if num_processes is not None:
                 task_type_params["task_type_parameters_Communication_num_processes"] = num_processes
 
+        if task_type == "Batch":
+            HAS_GRADER = get_bool_environ("HAS_GRADER")
+            if HAS_GRADER:
+                compilation_type = "grader"
+            else:
+                compilation_type = "alone"
+            task_type_params["task_type_parameters_Batch_compilation"] = compilation_type
+
         problem_data_dict = {
             "code": task_data["name"],
             "name": task_data["title"],
