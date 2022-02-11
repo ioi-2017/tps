@@ -105,7 +105,7 @@ function __tps_unified_sort__ {
 	local _sort
 	_sort=$(which -a "sort" | grep -iv "windows" | head -1)
 	readonly _sort
-	if [ -n "${_sort}" ] ; then
+	if [ -n "${_sort}" ]; then
 		"${_sort}" -u "$@"
 	else
 		cat "$@"
@@ -176,7 +176,7 @@ function __tps_run_file__ {
 			__tps__python__="${CMD}"
 			return 0
 		}
-		if [ -n "${PYTHON+x}" ] ; then
+		if [ -n "${PYTHON+x}" ]; then
 			__tps__check_py_cmd__ "${PYTHON}" ||
 			__tps__error_exit__ 2 "Python command '${PYTHON}' set by environment variable 'PYTHON' does not exist."
 		else
