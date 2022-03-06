@@ -29,11 +29,11 @@ def _bc():
     if len(sys.argv) < 3:
         return
     index = int(sys.argv[1])
-    cursor_location = int(sys.argv[2])
+    cursor_offset = int(sys.argv[2])
     args = sys.argv[3:]
     index -= 1
     current_token = args[index] if index < len(args) else ""
-    current_token_prefix = current_token[:cursor_location]
+    current_token_prefix = current_token[:cursor_offset]
 
     if current_token_prefix.startswith("--") and "=" in current_token_prefix:
         return _complete_with_files(current_token_prefix[current_token_prefix.find('=')+1:])

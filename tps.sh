@@ -15,6 +15,24 @@ function __tps__errcho__ {
 }
 
 
+function __tps__variable_exists {
+	local -r varname="$1"; shift
+	declare -p "${varname}" &> "/dev/null"
+}
+
+
+function __tps__unified_sort__ {
+	local _sort
+	_sort="$(which -a "sort" | grep -iv "windows" | head -1)"
+	readonly _sort
+	if [ -n "${_sort}" ]; then
+		"${_sort}" -u "$@"
+	else
+		cat "$@"
+	fi
+}
+
+
 
 if [ $# -eq 0 ]; then
 	readonly __tps_help_mode__="true"
@@ -67,7 +85,7 @@ if ! "${__tps_help_mode__}" && [ "${__tps_command__}" == "--bash-completion" ]; 
 	}
 
 	function complete_with_files {
-		compgen -f -- "$1" | __tps_unified_sort__ | fix_file_endings || true
+		compgen -f -- "$1" | __tps__unified_sort__ | fix_file_endings || true
 	}
 
 	[ $# -gt 1 ] || exit 0
@@ -75,8 +93,8 @@ if ! "${__tps_help_mode__}" && [ "${__tps_command__}" == "--bash-completion" ]; 
 	bc_index="$1"; shift
 	[ ${bc_index} -gt 0 ] || exit 0
 
-	readonly bc_cursor_location="$1"; shift
-	[ ${bc_cursor_location} -ge 0 ] || exit 0
+	readonly bc_cursor_offset="$1"; shift
+	[ ${bc_cursor_offset} -ge 0 ] || exit 0
 
 	# Removing the token 'tps'
 	shift
@@ -86,7 +104,7 @@ if ! "${__tps_help_mode__}" && [ "${__tps_command__}" == "--bash-completion" ]; 
 	else
 		readonly bc_current_token=""
 	fi
-	readonly bc_current_token_prefix="${bc_current_token:0:${bc_cursor_location}}"
+	readonly bc_current_token_prefix="${bc_current_token:0:${bc_cursor_offset}}"
 else
 	readonly __tps_bash_completion_mode__="false"
 fi
@@ -95,21 +113,9 @@ fi
 function __tps__error_exit__ {
 	"${__tps_bash_completion_mode__}" && exit 0
 	local -r exit_code="$1"; shift
-	local -r message="$1"; shift
-	__tps__errcho__ "Error: ${message}"
+	__tps__errcho__ -n "Error: "
+	__tps__errcho__ "$@"
 	exit "${exit_code}"
-}
-
-
-function __tps_unified_sort__ {
-	local _sort
-	_sort=$(which -a "sort" | grep -iv "windows" | head -1)
-	readonly _sort
-	if [ -n "${_sort}" ]; then
-		"${_sort}" -u "$@"
-	else
-		cat "$@"
-	fi
 }
 
 
@@ -117,7 +123,7 @@ __tps_target_file__="problem.json"
 __tps_scripts__="scripts"
 
 function __tps_find_basedir__ {
-	#looking for ${__tps_target_file__} in current and parent directories...
+	# Looking for ${__tps_target_file__} in current and parent directories...
 	local __tps_curr__="$PWD"
 	local __tps_prev__=""
 	while [ "${__tps_curr__}" != "${__tps_prev__}" ]; do
@@ -172,11 +178,11 @@ function __tps_run_file__ {
 	elif [ "${ext}" == "py" ]; then
 		function __tps__check_py_cmd__ {
 			local -r CMD="$1"
-			command -v "${CMD}" >/dev/null 2>&1 || return 1
+			command -v "${CMD}" &> "/dev/null" || return 1
 			__tps__python__="${CMD}"
 			return 0
 		}
-		if [ -n "${PYTHON+x}" ]; then
+		if __tps__variable_exists "PYTHON"; then
 			__tps__check_py_cmd__ "${PYTHON}" ||
 			__tps__error_exit__ 2 "Python command '${PYTHON}' set by environment variable 'PYTHON' does not exist."
 		else
@@ -200,7 +206,7 @@ function __tps_list_commands__ {
 		extensions="${extensions}${ext}"
 	done
 	local f
-	ls -a -1 "${__tps_scripts_dir__}" 2>/dev/null | grep -E ".\\.(${extensions})$" | while read f; do echo ${f%.*}; done | __tps_unified_sort__ || true
+	ls -a -1 "${__tps_scripts_dir__}" 2> "/dev/null" | grep -E ".\\.(${extensions})$" | while read f; do echo ${f%.*}; done | __tps__unified_sort__ || true
 }
 
 if "${__tps_bash_completion_mode__}"; then
@@ -240,7 +246,7 @@ if "${__tps_help_mode__}"; then
 			done
 		}
 		commands_info="In a TPS repository with the following commands available:
-$(echo "${available_commands}" | add_prefix '  ')"
+$(add_prefix '  ' <<< "${available_commands}")"
 		readonly commands_info
 	fi
 	__tps__help_exit__ "${scripts_version_info}${commands_info}"
@@ -282,7 +288,7 @@ if "${__tps_bash_completion_mode__}"; then
 	readonly command_bc_script_file_name
 	if [ -n "${command_bc_script_file_name}" ]; then
 		readonly command_bc_script_file="${bc_dir}/${command_bc_script_file_name}"
-		__tps_run_file__ "${command_bc_script_file}" "${bc_index}" "${bc_cursor_location}" "$@"
+		__tps_run_file__ "${command_bc_script_file}" "${bc_index}" "${bc_cursor_offset}" "$@"
 		exit 0
 	fi
 	# Looking for bash completion options file

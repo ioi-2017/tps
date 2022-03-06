@@ -4,15 +4,15 @@ set -euo pipefail
 index="$1"; shift
 [ ${index} -gt 0 ] || exit 0
 
-readonly cursor_location="$1"; shift
-[ ${cursor_location} -ge 0 ] || exit 0
+readonly cursor_offset="$1"; shift
+[ ${cursor_offset} -ge 0 ] || exit 0
 
 if [ "${index}" -le $# ]; then
 	readonly current_token="${!index}"
 else
 	readonly current_token=""
 fi
-readonly current_token_prefix="${current_token:0:${cursor_location}}"
+readonly current_token_prefix="${current_token:0:${cursor_offset}}"
 
 
 function _unified_sort {
