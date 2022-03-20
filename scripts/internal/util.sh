@@ -16,13 +16,13 @@ function extension {
 }
 
 function variable_exists {
-	varname=$1
-	[ -n "${!varname+x}" ]
+	local -r varname="$1"; shift
+	declare -p "${varname}" &>/dev/null
 }
 
 function variable_not_exists {
-	varname=$1
-	[ -z "${!varname+x}" ]
+	local -r varname="$1"; shift
+	! variable_exists "${varname}"
 }
 
 function check_variable {
