@@ -23,12 +23,12 @@ function is_in {
 
 function variable_exists {
 	local -r varname="$1"; shift
-	[ -n "${!varname+x}" ]
+	declare -p "${varname}" &>/dev/null
 }
 
 function variable_not_exists {
 	local -r varname="$1"; shift
-	[ -z "${!varname+x}" ]
+	! variable_exists "${varname}"
 }
 
 function set_variable {
@@ -73,10 +73,10 @@ function str_contains {
 }
 
 
-function escaped_arg {
+function escape_arg {
 	local -r str="$1"; shift
 	echo -n "\""
-	echo -n "${str}" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
+	echo -n "${str}" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\$/\\\$/g'
 	echo -n "\""
 }
 
@@ -88,7 +88,7 @@ function escape_arg_if_needed {
 	if [ "${q}" == "${s}" ]; then
 		printf "%s" "${s}"
 	else
-		escaped_arg "${s}"
+		escape_arg "${s}"
 	fi
 }
 
@@ -188,7 +188,7 @@ function truncated_cat {
 		cat "${file_name}"
 	else
 		head "-${limit}" "${file_name}"
-		printf "[Truncated] +%d more line(s). See the complete version in '%s'." "$((lines-limit))" "$(escaped_arg "${file_name}")"
+		printf "[Truncated] +%d more line(s). See the complete version in '%s'." "$((lines-limit))" "$(escape_arg "${file_name}")"
 	fi
 }
 

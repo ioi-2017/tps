@@ -165,7 +165,7 @@ function __exec__parse_options__ {
 		local -r status_varname="$1"; shift
 		local -r file_varname="$1"; shift
 
-		local -r option_suffix="${option:2}"
+		local -r option_suffix="${option_flag:2}"
 		arg_shifts=0
 		case "${option_suffix}" in
 			"")
@@ -523,7 +523,7 @@ function capture_exec {
 			readonly exec_file_lines
 			if [ "${exec_file_bytes}" -gt "${bytes_limit}" ] || [ "${exec_file_lines}" -gt "${lines_limit}" ] ; then
 				cp "${exec_file}" "${data_temp_dir}/${name}"
-				exec_args+=("${flag}" "$(escaped_arg "${data_dir}/${name}")")
+				exec_args+=("${flag}" "$(escape_arg "${data_dir}/${name}")")
 			else
 				local exec_content
 				read_file_exactly exec_content "${exec_file}"
@@ -544,7 +544,7 @@ function capture_exec {
 				exec_args+=("${flag}${flag_suffix}")
 				local line
 				for line in "${lines[@]}"; do
-					exec_args+=("$(escaped_arg "${line}")")
+					exec_args+=("$(escape_arg "${line}")")
 				done
 			fi
 		else

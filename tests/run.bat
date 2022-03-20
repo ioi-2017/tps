@@ -1,1 +1,1 @@
-@bash .\run %*
+@bash "%~dp0\run" %*
