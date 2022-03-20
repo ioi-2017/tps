@@ -37,6 +37,17 @@ function set_variable {
 	printf -v "${var_name}" '%s' "${var_value}"
 }
 
+function set_array_variable {
+	local -r new_var_name="$1"; shift
+	local -r old_var_name="$1"; shift
+	eval "${new_var_name}=(\${${old_var_name}[@]+\"\${${old_var_name}[@]}\"})"
+}
+
+function is_variable_array {
+	local -r varname="$1"; shift
+	[[ "$(declare -p "${varname}" 2>/dev/null)" =~ "declare -a" ]]
+}
+
 function increment {
 	# Calling ((v++)) causes unexpected exit in some versions of bash.
 	local -r var_name="$1"; shift

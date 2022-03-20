@@ -90,6 +90,30 @@ function assert_equal {
 	[ "${expected}" == "${actual}" ] || test_failure "Incorrect value for ${name}, expected: '${expected}', actual: '${actual}'."
 }
 
+function assert_equal_array {
+	local -r name="$1"; shift
+	local -r expected_varname="$1"; shift
+	local -r actual_varname="$1"; shift
+	if variable_not_exists "${expected_varname}"; then
+		variable_not_exists "${actual_varname}" || test_failure "Array ${name} expected to be undefined."
+		return
+	fi
+	variable_exists "${actual_varname}" || test_failure "Array ${name} expected to be defined."
+	local -a expected_array
+	set_array_variable "expected_array" "${expected_varname}"
+	readonly expected_array
+	local -a actual_array
+	set_array_variable "actual_array" "${actual_varname}"
+	readonly actual_array
+	local -r actual_len="${#actual_array[@]}"
+	local -a expected_len="${#expected_array[@]}"
+	[ "${expected_len}" == "${actual_len}" ] || test_failure "Incorrect length for ${name}, expected: ${expected_len}, actual: ${actual_len}."
+	local i
+	for ((i=0; i<expected_len; i++)); do
+		[ "${expected_array[$i]}" == "${actual_array[$i]}" ] || test_failure "Incorrect value at item $i of ${name}, expected: '${expected_array[$i]}', actual: '${actual_array[$i]}'."
+	done
+}
+
 function assert_file_content {
 	local -r name="$1"; shift
 	local -r expected_content="$1"; shift
@@ -134,6 +158,17 @@ function unset_exec_cwd {
 }
 
 
+function get_probed_variable_status_varname {
+	local -r var_name="$1"; shift
+	echo "__PROBED_VARIABLE_STATUS__${var_name}"
+}
+
+function get_probed_variable_expected_value_varname {
+	local -r var_name="$1"; shift
+	echo "__PROBED_VARIABLE_EXPECTED_VALUE__${var_name}"
+}
+
+
 function __exec__parse_options__ {
 	make_command_path_absolute="false"
 	readonly WD_STATUS_UNSPECIFIED="unspecified"
@@ -156,6 +191,12 @@ function __exec__parse_options__ {
 	readonly RETURN_STATUS_NONZERO="nonzero"
 	readonly RETURN_STATUS_IGNORE="ignore"
 	return_code_status="${RETURN_STATUS_UNSPECIFIED}"
+	readonly PROBED_VAR_STATUS_CAPTURE="capture"
+	readonly PROBED_VAR_STATUS_UNSET="unset"
+	readonly PROBED_VAR_STATUS_STRING="string"
+	readonly PROBED_VAR_STATUS_ARRAY="array"
+	probed_variables=()
+	probed_variable_capture_arg_indices=()
 
 	shifts=0
 
@@ -205,6 +246,48 @@ function __exec__parse_options__ {
 		esac
 	}
 
+	function read_var_status_args {
+		local -r option_flag="$1"; shift
+
+		local -r option_suffix="${option_flag:2}"
+		arg_shifts=0
+		local -r var_name="$1"; shift; increment arg_shifts
+		local -r var_status_varname="$(get_probed_variable_status_varname "${var_name}")"
+		local -r var_expected_value_varname="$(get_probed_variable_expected_value_varname "${var_name}")"
+		probed_variables+=("${var_name}")
+		case "${option_suffix}" in
+			c)
+				"${is_capture_mode}" || error_exit 2 "Option '${option_flag}' is only available in capture mode."
+				set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_CAPTURE}"
+				probed_variable_capture_arg_indices+=("$((shifts-1))")
+				;;
+			u)
+				set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_UNSET}"
+				;;
+			s)
+				set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_STRING}"
+				local -r var_value="$1"; shift; increment arg_shifts
+				set_variable "${var_expected_value_varname}" "${var_value}"
+				;;
+			a)
+				set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_ARRAY}"
+				local -r array_len="$1"; shift; increment arg_shifts
+				is_nonnegative_integer "${array_len}" || error_exit 2 "Undefined option '${option_flag}'."
+				[ $# -ge "${array_len}" ] || error_exit 2 "Insufficient number of arguments after '${option_flag}'."
+				local -a var_value=()
+				local i item
+				for ((i=0; i<array_len; i++)); do
+					item="$1"; shift; increment arg_shifts
+					var_value+=("${item}")
+				done
+				set_array_variable "${var_expected_value_varname}" "var_value"
+				;;
+			*)
+				error_exit 2 "Undefined option '${option_flag}'."
+				;;
+		esac
+	}
+
 	while [ $# -gt 0 ] && str_starts_with "$1" "-"; do
 		local option="$1"; shift; increment shifts
 		case "${option}" in
@@ -222,6 +305,10 @@ function __exec__parse_options__ {
 				;;
 			-e*)
 				read_file_status_args "${option}" stderr_status stderr_file "$@"
+				shift "${arg_shifts}"; increment shifts "${arg_shifts}"
+				;;
+			-v*)
+				read_var_status_args "${option}" "$@"
 				shift "${arg_shifts}"; increment shifts "${arg_shifts}"
 				;;
 			-r)
@@ -323,6 +410,7 @@ function __exec__run_command__ {
 function expect_exec {
 	push_test_context "expect_exec $(array_to_str_args "$@")"
 
+	local -r is_capture_mode="false"
 	local WD_STATUS_UNSPECIFIED
 	local WD_STATUS_GIVEN
 	local working_directory_status
@@ -347,6 +435,12 @@ function expect_exec {
 	local stdout_file
 	local stderr_status
 	local stderr_file
+	local PROBED_VAR_STATUS_CAPTURE
+	local PROBED_VAR_STATUS_UNSET
+	local PROBED_VAR_STATUS_STRING
+	local PROBED_VAR_STATUS_ARRAY
+	local probed_variables
+	local probed_variable_capture_arg_indices
 	local command_name
 	local shifts
 	__exec__parse_options__ "$@"
@@ -391,6 +485,30 @@ function expect_exec {
 	}
 	check_file "execution stdout" "${stdout_status}" "${stdout_file}" "${exec_stdout}"
 	check_file "execution stderr" "${stderr_status}" "${stderr_file}" "${exec_stderr}"
+
+	local probed_var_name
+	for probed_var_name in ${probed_variables[@]+"${probed_variables[@]}"}; do
+		local var_expected_status_varname
+		var_expected_status_varname="$(get_probed_variable_status_varname "${probed_var_name}")"
+		local var_expected_status="${!var_expected_status_varname}"
+
+		if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_UNSET}" ]; then
+			variable_not_exists "${probed_var_name}" || test_failure "Variable '${probed_var_name}' should not have been defined."
+		else
+			variable_exists "${probed_var_name}" || test_failure "Variable '${probed_var_name}' should have been defined."
+			local var_expected_value_varname
+			var_expected_value_varname="$(get_probed_variable_expected_value_varname "${probed_var_name}")"
+			if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_STRING}" ]; then
+				local var_expected_value="${!var_expected_value_varname}"
+				local var_actual_value="${!probed_var_name}"
+				assert_equal "probed variable '${probed_var_name}'" "${var_expected_value}" "${var_actual_value}"
+			elif [ "${var_expected_status}" == "${PROBED_VAR_STATUS_ARRAY}" ]; then
+				assert_equal_array "probed variable '${probed_var_name}'" "${var_expected_value_varname}" "${probed_var_name}"
+			else
+				error_exit 5 "Illegal state; invalid status '${var_expected_status}' for probed variable '${probed_var_name}'."
+			fi
+		fi
+	done
 
 	pop_test_context
 }
@@ -454,6 +572,7 @@ function capture_exec {
 
 	local -ra args=("$@")
 
+	local -r is_capture_mode="true"
 	local WD_STATUS_UNSPECIFIED
 	local WD_STATUS_GIVEN
 	local working_directory_status
@@ -478,6 +597,12 @@ function capture_exec {
 	local stdout_file
 	local stderr_status
 	local stderr_file
+	local PROBED_VAR_STATUS_CAPTURE
+	local PROBED_VAR_STATUS_UNSET
+	local PROBED_VAR_STATUS_STRING
+	local PROBED_VAR_STATUS_ARRAY
+	local probed_variables
+	local probed_variable_capture_arg_indices
 	local command_name
 	local shifts
 	__exec__parse_options__ ${args[@]+"${args[@]}"}
@@ -490,7 +615,26 @@ function capture_exec {
 	local exec_args=("expect_exec")
 	local i
 	for ((i=0; i<shifts-1; i++)); do
-		exec_args+=("$(escape_arg_if_needed "${args[$i]}")")
+		if is_in "$i" ${probed_variable_capture_arg_indices[@]+"${probed_variable_capture_arg_indices[@]}"}; then
+			increment i
+			local probed_var_name="${args[$i]}"
+			if variable_not_exists "${probed_var_name}"; then
+				exec_args+=("-vu" "${probed_var_name}")
+			elif is_variable_array "${probed_var_name}"; then
+				local -a probed_array_actual_value
+				set_array_variable "probed_array_actual_value" "${probed_var_name}"
+				exec_args+=("-va" "${probed_var_name}" "${#probed_array_actual_value[@]}")
+				local probed_array_item
+				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
+					exec_args+=("$(escape_arg_if_needed "${probed_array_item}")")
+				done
+			else
+				local probed_variable_actual_value="${!probed_var_name}"
+				exec_args+=("-vs" "${probed_var_name}" "$(escape_arg_if_needed "${probed_variable_actual_value}")")
+			fi
+		else
+			exec_args+=("$(escape_arg_if_needed "${args[$i]}")")
+		fi
 	done
 
 	# Add stdout/stderr expectation if needed
