@@ -4,7 +4,7 @@ set -euo pipefail
 pushd_test_context_here
 begin_capturing
 
-capture_run stage_dir '"stage"'
+capture_run stage_dir "stage"
 
 function capture_bc {
 	local -r key="$1"; shift
@@ -50,7 +50,7 @@ function tests_group {
 echo
 tests_group ""
 echo
-capture_run set_exec_cwd '"a_dir"'
+capture_run set_exec_cwd "a_dir"
 tests_group "-d"
 capture_run unset_exec_cwd
 

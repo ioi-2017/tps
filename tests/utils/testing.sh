@@ -397,20 +397,6 @@ function expect_exec {
 
 
 
-function eval_value {
-	local -r arg="$1"; shift
-	eval echo "${arg}"
-}
-
-function eval_args_array {
-	evaluated_args=()
-	while [ $# -gt 0 ]; do
-		local arg="$1"; shift
-		evaluated_args+=("$(eval_value "${arg}")")
-	done
-}
-
-
 CAPTURED_DATA_DIR_NAME="captured-data"
 CAPTURED_SCRIPTS_FILE_NAME="captured-tests.sh"
 
@@ -444,10 +430,14 @@ function end_capturing {
 
 
 function capture_run {
-	echo "$@"
-	local -a evaluated_args
-	eval_args_array "$@"
-	${evaluated_args[@]+"${evaluated_args[@]}"}
+	local -ra args=("$@")
+	local -a escaped_args=()
+	local arg
+	for arg in ${args[@]+"${args[@]}"}; do
+		escaped_args+=("$(escape_arg_if_needed "${arg}")")
+	done
+	echo ${escaped_args[@]+"${escaped_args[@]}"}
+	${args[@]+"${args[@]}"}
 }
 
 
@@ -462,9 +452,7 @@ function capture_exec {
 	fi
 	echo "${key}" >> "${captured_tests_file}"
 
-	local -ra raw_args=("$@")
-	local -a evaluated_args
-	eval_args_array "$@"
+	local -ra args=("$@")
 
 	local WD_STATUS_UNSPECIFIED
 	local WD_STATUS_GIVEN
@@ -492,14 +480,18 @@ function capture_exec {
 	local stderr_file
 	local command_name
 	local shifts
-	__exec__parse_options__ ${evaluated_args[@]+"${evaluated_args[@]}"}
+	__exec__parse_options__ ${args[@]+"${args[@]}"}
 
 	local exec_stdout
 	local exec_stderr
 	local exec_return_code
-	__exec__run_command__ "${evaluated_args[@]:${shifts}}"
+	__exec__run_command__ "${args[@]:${shifts}}"
 
-	local exec_args=("expect_exec" "${raw_args[@]:0:$((shifts-1))}")
+	local exec_args=("expect_exec")
+	local i
+	for ((i=0; i<shifts-1; i++)); do
+		exec_args+=("$(escape_arg_if_needed "${args[$i]}")")
+	done
 
 	# Add stdout/stderr expectation if needed
 	local -r data_dir="${captured_data_dir}/${key}"
@@ -566,7 +558,11 @@ function capture_exec {
 		[ "${exec_return_code}" -eq 0 ] || exec_args+=("-r" "${exec_return_code}")
 	fi
 
-	exec_args+=("${raw_args[@]:$((shifts-1))}")
+	local temp_arg
+	for temp_arg in "${args[@]:$((shifts-1))}"; do
+		exec_args+=("$(escape_arg_if_needed "${temp_arg}")")
+	done
+
 	echo "${exec_args[@]}"
 	pop_test_context
 }
