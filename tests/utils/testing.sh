@@ -168,6 +168,11 @@ function get_probed_variable_expected_value_varname {
 	echo "__PROBED_VARIABLE_EXPECTED_VALUE__${var_name}"
 }
 
+function get_probed_variable_actual_value_varname {
+	local -r var_name="$1"; shift
+	echo "__PROBED_VARIABLE_ACTUAL_VALUE__${var_name}"
+}
+
 
 function __exec__parse_options__ {
 	make_command_path_absolute="false"
@@ -356,6 +361,7 @@ function __exec__run_command__ {
 	[ "${stdin_status}" != "${IN_STATUS_UNSPECIFIED}" ] || stdin_file="/dev/null"
 	readonly exec_stdout="${TEST_SANDBOX}/exec.out"
 	readonly exec_stderr="${TEST_SANDBOX}/exec.err"
+	readonly exec_variables="${TEST_SANDBOX}/exec.vars"
 
 	local exec_abs_stdin
 	exec_abs_stdin="$(absolute_path "${stdin_file}")"
@@ -366,6 +372,9 @@ function __exec__run_command__ {
 	local exec_abs_stderr
 	exec_abs_stderr="$(absolute_path "${exec_stderr}")"
 	readonly exec_abs_stderr
+	local exec_abs_variables
+	exec_abs_variables="$(absolute_path "${exec_variables}")"
+	readonly exec_abs_variables
 
 	if str_ends_with "${command_name}" ".sh" || str_ends_with "${command_name}" ".py"; then
 		make_command_path_absolute="true"
@@ -402,12 +411,39 @@ function __exec__run_command__ {
 	fi
 
 	pushdq "${abs_working_directory}"
+	rm -f "${exec_abs_variables}"
+	touch "${exec_abs_variables}"
 	exec_return_code=0
-	"${command_array[@]}" "$@" < "${exec_abs_stdin}" > "${exec_abs_stdout}" 2>"${exec_abs_stderr}" || exec_return_code=$?
+	(
+		"${command_array[@]}" "$@" < "${exec_abs_stdin}" > "${exec_abs_stdout}" 2>"${exec_abs_stderr}" || exec_return_code=$?
+		local probed_var_name
+		for probed_var_name in ${probed_variables[@]+"${probed_variables[@]}"}; do
+			variable_exists "${probed_var_name}" || continue
+			local var_actual_value_varname
+			var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
+			printf "%s=" "${var_actual_value_varname}"
+			if is_variable_array "${probed_var_name}"; then
+				local -a probed_array_actual_value
+				set_array_variable "probed_array_actual_value" "${probed_var_name}"
+				printf "("
+				local probed_array_item
+				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
+					printf " %s" "$(escape_arg "${probed_array_item}")"
+				done
+				printf " )"
+			else
+				local probed_variable_actual_value="${!probed_var_name}"
+				printf "%s" "$(escape_arg "${probed_variable_actual_value}")"
+			fi
+			printf "\n"
+		done > "${exec_abs_variables}"
+		exit "${exec_return_code}"
+	) || exec_return_code=$?
 	popdq
 }
 
 function expect_exec {
+	(
 	push_test_context "expect_exec $(array_to_str_args "$@")"
 
 	local -r is_capture_mode="false"
@@ -451,6 +487,7 @@ function expect_exec {
 
 	local exec_stdout
 	local exec_stderr
+	local exec_variables
 	local exec_return_code
 	__exec__run_command__ "$@"
 
@@ -486,24 +523,27 @@ function expect_exec {
 	check_file "execution stdout" "${stdout_status}" "${stdout_file}" "${exec_stdout}"
 	check_file "execution stderr" "${stderr_status}" "${stderr_file}" "${exec_stderr}"
 
+	source "${exec_variables}"
 	local probed_var_name
 	for probed_var_name in ${probed_variables[@]+"${probed_variables[@]}"}; do
 		local var_expected_status_varname
 		var_expected_status_varname="$(get_probed_variable_status_varname "${probed_var_name}")"
 		local var_expected_status="${!var_expected_status_varname}"
+		local var_actual_value_varname
+		var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
 
 		if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_UNSET}" ]; then
-			variable_not_exists "${probed_var_name}" || test_failure "Variable '${probed_var_name}' should not have been defined."
+			variable_not_exists "${var_actual_value_varname}" || test_failure "Variable '${probed_var_name}' should not have been defined."
 		else
-			variable_exists "${probed_var_name}" || test_failure "Variable '${probed_var_name}' should have been defined."
+			variable_exists "${var_actual_value_varname}" || test_failure "Variable '${probed_var_name}' should have been defined."
 			local var_expected_value_varname
 			var_expected_value_varname="$(get_probed_variable_expected_value_varname "${probed_var_name}")"
 			if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_STRING}" ]; then
 				local var_expected_value="${!var_expected_value_varname}"
-				local var_actual_value="${!probed_var_name}"
+				local var_actual_value="${!var_actual_value_varname}"
 				assert_equal "probed variable '${probed_var_name}'" "${var_expected_value}" "${var_actual_value}"
 			elif [ "${var_expected_status}" == "${PROBED_VAR_STATUS_ARRAY}" ]; then
-				assert_equal_array "probed variable '${probed_var_name}'" "${var_expected_value_varname}" "${probed_var_name}"
+				assert_equal_array "probed variable '${probed_var_name}'" "${var_expected_value_varname}" "${var_actual_value_varname}"
 			else
 				error_exit 5 "Illegal state; invalid status '${var_expected_status}' for probed variable '${probed_var_name}'."
 			fi
@@ -511,6 +551,7 @@ function expect_exec {
 	done
 
 	pop_test_context
+	) || return $?
 }
 
 
@@ -560,6 +601,7 @@ function capture_run {
 
 
 function capture_exec {
+	(
 	push_test_context "capture_exec $(array_to_str_args "$@")"
 	local -r key="$1"; shift
 
@@ -609,33 +651,43 @@ function capture_exec {
 
 	local exec_stdout
 	local exec_stderr
+	local exec_variables
 	local exec_return_code
 	__exec__run_command__ "${args[@]:${shifts}}"
 
 	local exec_args=("expect_exec")
+	source "${exec_variables}"
 	local i
 	for ((i=0; i<shifts-1; i++)); do
 		if is_in "$i" ${probed_variable_capture_arg_indices[@]+"${probed_variable_capture_arg_indices[@]}"}; then
 			increment i
 			local probed_var_name="${args[$i]}"
-			if variable_not_exists "${probed_var_name}"; then
+			local var_actual_value_varname
+			var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
+			if variable_not_exists "${var_actual_value_varname}"; then
 				exec_args+=("-vu" "${probed_var_name}")
-			elif is_variable_array "${probed_var_name}"; then
+			elif is_variable_array "${var_actual_value_varname}"; then
 				local -a probed_array_actual_value
-				set_array_variable "probed_array_actual_value" "${probed_var_name}"
+				set_array_variable "probed_array_actual_value" "${var_actual_value_varname}"
 				exec_args+=("-va" "${probed_var_name}" "${#probed_array_actual_value[@]}")
 				local probed_array_item
 				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
 					exec_args+=("$(escape_arg_if_needed "${probed_array_item}")")
 				done
 			else
-				local probed_variable_actual_value="${!probed_var_name}"
+				local probed_variable_actual_value="${!var_actual_value_varname}"
 				exec_args+=("-vs" "${probed_var_name}" "$(escape_arg_if_needed "${probed_variable_actual_value}")")
 			fi
 		else
 			exec_args+=("$(escape_arg_if_needed "${args[$i]}")")
 		fi
 	done
+	if [ ${#probed_variables[@]} -gt 0 ]; then
+		local probed_var_name
+		for probed_var_name in ${probed_variables[@]+"${probed_variables[@]}"}; do
+			unset "$(get_probed_variable_actual_value_varname "${probed_var_name}")"
+		done
+	fi
 
 	# Add stdout/stderr expectation if needed
 	local -r data_dir="${captured_data_dir}/${key}"
@@ -709,4 +761,5 @@ function capture_exec {
 
 	echo "${exec_args[@]}"
 	pop_test_context
+	) || return $?
 }
