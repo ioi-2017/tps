@@ -6,6 +6,6 @@ set -euo pipefail
 #  It may cause unexpected exits.
 #  You can use "||". But, then be careful. Use "|| return 0", not "|| return".
 
-source "${UTILS_DIR}/general.sh"
-source "${UTILS_DIR}/testing.sh"
-source "${UTILS_DIR}/project-related.sh"
+source "${_TT_UTILS_DIR}/general.sh"
+source "${_TT_UTILS_DIR}/testing.sh"
+source "${_TT_UTILS_DIR}/project-related.sh"

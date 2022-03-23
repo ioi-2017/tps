@@ -83,3 +83,9 @@ A useful tool in capturing scripts is the command `capture_run`,
 ```
 capture_run command [command arguments...]
 ```
+
+
+## Implementation notes
+
+The prefix `_TT_` in names of variables and functions stands for `TPS TESTING`.
+This prefix is added to prevent name clashes between the test codes and main codes.

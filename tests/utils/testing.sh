@@ -1,8 +1,8 @@
 
-TESTS_DIR="$(absolute_path "${TESTS_DIR}")"
-ROOT="$(absolute_path "${TESTS_DIR}/..")"
+_TPS_TESTS_ABS_DIR="$(absolute_path "${_TPS_TESTS_DIR}")"
+ROOT="$(absolute_path "${_TPS_TESTS_DIR}/..")"
 
-TEST_SANDBOX="${TESTS_DIR}/sandbox"
+TEST_SANDBOX="${_TPS_TESTS_ABS_DIR}/sandbox"
 TEST_STAGE="${TEST_SANDBOX}/stage"
 
 

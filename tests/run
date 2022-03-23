@@ -4,19 +4,19 @@ set -euo pipefail
 
 set -a
 
-TESTS_DIR="$(dirname "$0")"
+_TPS_TESTS_DIR="$(dirname "$0")"
 
-UTILS_DIR="${TESTS_DIR}/utils"
-source "${UTILS_DIR}/all.sh"
+_TT_UTILS_DIR="${_TPS_TESTS_DIR}/utils"
+source "${_TT_UTILS_DIR}/all.sh"
 
 set +a
 
-ret=0
-bash "$@" || ret=$?
-if [ "${ret}" -eq 0 ]; then
+_TT_exit_code=0
+bash "$@" || _TT_exit_code=$?
+if [ "${_TT_exit_code}" -eq 0 ]; then
 	errcho "OK"
 else
 	errcho "FAILED"
 fi
 
-exit "${ret}"
+exit "${_TT_exit_code}"
