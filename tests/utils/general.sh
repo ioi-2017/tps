@@ -13,9 +13,9 @@ function error_exit {
 }
 
 function is_in {
-	local -r key="$1"; shift
+	local -r item_to_find="$1"; shift
 	for item in "$@"; do
-		[ "${key}" != "${item}" ] || return 0
+		[ "${item_to_find}" != "${item}" ] || return 0
 	done
 	return 1
 }

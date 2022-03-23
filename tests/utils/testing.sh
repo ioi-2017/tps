@@ -603,14 +603,14 @@ function capture_run {
 function capture_exec {
 	(
 	push_test_context "capture_exec $(array_to_str_args "$@")"
-	local -r key="$1"; shift
+	local -r test_capture_key="$1"; shift
 
 	local -r captured_data_dir="${CAPTURED_DATA_DIR_NAME}"
 	local -r captured_tests_file="${captured_data_dir}/captured-tests.txt"
-	if [ -f "${captured_tests_file}" ] && grep -q "^${key}$" "${captured_tests_file}"; then
-		error_exit 3 "Captured data for '${key}' already exists."
+	if [ -f "${captured_tests_file}" ] && grep -q "^${test_capture_key}$" "${captured_tests_file}"; then
+		error_exit 3 "Captured data for '${test_capture_key}' already exists."
 	fi
-	echo "${key}" >> "${captured_tests_file}"
+	echo "${test_capture_key}" >> "${captured_tests_file}"
 
 	local -ra args=("$@")
 
@@ -690,8 +690,8 @@ function capture_exec {
 	fi
 
 	# Add stdout/stderr expectation if needed
-	local -r data_dir="${captured_data_dir}/${key}"
-	local -r data_temp_dir="${captured_data_dir}/${key}.tmp"
+	local -r data_dir="${captured_data_dir}/${test_capture_key}"
+	local -r data_temp_dir="${captured_data_dir}/${test_capture_key}.tmp"
 	mkdir -p "${data_temp_dir}"
 
 	function handle_file {
