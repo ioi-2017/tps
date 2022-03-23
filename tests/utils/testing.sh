@@ -7,13 +7,14 @@ _TT_STAGE="${_TT_SANDBOX}/stage"
 
 
 
-TEST_CONTEXT=""
+# Using string instead of array, since arrays are not exported in some versions of bash.
+_TT_TEST_CONTEXT=""
 
 function get_test_context {
 	local tc
 	while read tc; do
 		echo -n "> ${tc} "
-	done <<< "${TEST_CONTEXT}"
+	done <<< "${_TT_TEST_CONTEXT}"
 }
 
 function print_test_context {
@@ -23,8 +24,8 @@ function print_test_context {
 
 function push_test_context {
 	local -r tc="$1"; shift
-	[ -z "${TEST_CONTEXT}" ] || TEST_CONTEXT="${TEST_CONTEXT}${_TT_NEW_LINE}"
-	TEST_CONTEXT="${TEST_CONTEXT}${tc}"
+	[ -z "${_TT_TEST_CONTEXT}" ] || _TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${_TT_NEW_LINE}"
+	_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${tc}"
 	# errcho "$(get_test_context) ((";
 }
 
@@ -32,10 +33,10 @@ function pop_test_context {
 	# errcho "$(get_test_context) ))";
 	local last_new_line_index=0
 	local i
-	for ((i=0; i<${#TEST_CONTEXT}; i++)); do
-		[ "${TEST_CONTEXT:${i}:1}" != "${_TT_NEW_LINE}" ] || last_new_line_index=${i}
+	for ((i=0; i<${#_TT_TEST_CONTEXT}; i++)); do
+		[ "${_TT_TEST_CONTEXT:${i}:1}" != "${_TT_NEW_LINE}" ] || last_new_line_index=${i}
 	done
-	TEST_CONTEXT="${TEST_CONTEXT:0:${last_new_line_index}}"
+	_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT:0:${last_new_line_index}}"
 }
 
 
