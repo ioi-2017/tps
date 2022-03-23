@@ -2,8 +2,8 @@
 _TPS_TESTS_ABS_DIR="$(absolute_path "${_TPS_TESTS_DIR}")"
 PROJECT_ROOT="$(absolute_path "${_TPS_TESTS_DIR}/..")"
 
-TEST_SANDBOX="${_TPS_TESTS_ABS_DIR}/sandbox"
-TEST_STAGE="${TEST_SANDBOX}/stage"
+_TT_SANDBOX="${_TPS_TESTS_ABS_DIR}/sandbox"
+_TT_STAGE="${_TT_SANDBOX}/stage"
 
 
 
@@ -68,9 +68,9 @@ function error_exit {
 function stage_dir {
 	local -r dir="$1"; shift
 	check_directory_exists "Staging directory" "${dir}"
-	mkdir -p "${TEST_STAGE}" # Making sure parent directories are created.
-	rm -rf "${TEST_STAGE}"
-	cp -R "${dir}" "${TEST_STAGE}"
+	mkdir -p "${_TT_STAGE}" # Making sure parent directories are created.
+	rm -rf "${_TT_STAGE}"
+	cp -R "${dir}" "${_TT_STAGE}"
 	STAGED_DIR="$(absolute_path "${dir}")"
 }
 
@@ -133,7 +133,7 @@ function assert_same_files {
 	local -r name="$1"; shift
 	local -r expected="$1"; shift
 	local -r actual="$1"; shift
-	local -r diff_file="${TEST_SANDBOX}/latest.diff"
+	local -r diff_file="${_TT_SANDBOX}/latest.diff"
 	if ! diff "${expected}" "${actual}" > "${diff_file}" 2>&1; then
 		local diff_info
 		diff_info="$(truncated_cat "${diff_file}" 20)"
@@ -352,16 +352,16 @@ function __exec__run_command__ {
 		local -r abs_working_directory="${working_directory}"
 		check_directory_exists "Working directory" "${abs_working_directory}"
 	else
-		local -r abs_working_directory="${TEST_STAGE}/${working_directory}"
+		local -r abs_working_directory="${_TT_STAGE}/${working_directory}"
 		check_directory_exists "Staged working directory" "${abs_working_directory}"
 	fi
 
-	mkdir -p "${TEST_SANDBOX}"
+	mkdir -p "${_TT_SANDBOX}"
 
 	[ "${stdin_status}" != "${IN_STATUS_UNSPECIFIED}" ] || stdin_file="/dev/null"
-	readonly exec_stdout="${TEST_SANDBOX}/exec.out"
-	readonly exec_stderr="${TEST_SANDBOX}/exec.err"
-	readonly exec_variables="${TEST_SANDBOX}/exec.vars"
+	readonly exec_stdout="${_TT_SANDBOX}/exec.out"
+	readonly exec_stderr="${_TT_SANDBOX}/exec.err"
+	readonly exec_variables="${_TT_SANDBOX}/exec.vars"
 
 	local exec_abs_stdin
 	exec_abs_stdin="$(absolute_path "${stdin_file}")"
