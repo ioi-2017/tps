@@ -1,5 +1,5 @@
 
-readonly NEW_LINE="
+readonly _TT_NEW_LINE="
 "
 
 function errcho {

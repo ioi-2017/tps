@@ -1,7 +1,7 @@
 
 
 function tps {
-	bash "${ROOT}/tps.sh" "$@"
+	bash "${PROJECT_ROOT}/tps.sh" "$@"
 }
 
 function tps_bc {
@@ -14,4 +14,4 @@ function tps_bc {
 	tps "--bash-completion" "${index}" "${cursor_location}" "tps" "$@"
 }
 
-SCRIPTS_DIR="${ROOT}/scripts"
+PROJECT_SCRIPTS_DIR="${PROJECT_ROOT}/scripts"

@@ -1,6 +1,6 @@
 
 _TPS_TESTS_ABS_DIR="$(absolute_path "${_TPS_TESTS_DIR}")"
-ROOT="$(absolute_path "${_TPS_TESTS_DIR}/..")"
+PROJECT_ROOT="$(absolute_path "${_TPS_TESTS_DIR}/..")"
 
 TEST_SANDBOX="${_TPS_TESTS_ABS_DIR}/sandbox"
 TEST_STAGE="${TEST_SANDBOX}/stage"
@@ -23,7 +23,7 @@ function print_test_context {
 
 function push_test_context {
 	local -r tc="$1"; shift
-	[ -z "${TEST_CONTEXT}" ] || TEST_CONTEXT="${TEST_CONTEXT}${NEW_LINE}"
+	[ -z "${TEST_CONTEXT}" ] || TEST_CONTEXT="${TEST_CONTEXT}${_TT_NEW_LINE}"
 	TEST_CONTEXT="${TEST_CONTEXT}${tc}"
 	# errcho "$(get_test_context) ((";
 }
@@ -33,7 +33,7 @@ function pop_test_context {
 	local last_new_line_index=0
 	local i
 	for ((i=0; i<${#TEST_CONTEXT}; i++)); do
-		[ "${TEST_CONTEXT:${i}:1}" != "${NEW_LINE}" ] || last_new_line_index=${i}
+		[ "${TEST_CONTEXT:${i}:1}" != "${_TT_NEW_LINE}" ] || last_new_line_index=${i}
 	done
 	TEST_CONTEXT="${TEST_CONTEXT:0:${last_new_line_index}}"
 }
@@ -232,10 +232,10 @@ function __exec__parse_options__ {
 				local i line
 				for ((i=0; i<num_lines; i++)); do
 					line="$1"; shift; increment arg_shifts
-					[ "${i}" -eq 0 ] || file_value="${file_value}${NEW_LINE}"
+					[ "${i}" -eq 0 ] || file_value="${file_value}${_TT_NEW_LINE}"
 					file_value="${file_value}${line}"
 				done
-				[ "${option_suffix_char}" != "h" ] || file_value="${file_value}${NEW_LINE}"
+				[ "${option_suffix_char}" != "h" ] || file_value="${file_value}${_TT_NEW_LINE}"
 				set_variable "${status_varname}" "${OUT_STATUS_HERE}"
 				set_variable "${file_varname}" "${file_value}"
 				;;
@@ -717,7 +717,7 @@ function capture_exec {
 				read_file_exactly exec_content "${exec_file}"
 				local -r exec_content_len="${#exec_content}"
 				local -r last_index="$((exec_content_len-1))"
-				if [ "${exec_content: ${last_index}}" == "${NEW_LINE}" ]; then
+				if [ "${exec_content: ${last_index}}" == "${_TT_NEW_LINE}" ]; then
 					local flag_suffix="h"
 					exec_content="${exec_content:0: ${last_index}}"
 				else
