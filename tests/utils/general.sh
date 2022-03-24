@@ -112,12 +112,12 @@ function _TT_array_to_str_args {
 	done
 }
 
-function command_exists {
+function _TT_command_exists {
 	command -v "$1" >/dev/null 2>&1
 }
 
 
-function absolute_path {
+function _TT_absolute_path {
 	local -r path="$1"; shift
 	if _TT_str_starts_with "${path}" "/"; then
 		echo "${path}"
@@ -139,7 +139,7 @@ function _TT_pushdq_here {
 }
 
 
-function check_any_type_file_exists {
+function _TT_check_any_type_file_exists {
 	local -r test_flag="$1"; shift
 	local -r the_problem="$1"; shift
 	local -r file_title="$1"; shift
@@ -159,17 +159,17 @@ ${error_prefix}${file_title} '$(basename "${file_path}")' ${the_problem}.
 Given address: '${file_path}'"
 }
 
-#usage: check_file_exists <file-title> <file-path> [<error-prefix>]
-function check_file_exists {
-	check_any_type_file_exists -f "is not a regular file" "$@"
+#usage: _TT_check_file_exists <file-title> <file-path> [<error-prefix>]
+function _TT_check_file_exists {
+	_TT_check_any_type_file_exists -f "is not a regular file" "$@"
 }
 
-function check_directory_exists {
-	check_any_type_file_exists -d "is not a directory" "$@"
+function _TT_check_directory_exists {
+	_TT_check_any_type_file_exists -d "is not a directory" "$@"
 }
 
 
-function recreate_dir {
+function _TT_recreate_dir {
 	local -r dir="$1"; shift
 	mkdir -p "${dir}"
 	ls -A1 "${dir}" | while read file; do
@@ -188,10 +188,10 @@ function run_bash_on {
 	done <<< "${files}"
 }
 
-function truncated_cat {
+function _TT_truncated_cat {
 	local -r file_name="$1"; shift
 	local -r limit="$1"; shift
-	check_file_exists "File" "${file_name}" "Error in using truncated_cat: "
+	_TT_check_file_exists "File" "${file_name}" "Error in using _TT_truncated_cat: "
 	local lines
 	lines="$(wc -l < "${file_name}")"
 	readonly lines
@@ -225,7 +225,7 @@ function read_file_exactly {
 	# This keeps the trailing new lines.
 	local -r var_name="$1"; shift
 	local -r file_name="$1"; shift
-	check_file_exists "File" "${file_name}" "Error in using read_file_exactly: "
+	_TT_check_file_exists "File" "${file_name}" "Error in using read_file_exactly: "
 	local content_x
 	content_x="$(cat "${file_name}"; echo "x")"
 	readonly content_x

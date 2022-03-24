@@ -1,6 +1,6 @@
 
-_TPS_TESTS_ABS_DIR="$(absolute_path "${_TPS_TESTS_DIR}")"
-PROJECT_ROOT="$(absolute_path "${_TPS_TESTS_DIR}/..")"
+_TPS_TESTS_ABS_DIR="$(_TT_absolute_path "${_TPS_TESTS_DIR}")"
+PROJECT_ROOT="$(_TT_absolute_path "${_TPS_TESTS_DIR}/..")"
 
 _TT_SANDBOX="${_TPS_TESTS_ABS_DIR}/sandbox"
 _TT_STAGE="${_TT_SANDBOX}/stage"
@@ -68,11 +68,11 @@ function _TT_test_error_exit {
 
 function stage_dir {
 	local -r dir="$1"; shift
-	check_directory_exists "Staging directory" "${dir}"
+	_TT_check_directory_exists "Staging directory" "${dir}"
 	mkdir -p "${_TT_STAGE}" # Making sure parent directories are created.
 	rm -rf "${_TT_STAGE}"
 	cp -R "${dir}" "${_TT_STAGE}"
-	STAGED_DIR="$(absolute_path "${dir}")"
+	STAGED_DIR="$(_TT_absolute_path "${dir}")"
 }
 
 
@@ -137,7 +137,7 @@ function assert_same_files {
 	local -r diff_file="${_TT_SANDBOX}/latest.diff"
 	if ! diff "${expected}" "${actual}" > "${diff_file}" 2>&1; then
 		local diff_info
-		diff_info="$(truncated_cat "${diff_file}" 20)"
+		diff_info="$(_TT_truncated_cat "${diff_file}" 20)"
 		readonly diff_info
 		test_failure "Incorrect data in ${name}, expected: '${expected}', actual: '${actual}'.
 ${diff_info}"
@@ -351,10 +351,10 @@ function __exec__run_command__ {
 
 	if _TT_str_starts_with "${working_directory}" "/"; then
 		local -r abs_working_directory="${working_directory}"
-		check_directory_exists "Working directory" "${abs_working_directory}"
+		_TT_check_directory_exists "Working directory" "${abs_working_directory}"
 	else
 		local -r abs_working_directory="${_TT_STAGE}/${working_directory}"
-		check_directory_exists "Staged working directory" "${abs_working_directory}"
+		_TT_check_directory_exists "Staged working directory" "${abs_working_directory}"
 	fi
 
 	mkdir -p "${_TT_SANDBOX}"
@@ -365,16 +365,16 @@ function __exec__run_command__ {
 	readonly exec_variables="${_TT_SANDBOX}/exec.vars"
 
 	local exec_abs_stdin
-	exec_abs_stdin="$(absolute_path "${stdin_file}")"
+	exec_abs_stdin="$(_TT_absolute_path "${stdin_file}")"
 	readonly exec_abs_stdin
 	local exec_abs_stdout
-	exec_abs_stdout="$(absolute_path "${exec_stdout}")"
+	exec_abs_stdout="$(_TT_absolute_path "${exec_stdout}")"
 	readonly exec_abs_stdout
 	local exec_abs_stderr
-	exec_abs_stderr="$(absolute_path "${exec_stderr}")"
+	exec_abs_stderr="$(_TT_absolute_path "${exec_stderr}")"
 	readonly exec_abs_stderr
 	local exec_abs_variables
-	exec_abs_variables="$(absolute_path "${exec_variables}")"
+	exec_abs_variables="$(_TT_absolute_path "${exec_variables}")"
 	readonly exec_abs_variables
 
 	if _TT_str_ends_with "${command_name}" ".sh" || _TT_str_ends_with "${command_name}" ".py"; then
@@ -383,7 +383,7 @@ function __exec__run_command__ {
 
 	if "${make_command_path_absolute}"; then
 		local abs_command
-		abs_command="$(absolute_path "${command_name}")"
+		abs_command="$(_TT_absolute_path "${command_name}")"
 		readonly abs_command
 	else
 		local -r abs_command="${command_name}"
@@ -395,7 +395,7 @@ function __exec__run_command__ {
 		local _test_py_cmd
 		function _test_check_py_cmd {
 			local -r CMD="$1"; shift
-			command_exists "${CMD}" || return 1
+			_TT_command_exists "${CMD}" || return 1
 			_test_py_cmd="${CMD}"
 			return 0
 		}
@@ -566,7 +566,7 @@ function run_captured_tests {
 
 function begin_capturing {
 	__capture_stdout_backup_fd__=$(next_free_fd) || _TT_test_error_exit 5 "Could not open '${CAPTURED_SCRIPTS_FILE_NAME}'."
-	recreate_dir "${CAPTURED_DATA_DIR_NAME}"
+	_TT_recreate_dir "${CAPTURED_DATA_DIR_NAME}"
 	local -r readme_file=
 	cat > "${CAPTURED_DATA_DIR_NAME}/README.md" <<EOF
 Do not edit this directory manually. It is automatically generated.
