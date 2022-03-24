@@ -6,7 +6,7 @@ function _TT_errcho {
 	>&2 echo "$@"
 }
 
-function error_exit {
+function _TT_error_exit {
 	local -r exit_code="$1"; shift
 	_TT_errcho "$@"
 	exit "${exit_code}"
@@ -150,11 +150,11 @@ function check_any_type_file_exists {
 	fi
 	readonly error_prefix
 
-	[ -e "${file_path}" ] || error_exit 4 -e "\
+	[ -e "${file_path}" ] || _TT_error_exit 4 -e "\
 ${error_prefix}${file_title} '$(basename "${file_path}")' not found.
 Given address: '${file_path}'"
 
-	[ "$test_flag" "${file_path}" ] || error_exit 4 -e "\
+	[ "$test_flag" "${file_path}" ] || _TT_error_exit 4 -e "\
 ${error_prefix}${file_title} '$(basename "${file_path}")' ${the_problem}.
 Given address: '${file_path}'"
 }
@@ -208,7 +208,7 @@ function linux_sort {
 	if [ -n "${_sort}" ] ; then
 		"${_sort}" "$@"
 	else
-		error_exit 3 "Could not find a proper 'sort' command."
+		_TT_error_exit 3 "Could not find a proper 'sort' command."
 	fi
 }
 
@@ -217,7 +217,7 @@ function linux_find {
 	if [ -n "${_find}" ] ; then
 		"${_find}" "$@"
 	else
-		error_exit 3 "Could not find a proper 'find' command."
+		_TT_error_exit 3 "Could not find a proper 'find' command."
 	fi
 }
 

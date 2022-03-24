@@ -58,7 +58,7 @@ function popd_test_context {
 
 
 
-function error_exit {
+function _TT_error_exit {
 	local -r exit_code="$1"; shift
 	print_test_context
 	_TT_errcho "$@"
@@ -224,11 +224,11 @@ function __exec__parse_options__ {
 				local -r option_suffix_char="${option_suffix:0:1}"
 				if [ -n "${option_suffix:1}" ]; then
 					local -r num_lines="${option_suffix:1}"
-					is_nonnegative_integer "${num_lines}" || error_exit 2 "Undefined option '${option_flag}'."
+					is_nonnegative_integer "${num_lines}" || _TT_error_exit 2 "Undefined option '${option_flag}'."
 				else
 					local -r num_lines=1
 				fi
-				[ $# -ge "${num_lines}" ] || error_exit 2 "Insufficient number of arguments after '${option_flag}'."
+				[ $# -ge "${num_lines}" ] || _TT_error_exit 2 "Insufficient number of arguments after '${option_flag}'."
 				local file_value
 				local i line
 				for ((i=0; i<num_lines; i++)); do
@@ -247,7 +247,7 @@ function __exec__parse_options__ {
 				set_variable "${status_varname}" "${OUT_STATUS_IGNORE}"
 				;;
 			*)
-				error_exit 2 "Undefined option '${option_flag}'."
+				_TT_error_exit 2 "Undefined option '${option_flag}'."
 				;;
 		esac
 	}
@@ -263,7 +263,7 @@ function __exec__parse_options__ {
 		probed_variables+=("${var_name}")
 		case "${option_suffix}" in
 			c)
-				"${is_capture_mode}" || error_exit 2 "Option '${option_flag}' is only available in capture mode."
+				"${is_capture_mode}" || _TT_error_exit 2 "Option '${option_flag}' is only available in capture mode."
 				set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_CAPTURE}"
 				probed_variable_capture_arg_indices+=("$((shifts-1))")
 				;;
@@ -278,8 +278,8 @@ function __exec__parse_options__ {
 			a)
 				set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_ARRAY}"
 				local -r array_len="$1"; shift; increment arg_shifts
-				is_nonnegative_integer "${array_len}" || error_exit 2 "Undefined option '${option_flag}'."
-				[ $# -ge "${array_len}" ] || error_exit 2 "Insufficient number of arguments after '${option_flag}'."
+				is_nonnegative_integer "${array_len}" || _TT_error_exit 2 "Undefined option '${option_flag}'."
+				[ $# -ge "${array_len}" ] || _TT_error_exit 2 "Insufficient number of arguments after '${option_flag}'."
 				local -a var_value=()
 				local i item
 				for ((i=0; i<array_len; i++)); do
@@ -289,7 +289,7 @@ function __exec__parse_options__ {
 				set_array_variable "${var_expected_value_varname}" "var_value"
 				;;
 			*)
-				error_exit 2 "Undefined option '${option_flag}'."
+				_TT_error_exit 2 "Undefined option '${option_flag}'."
 				;;
 		esac
 	}
@@ -331,12 +331,12 @@ function __exec__parse_options__ {
 				make_command_path_absolute="true"
 				;;
 			*)
-				error_exit 2 "Undefined option '${option}'."
+				_TT_error_exit 2 "Undefined option '${option}'."
 				;;
 		esac
 	done
 
-	[ $# -gt 0 ] || error_exit 2 "Command is not given."
+	[ $# -gt 0 ] || _TT_error_exit 2 "Command is not given."
 	readonly command_name="$1"; shift; increment shifts
 }
 
@@ -400,10 +400,10 @@ function __exec__run_command__ {
 			return 0
 		}
 		if variable_exists "PYTHON" ; then
-			_test_check_py_cmd "${PYTHON}" || error_exit 3 "Python command '${PYTHON}' does not exist."
+			_test_check_py_cmd "${PYTHON}" || _TT_error_exit 3 "Python command '${PYTHON}' does not exist."
 		else
 			if ! _test_check_py_cmd "python3" ; then
-				_test_check_py_cmd "python" || error_exit 3 "Neither of python commands 'python3' nor 'python' exists."
+				_test_check_py_cmd "python" || _TT_error_exit 3 "Neither of python commands 'python3' nor 'python' exists."
 			fi
 		fi
 		local -ra command_array=("${_test_py_cmd}" "${abs_command}")
@@ -483,8 +483,8 @@ function expect_exec {
 	__exec__parse_options__ "$@"
 	shift ${shifts}
 
-	[ "${stdout_status}" != "${OUT_STATUS_UNSPECIFIED}" ] || error_exit 2 "Status of stdout is not specified."
-	[ "${stderr_status}" != "${OUT_STATUS_UNSPECIFIED}" ] || error_exit 2 "Status of stderr is not specified."
+	[ "${stdout_status}" != "${OUT_STATUS_UNSPECIFIED}" ] || _TT_error_exit 2 "Status of stdout is not specified."
+	[ "${stderr_status}" != "${OUT_STATUS_UNSPECIFIED}" ] || _TT_error_exit 2 "Status of stderr is not specified."
 
 	local exec_stdout
 	local exec_stderr
@@ -501,7 +501,7 @@ function expect_exec {
 	elif [ "${return_code_status}" == "${RETURN_STATUS_NONZERO}" ]; then
 		[ "${exec_return_code}" -ne 0 ] || test_failure "Execution return code is zero, while expected to be nonzero."
 	else
-		error_exit 5 "Illegal state; invalid return code status '${return_code_status}'."
+		_TT_error_exit 5 "Illegal state; invalid return code status '${return_code_status}'."
 	fi
 
 	function check_file {
@@ -518,7 +518,7 @@ function expect_exec {
 		elif [ "${status}" == "${OUT_STATUS_FILE}" ]; then
 			assert_same_files "${name}" "${expected_file}" "${exec_file}"
 		else
-			error_exit 5 "Illegal state; invalid status '${status}' for ${name}."
+			_TT_error_exit 5 "Illegal state; invalid status '${status}' for ${name}."
 		fi
 	}
 	check_file "execution stdout" "${stdout_status}" "${stdout_file}" "${exec_stdout}"
@@ -546,7 +546,7 @@ function expect_exec {
 			elif [ "${var_expected_status}" == "${PROBED_VAR_STATUS_ARRAY}" ]; then
 				assert_equal_array "probed variable '${probed_var_name}'" "${var_expected_value_varname}" "${var_actual_value_varname}"
 			else
-				error_exit 5 "Illegal state; invalid status '${var_expected_status}' for probed variable '${probed_var_name}'."
+				_TT_error_exit 5 "Illegal state; invalid status '${var_expected_status}' for probed variable '${probed_var_name}'."
 			fi
 		fi
 	done
@@ -565,7 +565,7 @@ function run_captured_tests {
 }
 
 function begin_capturing {
-	__capture_stdout_backup_fd__=$(next_free_fd) || error_exit 5 "Could not open '${CAPTURED_SCRIPTS_FILE_NAME}'."
+	__capture_stdout_backup_fd__=$(next_free_fd) || _TT_error_exit 5 "Could not open '${CAPTURED_SCRIPTS_FILE_NAME}'."
 	recreate_dir "${CAPTURED_DATA_DIR_NAME}"
 	local -r readme_file=
 	cat > "${CAPTURED_DATA_DIR_NAME}/README.md" <<EOF
@@ -609,7 +609,7 @@ function capture_exec {
 	local -r captured_data_dir="${CAPTURED_DATA_DIR_NAME}"
 	local -r captured_tests_file="${captured_data_dir}/captured-tests.txt"
 	if [ -f "${captured_tests_file}" ] && grep -q "^${test_capture_key}$" "${captured_tests_file}"; then
-		error_exit 3 "Captured data for '${test_capture_key}' already exists."
+		_TT_error_exit 3 "Captured data for '${test_capture_key}' already exists."
 	fi
 	echo "${test_capture_key}" >> "${captured_tests_file}"
 
