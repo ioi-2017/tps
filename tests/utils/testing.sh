@@ -562,7 +562,7 @@ CAPTURED_DATA_DIR_NAME="captured-data"
 CAPTURED_SCRIPTS_FILE_NAME="captured-tests.sh"
 
 function run_captured_tests {
-	bash "${CAPTURED_SCRIPTS_FILE_NAME}"
+	bash -euo pipefail "${CAPTURED_SCRIPTS_FILE_NAME}"
 }
 
 function begin_capturing {
