@@ -76,7 +76,7 @@ function stage_dir {
 }
 
 
-function test_failure {
+function _TT_test_failure {
 	local -r message="$1"; shift
 	_TT_errcho "Test failure:"
 	print_test_context
@@ -84,22 +84,22 @@ function test_failure {
 	exit 10
 }
 
-function assert_equal {
+function _TT_assert_equal {
 	local -r name="$1"; shift
 	local -r expected="$1"; shift
 	local -r actual="$1"; shift
-	[ "${expected}" == "${actual}" ] || test_failure "Incorrect value for ${name}, expected: '${expected}', actual: '${actual}'."
+	[ "${expected}" == "${actual}" ] || _TT_test_failure "Incorrect value for ${name}, expected: '${expected}', actual: '${actual}'."
 }
 
-function assert_equal_array {
+function _TT_assert_equal_array {
 	local -r name="$1"; shift
 	local -r expected_varname="$1"; shift
 	local -r actual_varname="$1"; shift
 	if _TT_variable_not_exists "${expected_varname}"; then
-		_TT_variable_not_exists "${actual_varname}" || test_failure "Array ${name} expected to be undefined."
+		_TT_variable_not_exists "${actual_varname}" || _TT_test_failure "Array ${name} expected to be undefined."
 		return
 	fi
-	_TT_variable_exists "${actual_varname}" || test_failure "Array ${name} expected to be defined."
+	_TT_variable_exists "${actual_varname}" || _TT_test_failure "Array ${name} expected to be defined."
 	local -a expected_array
 	_TT_set_array_variable "expected_array" "${expected_varname}"
 	readonly expected_array
@@ -108,21 +108,21 @@ function assert_equal_array {
 	readonly actual_array
 	local -r actual_len="${#actual_array[@]}"
 	local -a expected_len="${#expected_array[@]}"
-	[ "${expected_len}" == "${actual_len}" ] || test_failure "Incorrect length for ${name}, expected: ${expected_len}, actual: ${actual_len}."
+	[ "${expected_len}" == "${actual_len}" ] || _TT_test_failure "Incorrect length for ${name}, expected: ${expected_len}, actual: ${actual_len}."
 	local i
 	for ((i=0; i<expected_len; i++)); do
-		[ "${expected_array[$i]}" == "${actual_array[$i]}" ] || test_failure "Incorrect value at item $i of ${name}, expected: '${expected_array[$i]}', actual: '${actual_array[$i]}'."
+		[ "${expected_array[$i]}" == "${actual_array[$i]}" ] || _TT_test_failure "Incorrect value at item $i of ${name}, expected: '${expected_array[$i]}', actual: '${actual_array[$i]}'."
 	done
 }
 
-function assert_file_content {
+function _TT_assert_file_content {
 	local -r name="$1"; shift
 	local -r expected_content="$1"; shift
 	local -r actual_file_name="$1"; shift
 	local actual_file_content
 	_TT_read_file_exactly "actual_file_content" "${actual_file_name}"
 	if [ "${expected_content}" != "${actual_file_content}" ]; then
-		test_failure "Incorrect data in ${name} (${actual_file_name}).
+		_TT_test_failure "Incorrect data in ${name} (${actual_file_name}).
 ============== Expected ==============
 ${expected_content}======================================
 =============== Actual ===============
@@ -130,7 +130,7 @@ ${actual_file_content}======================================"
 	fi
 }
 
-function assert_same_files {
+function _TT_assert_same_files {
 	local -r name="$1"; shift
 	local -r expected="$1"; shift
 	local -r actual="$1"; shift
@@ -139,16 +139,17 @@ function assert_same_files {
 		local diff_info
 		diff_info="$(_TT_truncated_cat "${diff_file}" 20)"
 		readonly diff_info
-		test_failure "Incorrect data in ${name}, expected: '${expected}', actual: '${actual}'.
+		_TT_test_failure "Incorrect data in ${name}, expected: '${expected}', actual: '${actual}'.
 ${diff_info}"
 	fi
 }
 
-function assert_file_empty {
+function _TT_assert_file_empty {
 	local -r name="$1"; shift
 	local -r actual="$1"; shift
-	! [ -s "${actual}" ] || test_failure "Expected ${name} to be empty, actual: '${actual}'."
+	! [ -s "${actual}" ] || _TT_test_failure "Expected ${name} to be empty, actual: '${actual}'."
 }
+
 
 function set_exec_cwd {
 	EXEC_WORKING_DIRECTORY="$1"
@@ -495,11 +496,11 @@ function expect_exec {
 	if [ "${return_code_status}" == "${RETURN_STATUS_IGNORE}" ]; then
 		: Do nothing
 	elif [ "${return_code_status}" == "${RETURN_STATUS_UNSPECIFIED}" ]; then
-		assert_equal "execution return code" "0" "${exec_return_code}"
+		_TT_assert_equal "execution return code" "0" "${exec_return_code}"
 	elif [ "${return_code_status}" == "${RETURN_STATUS_FIXED}" ]; then
-		assert_equal "execution return code" "${expected_return_code}" "${exec_return_code}"
+		_TT_assert_equal "execution return code" "${expected_return_code}" "${exec_return_code}"
 	elif [ "${return_code_status}" == "${RETURN_STATUS_NONZERO}" ]; then
-		[ "${exec_return_code}" -ne 0 ] || test_failure "Execution return code is zero, while expected to be nonzero."
+		[ "${exec_return_code}" -ne 0 ] || _TT_test_failure "Execution return code is zero, while expected to be nonzero."
 	else
 		_TT_test_error_exit 5 "Illegal state; invalid return code status '${return_code_status}'."
 	fi
@@ -512,11 +513,11 @@ function expect_exec {
 		if [ "${status}" == "${OUT_STATUS_IGNORE}" ]; then
 			: Do nothing
 		elif [ "${status}" == "${OUT_STATUS_EMPTY}" ]; then
-			assert_file_empty "${name}" "${exec_file}"
+			_TT_assert_file_empty "${name}" "${exec_file}"
 		elif [ "${status}" == "${OUT_STATUS_HERE}" ]; then
-			assert_file_content "${name}" "${expected_file}" "${exec_file}"
+			_TT_assert_file_content "${name}" "${expected_file}" "${exec_file}"
 		elif [ "${status}" == "${OUT_STATUS_FILE}" ]; then
-			assert_same_files "${name}" "${expected_file}" "${exec_file}"
+			_TT_assert_same_files "${name}" "${expected_file}" "${exec_file}"
 		else
 			_TT_test_error_exit 5 "Illegal state; invalid status '${status}' for ${name}."
 		fi
@@ -534,17 +535,17 @@ function expect_exec {
 		var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
 
 		if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_UNSET}" ]; then
-			_TT_variable_not_exists "${var_actual_value_varname}" || test_failure "Variable '${probed_var_name}' should not have been defined."
+			_TT_variable_not_exists "${var_actual_value_varname}" || _TT_test_failure "Variable '${probed_var_name}' should not have been defined."
 		else
-			_TT_variable_exists "${var_actual_value_varname}" || test_failure "Variable '${probed_var_name}' should have been defined."
+			_TT_variable_exists "${var_actual_value_varname}" || _TT_test_failure "Variable '${probed_var_name}' should have been defined."
 			local var_expected_value_varname
 			var_expected_value_varname="$(get_probed_variable_expected_value_varname "${probed_var_name}")"
 			if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_STRING}" ]; then
 				local var_expected_value="${!var_expected_value_varname}"
 				local var_actual_value="${!var_actual_value_varname}"
-				assert_equal "probed variable '${probed_var_name}'" "${var_expected_value}" "${var_actual_value}"
+				_TT_assert_equal "probed variable '${probed_var_name}'" "${var_expected_value}" "${var_actual_value}"
 			elif [ "${var_expected_status}" == "${PROBED_VAR_STATUS_ARRAY}" ]; then
-				assert_equal_array "probed variable '${probed_var_name}'" "${var_expected_value_varname}" "${var_actual_value_varname}"
+				_TT_assert_equal_array "probed variable '${probed_var_name}'" "${var_expected_value_varname}" "${var_actual_value_varname}"
 			else
 				_TT_test_error_exit 5 "Illegal state; invalid status '${var_expected_status}' for probed variable '${probed_var_name}'."
 			fi
