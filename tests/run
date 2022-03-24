@@ -14,9 +14,9 @@ set +a
 _TT_exit_code=0
 bash "$@" || _TT_exit_code=$?
 if [ "${_TT_exit_code}" -eq 0 ]; then
-	errcho "OK"
+	_TT_errcho "OK"
 else
-	errcho "FAILED"
+	_TT_errcho "FAILED"
 fi
 
 exit "${_TT_exit_code}"

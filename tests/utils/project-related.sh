@@ -6,7 +6,7 @@ function tps {
 
 function tps_bc {
 	if [ $# -lt 2 ]; then
-		errcho "tps_bc: At least 2 paramters 'index' and 'cursor_location' are required."
+		_TT_errcho "tps_bc: At least 2 parameters 'index' and 'cursor_location' are required."
 		return 3
 	fi
 	local -r index="$1"; shift

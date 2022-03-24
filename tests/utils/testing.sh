@@ -19,18 +19,18 @@ function get_test_context {
 
 function print_test_context {
 	get_test_context >&2
-	errcho
+	_TT_errcho
 }
 
 function push_test_context {
 	local -r tc="$1"; shift
 	[ -z "${_TT_TEST_CONTEXT}" ] || _TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${_TT_NEW_LINE}"
 	_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${tc}"
-	# errcho "$(get_test_context) ((";
+	# _TT_errcho "$(get_test_context) ((";
 }
 
 function pop_test_context {
-	# errcho "$(get_test_context) ))";
+	# _TT_errcho "$(get_test_context) ))";
 	local last_new_line_index=0
 	local i
 	for ((i=0; i<${#_TT_TEST_CONTEXT}; i++)); do
@@ -61,7 +61,7 @@ function popd_test_context {
 function error_exit {
 	local -r exit_code="$1"; shift
 	print_test_context
-	errcho "$@"
+	_TT_errcho "$@"
 	exit "${exit_code}"
 }
 
@@ -78,9 +78,9 @@ function stage_dir {
 
 function test_failure {
 	local -r message="$1"; shift
-	errcho "Test failure:"
+	_TT_errcho "Test failure:"
 	print_test_context
-	errcho "${message}"
+	_TT_errcho "${message}"
 	exit 10
 }
 

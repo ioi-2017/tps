@@ -2,13 +2,13 @@
 readonly _TT_NEW_LINE="
 "
 
-function errcho {
+function _TT_errcho {
 	>&2 echo "$@"
 }
 
 function error_exit {
 	local -r exit_code="$1"; shift
-	errcho "$@"
+	_TT_errcho "$@"
 	exit "${exit_code}"
 }
 
