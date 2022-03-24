@@ -12,7 +12,7 @@ function _TT_error_exit {
 	exit "${exit_code}"
 }
 
-function is_in {
+function _TT_is_in {
 	local -r item_to_find="$1"; shift
 	for item in "$@"; do
 		[ "${item_to_find}" != "${item}" ] || return 0
@@ -21,34 +21,34 @@ function is_in {
 }
 
 
-function variable_exists {
+function _TT_variable_exists {
 	local -r varname="$1"; shift
 	declare -p "${varname}" &>/dev/null
 }
 
-function variable_not_exists {
+function _TT_variable_not_exists {
 	local -r varname="$1"; shift
-	! variable_exists "${varname}"
+	! _TT_variable_exists "${varname}"
 }
 
-function set_variable {
+function _TT_set_variable {
 	local -r var_name="$1"; shift
 	local -r var_value="$1"; shift
 	printf -v "${var_name}" '%s' "${var_value}"
 }
 
-function set_array_variable {
+function _TT_set_array_variable {
 	local -r new_var_name="$1"; shift
 	local -r old_var_name="$1"; shift
 	eval "${new_var_name}=(\${${old_var_name}[@]+\"\${${old_var_name}[@]}\"})"
 }
 
-function is_variable_array {
+function _TT_is_variable_array {
 	local -r varname="$1"; shift
 	[[ "$(declare -p "${varname}" 2>/dev/null)" =~ "declare -a" ]]
 }
 
-function increment {
+function _TT_increment {
 	# Calling ((v++)) causes unexpected exit in some versions of bash.
 	local -r var_name="$1"; shift
 	if [ $# -gt 0 ]; then
@@ -56,10 +56,10 @@ function increment {
 	else
 		local -r c=1
 	fi
-	set_variable "${var_name}" "$((${var_name}+c))"
+	_TT_set_variable "${var_name}" "$((${var_name}+c))"
 }
 
-function is_nonnegative_integer {
+function _TT_is_nonnegative_integer {
 	local -r value="$1"; shift
 	grep -Eq '^[0-9]+$' <<< "${value}"
 }
@@ -229,7 +229,7 @@ function read_file_exactly {
 	local content_x
 	content_x="$(cat "${file_name}"; echo "x")"
 	readonly content_x
-	set_variable "${var_name}" "${content_x%x}"
+	_TT_set_variable "${var_name}" "${content_x%x}"
 }
 
 function next_free_fd {

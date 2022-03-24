@@ -95,16 +95,16 @@ function assert_equal_array {
 	local -r name="$1"; shift
 	local -r expected_varname="$1"; shift
 	local -r actual_varname="$1"; shift
-	if variable_not_exists "${expected_varname}"; then
-		variable_not_exists "${actual_varname}" || test_failure "Array ${name} expected to be undefined."
+	if _TT_variable_not_exists "${expected_varname}"; then
+		_TT_variable_not_exists "${actual_varname}" || test_failure "Array ${name} expected to be undefined."
 		return
 	fi
-	variable_exists "${actual_varname}" || test_failure "Array ${name} expected to be defined."
+	_TT_variable_exists "${actual_varname}" || test_failure "Array ${name} expected to be defined."
 	local -a expected_array
-	set_array_variable "expected_array" "${expected_varname}"
+	_TT_set_array_variable "expected_array" "${expected_varname}"
 	readonly expected_array
 	local -a actual_array
-	set_array_variable "actual_array" "${actual_varname}"
+	_TT_set_array_variable "actual_array" "${actual_varname}"
 	readonly actual_array
 	local -r actual_len="${#actual_array[@]}"
 	local -a expected_len="${#expected_array[@]}"
@@ -216,15 +216,15 @@ function __exec__parse_options__ {
 		arg_shifts=0
 		case "${option_suffix}" in
 			"")
-				local -r file_value="$1"; shift; increment arg_shifts
-				set_variable "${status_varname}" "${OUT_STATUS_FILE}"
-				set_variable "${file_varname}" "${file_value}"
+				local -r file_value="$1"; shift; _TT_increment arg_shifts
+				_TT_set_variable "${status_varname}" "${OUT_STATUS_FILE}"
+				_TT_set_variable "${file_varname}" "${file_value}"
 				;;
 			h*|H*)
 				local -r option_suffix_char="${option_suffix:0:1}"
 				if [ -n "${option_suffix:1}" ]; then
 					local -r num_lines="${option_suffix:1}"
-					is_nonnegative_integer "${num_lines}" || _TT_test_error_exit 2 "Undefined option '${option_flag}'."
+					_TT_is_nonnegative_integer "${num_lines}" || _TT_test_error_exit 2 "Undefined option '${option_flag}'."
 				else
 					local -r num_lines=1
 				fi
@@ -232,19 +232,19 @@ function __exec__parse_options__ {
 				local file_value
 				local i line
 				for ((i=0; i<num_lines; i++)); do
-					line="$1"; shift; increment arg_shifts
+					line="$1"; shift; _TT_increment arg_shifts
 					[ "${i}" -eq 0 ] || file_value="${file_value}${_TT_NEW_LINE}"
 					file_value="${file_value}${line}"
 				done
 				[ "${option_suffix_char}" != "h" ] || file_value="${file_value}${_TT_NEW_LINE}"
-				set_variable "${status_varname}" "${OUT_STATUS_HERE}"
-				set_variable "${file_varname}" "${file_value}"
+				_TT_set_variable "${status_varname}" "${OUT_STATUS_HERE}"
+				_TT_set_variable "${file_varname}" "${file_value}"
 				;;
 			empty)
-				set_variable "${status_varname}" "${OUT_STATUS_EMPTY}"
+				_TT_set_variable "${status_varname}" "${OUT_STATUS_EMPTY}"
 				;;
 			ignore)
-				set_variable "${status_varname}" "${OUT_STATUS_IGNORE}"
+				_TT_set_variable "${status_varname}" "${OUT_STATUS_IGNORE}"
 				;;
 			*)
 				_TT_test_error_exit 2 "Undefined option '${option_flag}'."
@@ -257,36 +257,36 @@ function __exec__parse_options__ {
 
 		local -r option_suffix="${option_flag:2}"
 		arg_shifts=0
-		local -r var_name="$1"; shift; increment arg_shifts
+		local -r var_name="$1"; shift; _TT_increment arg_shifts
 		local -r var_status_varname="$(get_probed_variable_status_varname "${var_name}")"
 		local -r var_expected_value_varname="$(get_probed_variable_expected_value_varname "${var_name}")"
 		probed_variables+=("${var_name}")
 		case "${option_suffix}" in
 			c)
 				"${is_capture_mode}" || _TT_test_error_exit 2 "Option '${option_flag}' is only available in capture mode."
-				set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_CAPTURE}"
+				_TT_set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_CAPTURE}"
 				probed_variable_capture_arg_indices+=("$((shifts-1))")
 				;;
 			u)
-				set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_UNSET}"
+				_TT_set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_UNSET}"
 				;;
 			s)
-				set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_STRING}"
-				local -r var_value="$1"; shift; increment arg_shifts
-				set_variable "${var_expected_value_varname}" "${var_value}"
+				_TT_set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_STRING}"
+				local -r var_value="$1"; shift; _TT_increment arg_shifts
+				_TT_set_variable "${var_expected_value_varname}" "${var_value}"
 				;;
 			a)
-				set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_ARRAY}"
-				local -r array_len="$1"; shift; increment arg_shifts
-				is_nonnegative_integer "${array_len}" || _TT_test_error_exit 2 "Undefined option '${option_flag}'."
+				_TT_set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_ARRAY}"
+				local -r array_len="$1"; shift; _TT_increment arg_shifts
+				_TT_is_nonnegative_integer "${array_len}" || _TT_test_error_exit 2 "Undefined option '${option_flag}'."
 				[ $# -ge "${array_len}" ] || _TT_test_error_exit 2 "Insufficient number of arguments after '${option_flag}'."
 				local -a var_value=()
 				local i item
 				for ((i=0; i<array_len; i++)); do
-					item="$1"; shift; increment arg_shifts
+					item="$1"; shift; _TT_increment arg_shifts
 					var_value+=("${item}")
 				done
-				set_array_variable "${var_expected_value_varname}" "var_value"
+				_TT_set_array_variable "${var_expected_value_varname}" "var_value"
 				;;
 			*)
 				_TT_test_error_exit 2 "Undefined option '${option_flag}'."
@@ -295,31 +295,31 @@ function __exec__parse_options__ {
 	}
 
 	while [ $# -gt 0 ] && str_starts_with "$1" "-"; do
-		local option="$1"; shift; increment shifts
+		local option="$1"; shift; _TT_increment shifts
 		case "${option}" in
 			-d)
 				working_directory_status="${WD_STATUS_GIVEN}"
-				working_directory="$1"; shift; increment shifts
+				working_directory="$1"; shift; _TT_increment shifts
 				;;
 			-i)
 				stdin_status="${IN_STATUS_FILE}"
-				stdin_file="$1"; shift; increment shifts
+				stdin_file="$1"; shift; _TT_increment shifts
 				;;
 			-o*)
 				read_file_status_args "${option}" stdout_status stdout_file "$@"
-				shift "${arg_shifts}"; increment shifts "${arg_shifts}"
+				shift "${arg_shifts}"; _TT_increment shifts "${arg_shifts}"
 				;;
 			-e*)
 				read_file_status_args "${option}" stderr_status stderr_file "$@"
-				shift "${arg_shifts}"; increment shifts "${arg_shifts}"
+				shift "${arg_shifts}"; _TT_increment shifts "${arg_shifts}"
 				;;
 			-v*)
 				read_var_status_args "${option}" "$@"
-				shift "${arg_shifts}"; increment shifts "${arg_shifts}"
+				shift "${arg_shifts}"; _TT_increment shifts "${arg_shifts}"
 				;;
 			-r)
 				return_code_status="${RETURN_STATUS_FIXED}"
-				expected_return_code="$1"; shift; increment shifts
+				expected_return_code="$1"; shift; _TT_increment shifts
 				;;
 			-rnz)
 				return_code_status="${RETURN_STATUS_NONZERO}"
@@ -337,12 +337,12 @@ function __exec__parse_options__ {
 	done
 
 	[ $# -gt 0 ] || _TT_test_error_exit 2 "Command is not given."
-	readonly command_name="$1"; shift; increment shifts
+	readonly command_name="$1"; shift; _TT_increment shifts
 }
 
 function __exec__run_command__ {
 	if [ "${working_directory_status}" == "${WD_STATUS_UNSPECIFIED}" ]; then
-		if variable_exists "EXEC_WORKING_DIRECTORY"; then
+		if _TT_variable_exists "EXEC_WORKING_DIRECTORY"; then
 			working_directory="${EXEC_WORKING_DIRECTORY}"
 		else
 			working_directory="."
@@ -399,7 +399,7 @@ function __exec__run_command__ {
 			_test_py_cmd="${CMD}"
 			return 0
 		}
-		if variable_exists "PYTHON" ; then
+		if _TT_variable_exists "PYTHON" ; then
 			_test_check_py_cmd "${PYTHON}" || _TT_test_error_exit 3 "Python command '${PYTHON}' does not exist."
 		else
 			if ! _test_check_py_cmd "python3" ; then
@@ -419,13 +419,13 @@ function __exec__run_command__ {
 		"${command_array[@]}" "$@" < "${exec_abs_stdin}" > "${exec_abs_stdout}" 2>"${exec_abs_stderr}" || exec_return_code=$?
 		local probed_var_name
 		for probed_var_name in ${probed_variables[@]+"${probed_variables[@]}"}; do
-			variable_exists "${probed_var_name}" || continue
+			_TT_variable_exists "${probed_var_name}" || continue
 			local var_actual_value_varname
 			var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
 			printf "%s=" "${var_actual_value_varname}"
-			if is_variable_array "${probed_var_name}"; then
+			if _TT_is_variable_array "${probed_var_name}"; then
 				local -a probed_array_actual_value
-				set_array_variable "probed_array_actual_value" "${probed_var_name}"
+				_TT_set_array_variable "probed_array_actual_value" "${probed_var_name}"
 				printf "("
 				local probed_array_item
 				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
@@ -534,9 +534,9 @@ function expect_exec {
 		var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
 
 		if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_UNSET}" ]; then
-			variable_not_exists "${var_actual_value_varname}" || test_failure "Variable '${probed_var_name}' should not have been defined."
+			_TT_variable_not_exists "${var_actual_value_varname}" || test_failure "Variable '${probed_var_name}' should not have been defined."
 		else
-			variable_exists "${var_actual_value_varname}" || test_failure "Variable '${probed_var_name}' should have been defined."
+			_TT_variable_exists "${var_actual_value_varname}" || test_failure "Variable '${probed_var_name}' should have been defined."
 			local var_expected_value_varname
 			var_expected_value_varname="$(get_probed_variable_expected_value_varname "${probed_var_name}")"
 			if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_STRING}" ]; then
@@ -660,16 +660,16 @@ function capture_exec {
 	source "${exec_variables}"
 	local i
 	for ((i=0; i<shifts-1; i++)); do
-		if is_in "$i" ${probed_variable_capture_arg_indices[@]+"${probed_variable_capture_arg_indices[@]}"}; then
-			increment i
+		if _TT_is_in "$i" ${probed_variable_capture_arg_indices[@]+"${probed_variable_capture_arg_indices[@]}"}; then
+			_TT_increment i
 			local probed_var_name="${args[$i]}"
 			local var_actual_value_varname
 			var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
-			if variable_not_exists "${var_actual_value_varname}"; then
+			if _TT_variable_not_exists "${var_actual_value_varname}"; then
 				exec_args+=("-vu" "${probed_var_name}")
-			elif is_variable_array "${var_actual_value_varname}"; then
+			elif _TT_is_variable_array "${var_actual_value_varname}"; then
 				local -a probed_array_actual_value
-				set_array_variable "probed_array_actual_value" "${var_actual_value_varname}"
+				_TT_set_array_variable "probed_array_actual_value" "${var_actual_value_varname}"
 				exec_args+=("-va" "${probed_var_name}" "${#probed_array_actual_value[@]}")
 				local probed_array_item
 				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
