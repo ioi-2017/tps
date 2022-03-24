@@ -176,7 +176,7 @@ function get_probed_variable_actual_value_varname {
 }
 
 
-function __exec__parse_options__ {
+function _TT_exec_parse_options {
 	make_command_path_absolute="false"
 	readonly WD_STATUS_UNSPECIFIED="unspecified"
 	readonly WD_STATUS_GIVEN="given"
@@ -208,7 +208,7 @@ function __exec__parse_options__ {
 	shifts=0
 
 	local arg_shifts
-	function read_file_status_args {
+	function _TT_exec_read_file_status_args {
 		local -r option_flag="$1"; shift
 		local -r status_varname="$1"; shift
 		local -r file_varname="$1"; shift
@@ -253,7 +253,7 @@ function __exec__parse_options__ {
 		esac
 	}
 
-	function read_var_status_args {
+	function _TT_exec_read_var_status_args {
 		local -r option_flag="$1"; shift
 
 		local -r option_suffix="${option_flag:2}"
@@ -307,15 +307,15 @@ function __exec__parse_options__ {
 				stdin_file="$1"; shift; _TT_increment shifts
 				;;
 			-o*)
-				read_file_status_args "${option}" stdout_status stdout_file "$@"
+				_TT_exec_read_file_status_args "${option}" stdout_status stdout_file "$@"
 				shift "${arg_shifts}"; _TT_increment shifts "${arg_shifts}"
 				;;
 			-e*)
-				read_file_status_args "${option}" stderr_status stderr_file "$@"
+				_TT_exec_read_file_status_args "${option}" stderr_status stderr_file "$@"
 				shift "${arg_shifts}"; _TT_increment shifts "${arg_shifts}"
 				;;
 			-v*)
-				read_var_status_args "${option}" "$@"
+				_TT_exec_read_var_status_args "${option}" "$@"
 				shift "${arg_shifts}"; _TT_increment shifts "${arg_shifts}"
 				;;
 			-r)
@@ -341,7 +341,7 @@ function __exec__parse_options__ {
 	readonly command_name="$1"; shift; _TT_increment shifts
 }
 
-function __exec__run_command__ {
+function _TT_exec_run_command {
 	if [ "${working_directory_status}" == "${WD_STATUS_UNSPECIFIED}" ]; then
 		if _TT_variable_exists "EXEC_WORKING_DIRECTORY"; then
 			working_directory="${EXEC_WORKING_DIRECTORY}"
@@ -393,21 +393,21 @@ function __exec__run_command__ {
 	if _TT_str_ends_with "${abs_command}" ".sh"; then
 		local -ra command_array=("bash" "${abs_command}")
 	elif _TT_str_ends_with "${abs_command}" ".py"; then
-		local _test_py_cmd
-		function _test_check_py_cmd {
+		local _TT_exec_py_cmd
+		function _TT_exec_check_py_cmd {
 			local -r CMD="$1"; shift
 			_TT_command_exists "${CMD}" || return 1
-			_test_py_cmd="${CMD}"
+			_TT_exec_py_cmd="${CMD}"
 			return 0
 		}
 		if _TT_variable_exists "PYTHON" ; then
-			_test_check_py_cmd "${PYTHON}" || _TT_test_error_exit 3 "Python command '${PYTHON}' does not exist."
+			_TT_exec_check_py_cmd "${PYTHON}" || _TT_test_error_exit 3 "Python command '${PYTHON}' does not exist."
 		else
-			if ! _test_check_py_cmd "python3" ; then
-				_test_check_py_cmd "python" || _TT_test_error_exit 3 "Neither of python commands 'python3' nor 'python' exists."
+			if ! _TT_exec_check_py_cmd "python3" ; then
+				_TT_exec_check_py_cmd "python" || _TT_test_error_exit 3 "Neither of python commands 'python3' nor 'python' exists."
 			fi
 		fi
-		local -ra command_array=("${_test_py_cmd}" "${abs_command}")
+		local -ra command_array=("${_TT_exec_py_cmd}" "${abs_command}")
 	else
 		local -ra command_array=("${abs_command}")
 	fi
@@ -481,7 +481,7 @@ function expect_exec {
 	local probed_variable_capture_arg_indices
 	local command_name
 	local shifts
-	__exec__parse_options__ "$@"
+	_TT_exec_parse_options "$@"
 	shift ${shifts}
 
 	[ "${stdout_status}" != "${OUT_STATUS_UNSPECIFIED}" ] || _TT_test_error_exit 2 "Status of stdout is not specified."
@@ -491,7 +491,7 @@ function expect_exec {
 	local exec_stderr
 	local exec_variables
 	local exec_return_code
-	__exec__run_command__ "$@"
+	_TT_exec_run_command "$@"
 
 	if [ "${return_code_status}" == "${RETURN_STATUS_IGNORE}" ]; then
 		: Do nothing
@@ -505,7 +505,7 @@ function expect_exec {
 		_TT_test_error_exit 5 "Illegal state; invalid return code status '${return_code_status}'."
 	fi
 
-	function check_file {
+	function _TT_exec_check_output_file {
 		local -r name="$1"; shift
 		local -r status="$1"; shift
 		local -r expected_file="$1"; shift
@@ -522,8 +522,8 @@ function expect_exec {
 			_TT_test_error_exit 5 "Illegal state; invalid status '${status}' for ${name}."
 		fi
 	}
-	check_file "execution stdout" "${stdout_status}" "${stdout_file}" "${exec_stdout}"
-	check_file "execution stderr" "${stderr_status}" "${stderr_file}" "${exec_stderr}"
+	_TT_exec_check_output_file "execution stdout" "${stdout_status}" "${stdout_file}" "${exec_stdout}"
+	_TT_exec_check_output_file "execution stderr" "${stderr_status}" "${stderr_file}" "${exec_stderr}"
 
 	source "${exec_variables}"
 	local probed_var_name
@@ -649,13 +649,13 @@ function capture_exec {
 	local probed_variable_capture_arg_indices
 	local command_name
 	local shifts
-	__exec__parse_options__ ${args[@]+"${args[@]}"}
+	_TT_exec_parse_options ${args[@]+"${args[@]}"}
 
 	local exec_stdout
 	local exec_stderr
 	local exec_variables
 	local exec_return_code
-	__exec__run_command__ "${args[@]:${shifts}}"
+	_TT_exec_run_command "${args[@]:${shifts}}"
 
 	local exec_args=("expect_exec")
 	source "${exec_variables}"
@@ -696,7 +696,7 @@ function capture_exec {
 	local -r data_temp_dir="${captured_data_dir}/${test_capture_key}.tmp"
 	mkdir -p "${data_temp_dir}"
 
-	function handle_file {
+	function _TT_capture_handle_output_file {
 		local -r flag="$1"; shift
 		local -r name="$1"; shift
 		local -r status="$1"; shift
@@ -742,8 +742,8 @@ function capture_exec {
 		fi
 	}
 
-	handle_file "-o" "stdout" "${stdout_status}" "${exec_stdout}"
-	handle_file "-e" "stderr" "${stderr_status}" "${exec_stderr}"
+	_TT_capture_handle_output_file "-o" "stdout" "${stdout_status}" "${exec_stdout}"
+	_TT_capture_handle_output_file "-e" "stderr" "${stderr_status}" "${exec_stderr}"
 
 	if [ -z "$(ls -A "${data_temp_dir}")" ]; then
 		rm -rf "${data_temp_dir}"
