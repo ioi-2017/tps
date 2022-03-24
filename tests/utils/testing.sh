@@ -120,7 +120,7 @@ function assert_file_content {
 	local -r expected_content="$1"; shift
 	local -r actual_file_name="$1"; shift
 	local actual_file_content
-	read_file_exactly "actual_file_content" "${actual_file_name}"
+	_TT_read_file_exactly "actual_file_content" "${actual_file_name}"
 	if [ "${expected_content}" != "${actual_file_content}" ]; then
 		test_failure "Incorrect data in ${name} (${actual_file_name}).
 ============== Expected ==============
@@ -565,7 +565,7 @@ function run_captured_tests {
 }
 
 function begin_capturing {
-	__capture_stdout_backup_fd__=$(next_free_fd) || _TT_test_error_exit 5 "Could not open '${CAPTURED_SCRIPTS_FILE_NAME}'."
+	__capture_stdout_backup_fd__=$(_TT_next_free_fd) || _TT_test_error_exit 5 "Could not open '${CAPTURED_SCRIPTS_FILE_NAME}'."
 	_TT_recreate_dir "${CAPTURED_DATA_DIR_NAME}"
 	local -r readme_file=
 	cat > "${CAPTURED_DATA_DIR_NAME}/README.md" <<EOF
@@ -715,7 +715,7 @@ function capture_exec {
 				exec_args+=("${flag}" "$(_TT_escape_arg "${data_dir}/${name}")")
 			else
 				local exec_content
-				read_file_exactly exec_content "${exec_file}"
+				_TT_read_file_exactly exec_content "${exec_file}"
 				local -r exec_content_len="${#exec_content}"
 				local -r last_index="$((exec_content_len-1))"
 				if [ "${exec_content: ${last_index}}" == "${_TT_NEW_LINE}" ]; then

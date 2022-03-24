@@ -203,7 +203,7 @@ function _TT_truncated_cat {
 	fi
 }
 
-function linux_sort {
+function _TT_linux_sort {
 	local -r _sort=$(which -a "sort" | grep -iv "windows" | head -1)
 	if [ -n "${_sort}" ] ; then
 		"${_sort}" "$@"
@@ -212,7 +212,7 @@ function linux_sort {
 	fi
 }
 
-function linux_find {
+function _TT_linux_find {
 	local -r _find=$(which -a "find" | grep -iv "windows" | head -1)
 	if [ -n "${_find}" ] ; then
 		"${_find}" "$@"
@@ -221,18 +221,18 @@ function linux_find {
 	fi
 }
 
-function read_file_exactly {
+function _TT_read_file_exactly {
 	# This keeps the trailing new lines.
 	local -r var_name="$1"; shift
 	local -r file_name="$1"; shift
-	_TT_check_file_exists "File" "${file_name}" "Error in using read_file_exactly: "
+	_TT_check_file_exists "File" "${file_name}" "Error in using _TT_read_file_exactly: "
 	local content_x
 	content_x="$(cat "${file_name}"; echo "x")"
 	readonly content_x
 	_TT_set_variable "${var_name}" "${content_x%x}"
 }
 
-function next_free_fd {
+function _TT_next_free_fd {
 	local -r max="$(ulimit -n)"
 	local fd
 	for ((fd=3; fd<max; ++fd)); do
