@@ -42,17 +42,17 @@ function pop_test_context {
 
 
 function pushd_test_context {
-	pushdq_here
+	_TT_pushdq_here
 	push_test_context "$@"
 }
 
 function pushd_test_context_here {
-	pushdq_here
+	_TT_pushdq_here
 	push_test_context "$(basename ${PWD})"
 }
 
 function popd_test_context {
-	popdq
+	_TT_popdq
 	pop_test_context "$@"
 }
 
@@ -411,7 +411,7 @@ function __exec__run_command__ {
 		local -ra command_array=("${abs_command}")
 	fi
 
-	pushdq "${abs_working_directory}"
+	_TT_pushdq "${abs_working_directory}"
 	rm -f "${exec_abs_variables}"
 	touch "${exec_abs_variables}"
 	exec_return_code=0
@@ -440,7 +440,7 @@ function __exec__run_command__ {
 		done > "${exec_abs_variables}"
 		exit "${exec_return_code}"
 	) || exec_return_code=$?
-	popdq
+	_TT_popdq
 }
 
 function expect_exec {

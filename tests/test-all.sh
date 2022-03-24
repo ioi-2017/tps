@@ -1,8 +1,8 @@
 
 set -euo pipefail
 
-pushdq_here
+_TT_pushdq_here
 
 run_bash_on "*/test-all.sh" "$@"
 
-popdq
+_TT_popdq

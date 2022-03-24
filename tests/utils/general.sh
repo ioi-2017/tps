@@ -126,16 +126,16 @@ function absolute_path {
 	fi
 }
 
-function pushdq {
+function _TT_pushdq {
 	pushd "$@" > /dev/null
 }
 
-function popdq {
+function _TT_popdq {
 	popd > /dev/null
 }
 
-function pushdq_here {
-	pushdq "$(dirname "$0")"
+function _TT_pushdq_here {
+	_TT_pushdq "$(dirname "$0")"
 }
 
 
