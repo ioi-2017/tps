@@ -294,7 +294,7 @@ function __exec__parse_options__ {
 		esac
 	}
 
-	while [ $# -gt 0 ] && str_starts_with "$1" "-"; do
+	while [ $# -gt 0 ] && _TT_str_starts_with "$1" "-"; do
 		local option="$1"; shift; _TT_increment shifts
 		case "${option}" in
 			-d)
@@ -349,7 +349,7 @@ function __exec__run_command__ {
 		fi
 	fi
 
-	if str_starts_with "${working_directory}" "/"; then
+	if _TT_str_starts_with "${working_directory}" "/"; then
 		local -r abs_working_directory="${working_directory}"
 		check_directory_exists "Working directory" "${abs_working_directory}"
 	else
@@ -377,7 +377,7 @@ function __exec__run_command__ {
 	exec_abs_variables="$(absolute_path "${exec_variables}")"
 	readonly exec_abs_variables
 
-	if str_ends_with "${command_name}" ".sh" || str_ends_with "${command_name}" ".py"; then
+	if _TT_str_ends_with "${command_name}" ".sh" || _TT_str_ends_with "${command_name}" ".py"; then
 		make_command_path_absolute="true"
 	fi
 
@@ -389,9 +389,9 @@ function __exec__run_command__ {
 		local -r abs_command="${command_name}"
 	fi
 
-	if str_ends_with "${abs_command}" ".sh"; then
+	if _TT_str_ends_with "${abs_command}" ".sh"; then
 		local -ra command_array=("bash" "${abs_command}")
-	elif str_ends_with "${abs_command}" ".py"; then
+	elif _TT_str_ends_with "${abs_command}" ".py"; then
 		local _test_py_cmd
 		function _test_check_py_cmd {
 			local -r CMD="$1"; shift
@@ -429,12 +429,12 @@ function __exec__run_command__ {
 				printf "("
 				local probed_array_item
 				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
-					printf " %s" "$(escape_arg "${probed_array_item}")"
+					printf " %s" "$(_TT_escape_arg "${probed_array_item}")"
 				done
 				printf " )"
 			else
 				local probed_variable_actual_value="${!probed_var_name}"
-				printf "%s" "$(escape_arg "${probed_variable_actual_value}")"
+				printf "%s" "$(_TT_escape_arg "${probed_variable_actual_value}")"
 			fi
 			printf "\n"
 		done > "${exec_abs_variables}"
@@ -445,7 +445,7 @@ function __exec__run_command__ {
 
 function expect_exec {
 	(
-	push_test_context "expect_exec $(array_to_str_args "$@")"
+	push_test_context "expect_exec $(_TT_array_to_str_args "$@")"
 
 	local -r is_capture_mode="false"
 	local WD_STATUS_UNSPECIFIED
@@ -594,7 +594,7 @@ function capture_run {
 	local -a escaped_args=()
 	local arg
 	for arg in ${args[@]+"${args[@]}"}; do
-		escaped_args+=("$(escape_arg_if_needed "${arg}")")
+		escaped_args+=("$(_TT_escape_arg_if_needed "${arg}")")
 	done
 	echo ${escaped_args[@]+"${escaped_args[@]}"}
 	${args[@]+"${args[@]}"}
@@ -603,7 +603,7 @@ function capture_run {
 
 function capture_exec {
 	(
-	push_test_context "capture_exec $(array_to_str_args "$@")"
+	push_test_context "capture_exec $(_TT_array_to_str_args "$@")"
 	local -r test_capture_key="$1"; shift
 
 	local -r captured_data_dir="${CAPTURED_DATA_DIR_NAME}"
@@ -673,14 +673,14 @@ function capture_exec {
 				exec_args+=("-va" "${probed_var_name}" "${#probed_array_actual_value[@]}")
 				local probed_array_item
 				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
-					exec_args+=("$(escape_arg_if_needed "${probed_array_item}")")
+					exec_args+=("$(_TT_escape_arg_if_needed "${probed_array_item}")")
 				done
 			else
 				local probed_variable_actual_value="${!var_actual_value_varname}"
-				exec_args+=("-vs" "${probed_var_name}" "$(escape_arg_if_needed "${probed_variable_actual_value}")")
+				exec_args+=("-vs" "${probed_var_name}" "$(_TT_escape_arg_if_needed "${probed_variable_actual_value}")")
 			fi
 		else
-			exec_args+=("$(escape_arg_if_needed "${args[$i]}")")
+			exec_args+=("$(_TT_escape_arg_if_needed "${args[$i]}")")
 		fi
 	done
 	if [ ${#probed_variables[@]} -gt 0 ]; then
@@ -712,7 +712,7 @@ function capture_exec {
 			readonly exec_file_lines
 			if [ "${exec_file_bytes}" -gt "${bytes_limit}" ] || [ "${exec_file_lines}" -gt "${lines_limit}" ] ; then
 				cp "${exec_file}" "${data_temp_dir}/${name}"
-				exec_args+=("${flag}" "$(escape_arg "${data_dir}/${name}")")
+				exec_args+=("${flag}" "$(_TT_escape_arg "${data_dir}/${name}")")
 			else
 				local exec_content
 				read_file_exactly exec_content "${exec_file}"
@@ -733,7 +733,7 @@ function capture_exec {
 				exec_args+=("${flag}${flag_suffix}")
 				local line
 				for line in "${lines[@]}"; do
-					exec_args+=("$(escape_arg "${line}")")
+					exec_args+=("$(_TT_escape_arg "${line}")")
 				done
 			fi
 		else
@@ -757,7 +757,7 @@ function capture_exec {
 
 	local temp_arg
 	for temp_arg in "${args[@]:$((shifts-1))}"; do
-		exec_args+=("$(escape_arg_if_needed "${temp_arg}")")
+		exec_args+=("$(_TT_escape_arg_if_needed "${temp_arg}")")
 	done
 
 	echo "${exec_args[@]}"

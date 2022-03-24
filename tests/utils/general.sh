@@ -65,33 +65,33 @@ function _TT_is_nonnegative_integer {
 }
 
 
-function str_starts_with {
+function _TT_str_starts_with {
 	local -r s="$1"; shift
 	local -r t="$1"; shift
 	[[ "${s}" == "${t}"* ]]
 }
 
-function str_ends_with {
+function _TT_str_ends_with {
 	local -r s="$1"; shift
 	local -r t="$1"; shift
 	[[ "${s}" == *"${t}" ]]
 }
 
-function str_contains {
+function _TT_str_contains {
 	local -r s="$1"; shift
 	local -r t="$1"; shift
 	[[ "${s}" == *"${t}"* ]]
 }
 
 
-function escape_arg {
+function _TT_escape_arg {
 	local -r str="$1"; shift
 	echo -n "\""
 	echo -n "${str}" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\$/\\\$/g'
 	echo -n "\""
 }
 
-function escape_arg_if_needed {
+function _TT_escape_arg_if_needed {
 	local -r s="$1"; shift
 	local q
 	printf -v q "%q" "${s}"
@@ -99,16 +99,16 @@ function escape_arg_if_needed {
 	if [ "${q}" == "${s}" ]; then
 		printf "%s" "${s}"
 	else
-		escape_arg "${s}"
+		_TT_escape_arg "${s}"
 	fi
 }
 
-function array_to_str_args {
+function _TT_array_to_str_args {
 	local first="true"
 	while [ $# -gt 0 ]; do
 		"${first}" || printf " "
 		first="false"
-		escape_arg_if_needed "$1"; shift
+		_TT_escape_arg_if_needed "$1"; shift
 	done
 }
 
@@ -119,7 +119,7 @@ function command_exists {
 
 function absolute_path {
 	local -r path="$1"; shift
-	if str_starts_with "${path}" "/"; then
+	if _TT_str_starts_with "${path}" "/"; then
 		echo "${path}"
 	else
 		echo "$(cd "$(dirname "${path}")"; pwd)/$(basename "${path}")"
@@ -199,7 +199,7 @@ function truncated_cat {
 		cat "${file_name}"
 	else
 		head "-${limit}" "${file_name}"
-		printf "[Truncated] +%d more line(s). See the complete version in '%s'." "$((lines-limit))" "$(escape_arg "${file_name}")"
+		printf "[Truncated] +%d more line(s). See the complete version in '%s'." "$((lines-limit))" "$(_TT_escape_arg "${file_name}")"
 	fi
 }
 
