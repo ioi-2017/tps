@@ -1,7 +1,7 @@
 
 
 function tps {
-	bash "${PROJECT_ROOT}/tps.sh" "$@"
+	bash -euo pipefail "${PROJECT_ROOT}/tps.sh" "$@"
 }
 
 function tps_bc {
