@@ -457,64 +457,73 @@ function command_exists {
 	command -v "$1" >/dev/null 2>&1
 }
 
+
 function invalid_arg {
-	errcho "Error at argument '${curr}':" "$@"
+	local -r curr_arg="${curr}"
+	errcho "Error at argument '${curr_arg}':" "$@"
 	usage
 	exit 2
 }
 
-# Fetches the value of an option, while parsing the arguments of the command
+# Fetches the value of an option, while parsing the arguments of a command.
 # ${curr} denotes the current token
 # ${next} denotes the next token when ${next_available} is "true"
 # the next token is allowed to be used when ${can_use_next} is "true"
 function fetch_arg_value {
-	local variable_name="$1"; shift
-	local short_name="$1"; shift
-	local long_name="$1"; shift
-	local argument_name="$1"
+	local -r variable_name="$1"; shift
+	local -r short_name="$1"; shift
+	local -r long_name="$1"; shift
+	local -r argument_name="$1"; shift
 
 	local fetched_arg_value=""
 	if [ "${curr}" == "${short_name}" ]; then
 		if "${can_use_next}" && "${next_available}"; then
 			fetched_arg_value="${next}"
-			shifts=1
+			increment "arg_shifts"
 		fi
 	else
 		fetched_arg_value="${curr#${long_name}=}"
 	fi
 	if [ -n "${fetched_arg_value}" ]; then
-		eval "${variable_name}='${fetched_arg_value}'"
+		set_variable "${variable_name}" "${fetched_arg_value}"
 	else
 		invalid_arg "missing ${argument_name}"
 	fi
 }
 
-# Fetches the value of the next argument, while parsing the arguments of the command
+# Fetches the value of the next argument, while parsing the arguments of a command.
 # ${curr} denotes the current token
 # ${next} denotes the next token when ${next_available} is "true"
 # the next token is allowed to be used when ${can_use_next} is "true"
 function fetch_next_arg {
-	local variable_name="$1"; shift
-	local short_name="$1"; shift
-	local long_name="$1"; shift
-	local argument_name="$1"; shift
+	local -r variable_name="$1"; shift
+	local -r short_name="$1"; shift
+	local -r long_name="$1"; shift
+	local -r argument_name="$1"; shift
+
 	if "${can_use_next}" && "${next_available}"; then
-		shifts=1
-		eval "${variable_name}='${next}'"
+		increment "arg_shifts"
+		set_variable "${variable_name}" "${next}"
 	else
 		invalid_arg "missing ${argument_name}"
 	fi
 }
 
-# Parses arguments of the command
-# two callbacks should be provided in order to handle positional args and options
-# variables ${curr}, ${next}, ${next_available}, and ${can_use_next} are provided to callbacks
+# This function parses the given arguments of a command.
+# Two callback functions shall be given before passing the command arguments:
+# * handle_positional_arg_callback: for handling the positional arguments
+#   arguments: the current command argument
+# * handle_option_callback: for handling the optional arguments
+#   arguments: the current command argument (after separating the concatenated optional arguments, e.g. -abc --> -a -b -c)
+# Variables ${curr}, ${next}, ${next_available}, and ${can_use_next} are provided to callbacks.
 function argument_parser {
-	handle_positional_arg_callback="$1"; shift
-	handle_option_callback="$1"; shift
+	local -r handle_positional_arg_callback="$1"; shift
+	local -r handle_option_callback="$1"; shift
 
+	local -i arg_shifts
+	local curr next_available next can_use_next concatenated_option_chars
 	while [ $# -gt 0 ]; do
-		shifts=0
+		arg_shifts=0
 		curr="$1"; shift
 		next_available="false"
 		if [ $# -gt 0 ]; then
@@ -529,22 +538,22 @@ function argument_parser {
 			if [ "${#curr}" == 1 ]; then
 				invalid_arg "invalid argument"
 			else
-				temp="${curr#-}"
-				while [ -n "${temp}" ]; do
+				concatenated_option_chars="${curr#-}"
+				while [ -n "${concatenated_option_chars}" ]; do
 					can_use_next="false"
-					if [ "${#temp}" -eq 1 ]; then
+					if [ "${#concatenated_option_chars}" -eq 1 ]; then
 						can_use_next="true"
 					fi
-					curr="-${temp:0:1}"
+					curr="-${concatenated_option_chars:0:1}"
 					"${handle_option_callback}"
-					temp="${temp:1}"
+					concatenated_option_chars="${concatenated_option_chars:1}"
 				done
 			fi
 		else
 			"${handle_positional_arg_callback}"
 		fi
 
-		shift "${shifts}"
+		shift "${arg_shifts}"
 	done
 }
 
