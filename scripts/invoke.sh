@@ -65,8 +65,8 @@ skip_compile_sol="false"
 
 
 function handle_option {
-	shifts=0
-	case "${curr}" in
+	local -r curr_arg="$1"; shift
+	case "${curr_arg}" in
 		-h|--help)
 			usage
 			exit 0
@@ -82,11 +82,11 @@ function handle_option {
 			SHOW_REASON="true"
 			;;
 		-t|--test=*)
-			fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
+			fetch_nonempty_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name pattern"
 			SPECIFIC_TESTS="true"
 			;;
 		--tests-dir=*)
-			fetch_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
+			fetch_nonempty_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
 			;;
 		--no-check)
 			SKIP_CHECK="true"
@@ -98,26 +98,27 @@ function handle_option {
 			SOFT_TL=$((24*60*60))
 			;;
 		--time-limit=*)
-			fetch_arg_value "SOFT_TL" "-@" "--time-limit" "soft time limit"
+			fetch_nonempty_arg_value "SOFT_TL" "-@" "--time-limit" "soft time limit"
 			;;
 		--hard-time-limit=*)
-			fetch_arg_value "HARD_TL" "-@" "--hard-time-limit" "hard time limit"
+			fetch_nonempty_arg_value "HARD_TL" "-@" "--hard-time-limit" "hard time limit"
 			;;
 		*)
-			invalid_arg "undefined option"
+			invalid_arg_with_usage "${curr_arg}" "undefined option"
 			;;
 	esac
 }
 
 function handle_positional_arg {
+	local -r curr_arg="$1"; shift
 	if variable_not_exists "solution" ; then
-		solution="${curr}"
+		solution="${curr_arg}"
 		return
 	fi
-	invalid_arg "meaningless argument"
+	invalid_arg_with_usage "${curr_arg}" "meaningless argument"
 }
 
-argument_parser "handle_positional_arg" "handle_option" "$@"
+argument_parser "handle_positional_arg" "handle_option" "invalid_arg_with_usage" "$@"
 
 if variable_not_exists "solution" ; then
 	errcho "Solution is not specified."

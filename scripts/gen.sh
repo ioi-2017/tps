@@ -71,8 +71,8 @@ SKIP_VAL="false"
 skip_compile_sol="false"
 
 function handle_option {
-	shifts=0
-	case "${curr}" in
+	local -r curr_arg="$1"; shift
+	case "${curr_arg}" in
 		-h|--help)
 			usage
 			exit 0
@@ -88,17 +88,17 @@ function handle_option {
 			UPDATE_MODE="true"
 			;;
 		-t|--test=*)
-			fetch_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name"
+			fetch_nonempty_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name pattern"
 			SPECIFIC_TESTS="true"
 			;;
 		-m|--model-solution=*)
-			fetch_arg_value "model_solution" "-m" "--model-solution" "solution path"
+			fetch_nonempty_arg_value "model_solution" "-m" "--model-solution" "solution path"
 			;;
 		-d|--gen-data=*)
-			fetch_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
+			fetch_nonempty_arg_value "gen_data_file" "-d" "--gen-data" "gen data path"
 			;;
 		--tests-dir=*)
-			fetch_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
+			fetch_nonempty_arg_value "tests_dir" "-@" "--tests-dir" "tests directory path"
 			;;
 		--no-gen)
 			SKIP_GEN="true"
@@ -113,16 +113,17 @@ function handle_option {
 			skip_compile_sol="true"
 			;;
 		*)
-			invalid_arg "undefined option"
+			invalid_arg_with_usage "${curr_arg}" "undefined option"
 			;;
 	esac
 }
 
 function handle_positional_arg {
-	invalid_arg "meaningless argument"
+	local -r curr_arg="$1"; shift
+	invalid_arg_with_usage "${curr_arg}" "meaningless argument"
 }
 
-argument_parser "handle_positional_arg" "handle_option" "$@"
+argument_parser "handle_positional_arg" "handle_option" "invalid_arg_with_usage" "$@"
 
 if ! "${SKIP_SOL}"; then
 	if [ -z "${model_solution}" ]; then

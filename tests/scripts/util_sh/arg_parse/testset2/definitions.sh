@@ -9,7 +9,7 @@ function arg_parse2 {
 	}
 
 	function handle_option2 {
-		local -r curr_arg="${curr}"
+		local -r curr_arg="$1"; shift
 		case "${curr_arg}" in
 			-h|--help)
 				usage
@@ -19,7 +19,7 @@ function arg_parse2 {
 				fetch_arg_value "var_x" "-x" "--x-val" "value x"
 				;;
 			-y|--y-val=*)
-				fetch_arg_value "var_y" "-y" "--y-val" "value y"
+				fetch_nonempty_arg_value "var_y" "-y" "--y-val" "value y"
 				;;
 			-A|--AAA)
 				it_is_A="true"
@@ -37,13 +37,13 @@ function arg_parse2 {
 				c_counter="$((c_counter+1))"
 				;;
 			*)
-				invalid_arg "undefined option2"
+				invalid_arg_with_usage "${curr_arg}" "undefined option2"
 				;;
 		esac
 	}
 
 	function handle_positional_arg2 {
-		local -r curr_arg="${curr}"
+		local -r curr_arg="$1"; shift
 		my_positional_args+=("${curr_arg}")
 	}
 
@@ -54,7 +54,7 @@ function arg_parse2 {
 	c_counter="0"
 	my_positional_args=()
 	has_exited="true"
-	argument_parser "handle_positional_arg2" "handle_option2" "$@"
+	argument_parser "handle_positional_arg2" "handle_option2" "invalid_arg_with_usage" "$@"
 	has_exited="false"
 }
 

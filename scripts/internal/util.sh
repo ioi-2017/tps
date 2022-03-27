@@ -458,8 +458,10 @@ function command_exists {
 }
 
 
-function invalid_arg {
-	local -r curr_arg="${curr}"
+# This is a commonly used function as an invalid_arg_callback for argument_parser.
+# It assumes that a "usage" function is already defined and available during the argument parsing.
+function invalid_arg_with_usage {
+	local -r curr_arg="$1"; shift
 	errcho "Error at argument '${curr_arg}':" "$@"
 	usage
 	exit 2
@@ -475,20 +477,31 @@ function fetch_arg_value {
 	local -r long_name="$1"; shift
 	local -r argument_name="$1"; shift
 
-	local fetched_arg_value=""
+	local fetched_arg_value
+	unset fetched_arg_value
 	if [ "${curr}" == "${short_name}" ]; then
 		if "${can_use_next}" && "${next_available}"; then
-			fetched_arg_value="${next}"
+			local fetched_arg_value="${next}"
 			increment "arg_shifts"
 		fi
 	else
-		fetched_arg_value="${curr#${long_name}=}"
+		local fetched_arg_value="${curr#${long_name}=}"
 	fi
-	if [ -n "${fetched_arg_value}" ]; then
+	if variable_exists "fetched_arg_value"; then
 		set_variable "${variable_name}" "${fetched_arg_value}"
 	else
-		invalid_arg "missing ${argument_name}"
+		"${invalid_arg_callback}" "${curr}" "missing ${argument_name}"
 	fi
+}
+
+function fetch_nonempty_arg_value {
+	fetch_arg_value "$@"
+	local -r variable_name="$1"; shift
+	local -r short_name="$1"; shift
+	local -r long_name="$1"; shift
+	local -r argument_name="$1"; shift
+	[ -n "${!variable_name}" ] ||
+		"${invalid_arg_callback}" "${curr}" "Given ${argument_name} shall not be empty."
 }
 
 # Fetches the value of the next argument, while parsing the arguments of a command.
@@ -505,20 +518,23 @@ function fetch_next_arg {
 		increment "arg_shifts"
 		set_variable "${variable_name}" "${next}"
 	else
-		invalid_arg "missing ${argument_name}"
+		"${invalid_arg_callback}" "${curr}" "missing ${argument_name}"
 	fi
 }
 
 # This function parses the given arguments of a command.
-# Two callback functions shall be given before passing the command arguments:
+# Three callback functions shall be given before passing the command arguments:
 # * handle_positional_arg_callback: for handling the positional arguments
 #   arguments: the current command argument
 # * handle_option_callback: for handling the optional arguments
 #   arguments: the current command argument (after separating the concatenated optional arguments, e.g. -abc --> -a -b -c)
+# * invalid_arg_callback: for handling the errors in arguments
+#   arguments: the current command argument & error message
 # Variables ${curr}, ${next}, ${next_available}, and ${can_use_next} are provided to callbacks.
 function argument_parser {
 	local -r handle_positional_arg_callback="$1"; shift
 	local -r handle_option_callback="$1"; shift
+	local -r invalid_arg_callback="$1"; shift
 
 	local -i arg_shifts
 	local curr next_available next can_use_next concatenated_option_chars
@@ -533,10 +549,10 @@ function argument_parser {
 
 		if [[ "${curr}" == --* ]]; then
 			can_use_next="true"
-			"${handle_option_callback}"
+			"${handle_option_callback}" "${curr}"
 		elif [[ "${curr}" == -* ]]; then
 			if [ "${#curr}" == 1 ]; then
-				invalid_arg "invalid argument"
+				"${invalid_arg_callback}" "${curr}" "invalid argument"
 			else
 				concatenated_option_chars="${curr#-}"
 				while [ -n "${concatenated_option_chars}" ]; do
@@ -545,12 +561,12 @@ function argument_parser {
 						can_use_next="true"
 					fi
 					curr="-${concatenated_option_chars:0:1}"
-					"${handle_option_callback}"
+					"${handle_option_callback}" "${curr}"
 					concatenated_option_chars="${concatenated_option_chars:1}"
 				done
 			fi
 		else
-			"${handle_positional_arg_callback}"
+			"${handle_positional_arg_callback}" "${curr}"
 		fi
 
 		shift "${arg_shifts}"

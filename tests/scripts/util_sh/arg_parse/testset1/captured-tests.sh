@@ -13,17 +13,17 @@ expect_exec -vu var_aaa -vu var_bcd -vu next_param -vs it_is_cool "true" -vu par
 expect_exec -vu var_aaa -vu var_bcd -vu next_param -vs it_is_cool "true" -vu param1 -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 --cool
 expect_exec -vs var_aaa "aha" -vu var_bcd -vu next_param -vs it_is_cool "false" -vu param1 -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 -a aha
 expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '-a': missing a a a" "This is the usage." -r 2 arg_parse1 -a
-expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '-a': missing a a a" "This is the usage." -r 2 arg_parse1 -a ""
+expect_exec -vs var_aaa "" -vu var_bcd -vu next_param -vs it_is_cool "false" -vu param1 -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 -a ""
 expect_exec -vs var_aaa "aha" -vu var_bcd -vu next_param -vs it_is_cool "false" -vu param1 -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 --aaa=aha
 expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '--aaa': undefined option" "This is the usage." -r 2 arg_parse1 --aaa aha
-expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '--aaa=': missing a a a" "This is the usage." -r 2 arg_parse1 --aaa=
+expect_exec -vs var_aaa "" -vu var_bcd -vu next_param -vs it_is_cool "false" -vu param1 -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 --aaa=
 expect_exec -vs var_aaa "ehe" -vu var_bcd -vu next_param -vs it_is_cool "true" -vu param1 -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 -ca ehe
 expect_exec -vu var_aaa -vs var_bcd "ehe" -vu next_param -vs it_is_cool "false" -vu param1 -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 -b ehe
 expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '-b': missing b c d" "This is the usage." -r 2 arg_parse1 -b
-expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '-b': missing b c d" "This is the usage." -r 2 arg_parse1 -b ""
+expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '-b': Given b c d shall not be empty." "This is the usage." -r 2 arg_parse1 -b ""
 expect_exec -vu var_aaa -vs var_bcd "ehe" -vu next_param -vs it_is_cool "false" -vu param1 -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 --bcd=ehe
 expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '--bcd': undefined option" "This is the usage." -r 2 arg_parse1 --bcd ehe
-expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '--bcd=': missing b c d" "This is the usage." -r 2 arg_parse1 --bcd=
+expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '--bcd=': Given b c d shall not be empty." "This is the usage." -r 2 arg_parse1 --bcd=
 expect_exec -vu var_aaa -vu var_bcd -vu next_param -vu it_is_cool -vu param1 -vu param2 -vu has_exited -oempty -eh2 "Error at argument '--yx': undefined option" "This is the usage." -r 2 arg_parse1 --yx ehe
 expect_exec -vu var_aaa -vs var_bcd "hee haa" -vu next_param -vs it_is_cool "true" -vu param1 -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 -cb "hee haa"
 expect_exec -vu var_aaa -vs var_bcd "hee" -vu next_param -vs it_is_cool "true" -vs param1 "haa" -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 -cb hee haa

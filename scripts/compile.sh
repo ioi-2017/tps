@@ -30,8 +30,8 @@ VERBOSE="false"
 WARNING_SENSITIVE_RUN="false"
 
 function handle_option {
-	shifts=0
-	case "${curr}" in
+	local -r curr_arg="$1"; shift
+	case "${curr_arg}" in
 		-h|--help)
 			usage
 			exit 0
@@ -51,20 +51,21 @@ function handle_option {
 			fi
 			;;
 		*)
-			invalid_arg "undefined option"
+			invalid_arg_with_usage "${curr_arg}" "undefined option"
 			;;
 	esac
 }
 
 function handle_positional_arg {
+	local -r curr_arg="$1"; shift
 	if variable_not_exists "SOLUTION" ; then
-		SOLUTION="${curr}"
+		SOLUTION="${curr_arg}"
 		return
 	fi
-	invalid_arg "meaningless argument"
+	invalid_arg_with_usage "${curr_arg}" "meaningless argument"
 }
 
-argument_parser "handle_positional_arg" "handle_option" "$@"
+argument_parser "handle_positional_arg" "handle_option" "invalid_arg_with_usage" "$@"
 
 if variable_not_exists "SOLUTION" ; then
 	errcho "Solution is not specified."

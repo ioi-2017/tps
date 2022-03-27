@@ -9,7 +9,7 @@ function arg_parse1 {
 	}
 
 	function handle_option1 {
-		local -r curr_arg="${curr}"
+		local -r curr_arg="$1"; shift
 		case "${curr_arg}" in
 			-h|--help)
 				usage
@@ -19,7 +19,7 @@ function arg_parse1 {
 				fetch_arg_value "var_aaa" "-a" "--aaa" "a a a"
 				;;
 			-b|--bcd=*)
-				fetch_arg_value "var_bcd" "-b" "--bcd" "b c d"
+				fetch_nonempty_arg_value "var_bcd" "-b" "--bcd" "b c d"
 				;;
 			-n|--next)
 				fetch_next_arg "next_param" "-n" "--next" "get-next param"
@@ -28,13 +28,13 @@ function arg_parse1 {
 				it_is_cool="true"
 				;;
 			*)
-				invalid_arg "undefined option"
+				invalid_arg_with_usage "${curr_arg}" "undefined option"
 				;;
 		esac
 	}
 
 	function handle_positional_arg1 {
-		local -r curr_arg="${curr}"
+		local -r curr_arg="$1"; shift
 		if variable_not_exists "param1"; then
 			param1="${curr_arg}"
 			return
@@ -43,12 +43,12 @@ function arg_parse1 {
 			param2="${curr_arg}"
 			return
 		fi
-		invalid_arg "meaningless argument"
+		invalid_arg_with_usage "${curr_arg}" "meaningless argument"
 	}
 
 	it_is_cool="false"
 	has_exited="true"
-	argument_parser "handle_positional_arg1" "handle_option1" "$@"
+	argument_parser "handle_positional_arg1" "handle_option1" "invalid_arg_with_usage" "$@"
 	has_exited="false"
 }
 
