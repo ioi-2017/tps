@@ -430,12 +430,16 @@ function _TT_exec_run_command {
 				printf "("
 				local probed_array_item
 				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
-					printf " %s" "$(_TT_escape_arg "${probed_array_item}")"
+					local _TT_escaped_actual_value
+					_TT_escaped_actual_value="$(_TT_escape_arg "${probed_array_item}")"
+					printf " %s" "${_TT_escaped_actual_value}"
 				done
 				printf " )"
 			else
 				local probed_variable_actual_value="${!probed_var_name}"
-				printf "%s" "$(_TT_escape_arg "${probed_variable_actual_value}")"
+				local _TT_escaped_actual_value
+				_TT_escaped_actual_value="$(_TT_escape_arg "${probed_variable_actual_value}")"
+				printf "%s" "${_TT_escaped_actual_value}"
 			fi
 			printf "\n"
 		done > "${exec_abs_variables}"
