@@ -118,6 +118,23 @@ function __tps__error_exit__ {
 	exit "${exit_code}"
 }
 
+function __tps__define_python__ {
+	function __tps__check_py_cmd__ {
+		local -r py_cmd="$1"; shift
+		command -v "${py_cmd}" &> "/dev/null" || return 1
+		__tps__python__="${py_cmd}"
+		return 0
+	}
+	if __tps__variable_exists "PYTHON"; then
+		__tps__check_py_cmd__ "${PYTHON}" ||
+		__tps__error_exit__ 2 "Python command '${PYTHON}' set by environment variable 'PYTHON' does not exist."
+	else
+		__tps__check_py_cmd__ "python3" ||
+		__tps__check_py_cmd__ "python" ||
+		__tps__error_exit__ 2 "Environment variable 'PYTHON' is not set and neither of python commands 'python3' nor 'python' exists."
+	fi
+}
+
 
 __tps_target_file__="problem.json"
 __tps_scripts__="scripts"
@@ -176,20 +193,7 @@ function __tps_run_file__ {
 	if [ "${ext}" == "sh" ]; then
 		bash "${file2run}" "$@"
 	elif [ "${ext}" == "py" ]; then
-		function __tps__check_py_cmd__ {
-			local -r CMD="$1"
-			command -v "${CMD}" &> "/dev/null" || return 1
-			__tps__python__="${CMD}"
-			return 0
-		}
-		if __tps__variable_exists "PYTHON"; then
-			__tps__check_py_cmd__ "${PYTHON}" ||
-			__tps__error_exit__ 2 "Python command '${PYTHON}' set by environment variable 'PYTHON' does not exist."
-		else
-			__tps__check_py_cmd__ "python3" ||
-			__tps__check_py_cmd__ "python" ||
-			__tps__error_exit__ 2 "Environment variable 'PYTHON' is not set and neither of python commands 'python3' nor 'python' exists."
-		fi
+		__tps__define_python__
 		"${__tps__python__}" "${file2run}" "$@"
 	elif [ "${ext}" == "exe" ]; then
 		"${file2run}" "$@"
