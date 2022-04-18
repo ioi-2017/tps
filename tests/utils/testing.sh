@@ -181,17 +181,16 @@ function _TT_exec_parse_options {
 	readonly WD_STATUS_UNSPECIFIED="unspecified"
 	readonly WD_STATUS_GIVEN="given"
 	working_directory_status="${WD_STATUS_UNSPECIFIED}"
-	readonly IN_STATUS_UNSPECIFIED="unspecified"
-	readonly IN_STATUS_FILE="file"
-	stdin_status="${IN_STATUS_UNSPECIFIED}"
-	readonly OUT_STATUS_UNSPECIFIED="unspecified"
-	readonly OUT_STATUS_FILE="file"
-	readonly OUT_STATUS_HERE="here"
-	readonly OUT_STATUS_EMPTY="empty"
-	readonly OUT_STATUS_IGNORE="ignore"
-	stdout_status="${OUT_STATUS_UNSPECIFIED}"
+	readonly FILE_STATUS_UNSPECIFIED="unspecified"
+	readonly FILE_STATUS_FILE="file"
+	readonly FILE_STATUS_HERE="here"
+	readonly FILE_STATUS_EMPTY="empty"
+	readonly FILE_STATUS_IGNORE="ignore"
+	stdin_status="${FILE_STATUS_UNSPECIFIED}"
+	stdin_file=""
+	stdout_status="${FILE_STATUS_UNSPECIFIED}"
 	stdout_file=""
-	stderr_status="${OUT_STATUS_UNSPECIFIED}"
+	stderr_status="${FILE_STATUS_UNSPECIFIED}"
 	stderr_file=""
 	readonly RETURN_STATUS_UNSPECIFIED="unspecified"
 	readonly RETURN_STATUS_FIXED="fixed"
@@ -218,7 +217,7 @@ function _TT_exec_parse_options {
 		case "${option_suffix}" in
 			"")
 				local -r file_value="$1"; shift; _TT_increment arg_shifts
-				_TT_set_variable "${status_varname}" "${OUT_STATUS_FILE}"
+				_TT_set_variable "${status_varname}" "${FILE_STATUS_FILE}"
 				_TT_set_variable "${file_varname}" "${file_value}"
 				;;
 			h*|H*)
@@ -238,14 +237,14 @@ function _TT_exec_parse_options {
 					file_value="${file_value}${line}"
 				done
 				[ "${option_suffix_char}" != "h" ] || file_value="${file_value}${_TT_NEW_LINE}"
-				_TT_set_variable "${status_varname}" "${OUT_STATUS_HERE}"
+				_TT_set_variable "${status_varname}" "${FILE_STATUS_HERE}"
 				_TT_set_variable "${file_varname}" "${file_value}"
 				;;
 			empty)
-				_TT_set_variable "${status_varname}" "${OUT_STATUS_EMPTY}"
+				_TT_set_variable "${status_varname}" "${FILE_STATUS_EMPTY}"
 				;;
 			ignore)
-				_TT_set_variable "${status_varname}" "${OUT_STATUS_IGNORE}"
+				_TT_set_variable "${status_varname}" "${FILE_STATUS_IGNORE}"
 				;;
 			*)
 				_TT_test_error_exit 2 "Undefined option '${option_flag}'."
@@ -302,9 +301,9 @@ function _TT_exec_parse_options {
 				working_directory_status="${WD_STATUS_GIVEN}"
 				working_directory="$1"; shift; _TT_increment shifts
 				;;
-			-i)
-				stdin_status="${IN_STATUS_FILE}"
-				stdin_file="$1"; shift; _TT_increment shifts
+			-i|-iempty|-ih*|-iH*)
+				_TT_exec_read_file_status_args "${option}" stdin_status stdin_file "$@"
+				shift "${arg_shifts}"; _TT_increment shifts "${arg_shifts}"
 				;;
 			-o*)
 				_TT_exec_read_file_status_args "${option}" stdout_status stdout_file "$@"
@@ -360,13 +359,30 @@ function _TT_exec_run_command {
 
 	mkdir -p "${_TT_SANDBOX}"
 
-	[ "${stdin_status}" != "${IN_STATUS_UNSPECIFIED}" ] || stdin_file="/dev/null"
+	exec_stdin="${_TT_SANDBOX}/exec.in"
+	rm -f "${exec_stdin}" # Just for cleaning up
+	case "${stdin_status}" in
+		"${FILE_STATUS_UNSPECIFIED}"|"${FILE_STATUS_EMPTY}")
+			exec_stdin="/dev/null"
+			;;
+		"${FILE_STATUS_FILE}")
+			cp "${stdin_file}" "${exec_stdin}"
+			;;
+		"${FILE_STATUS_HERE}")
+			printf "%s" "${stdin_file}" > "${exec_stdin}"
+			;;
+		*)
+			_TT_test_error_exit 5 "Illegal state; unknown stdin status '${stdin_status}'."
+			;;
+	esac
+	readonly exec_stdin
+
 	readonly exec_stdout="${_TT_SANDBOX}/exec.out"
 	readonly exec_stderr="${_TT_SANDBOX}/exec.err"
 	readonly exec_variables="${_TT_SANDBOX}/exec.vars"
 
 	local exec_abs_stdin
-	exec_abs_stdin="$(_TT_absolute_path "${stdin_file}")"
+	exec_abs_stdin="$(_TT_absolute_path "${exec_stdin}")"
 	readonly exec_abs_stdin
 	local exec_abs_stdout
 	exec_abs_stdout="$(_TT_absolute_path "${exec_stdout}")"
@@ -457,8 +473,11 @@ function expect_exec {
 	local WD_STATUS_GIVEN
 	local working_directory_status
 	local working_directory
-	local IN_STATUS_UNSPECIFIED
-	local IN_STATUS_FILE
+	local FILE_STATUS_UNSPECIFIED
+	local FILE_STATUS_FILE
+	local FILE_STATUS_HERE
+	local FILE_STATUS_EMPTY
+	local FILE_STATUS_IGNORE
 	local stdin_status
 	local stdin_file
 	local RETURN_STATUS_UNSPECIFIED
@@ -468,11 +487,6 @@ function expect_exec {
 	local return_code_status
 	local expected_return_code
 	local make_command_path_absolute
-	local OUT_STATUS_UNSPECIFIED
-	local OUT_STATUS_FILE
-	local OUT_STATUS_HERE
-	local OUT_STATUS_EMPTY
-	local OUT_STATUS_IGNORE
 	local stdout_status
 	local stdout_file
 	local stderr_status
@@ -488,9 +502,10 @@ function expect_exec {
 	_TT_exec_parse_options "$@"
 	shift ${shifts}
 
-	[ "${stdout_status}" != "${OUT_STATUS_UNSPECIFIED}" ] || _TT_test_error_exit 2 "Status of stdout is not specified."
-	[ "${stderr_status}" != "${OUT_STATUS_UNSPECIFIED}" ] || _TT_test_error_exit 2 "Status of stderr is not specified."
+	[ "${stdout_status}" != "${FILE_STATUS_UNSPECIFIED}" ] || _TT_test_error_exit 2 "Status of stdout is not specified."
+	[ "${stderr_status}" != "${FILE_STATUS_UNSPECIFIED}" ] || _TT_test_error_exit 2 "Status of stderr is not specified."
 
+	local exec_stdin
 	local exec_stdout
 	local exec_stderr
 	local exec_variables
@@ -514,13 +529,13 @@ function expect_exec {
 		local -r status="$1"; shift
 		local -r expected_file="$1"; shift
 		local -r exec_file="$1"; shift
-		if [ "${status}" == "${OUT_STATUS_IGNORE}" ]; then
+		if [ "${status}" == "${FILE_STATUS_IGNORE}" ]; then
 			: Do nothing
-		elif [ "${status}" == "${OUT_STATUS_EMPTY}" ]; then
+		elif [ "${status}" == "${FILE_STATUS_EMPTY}" ]; then
 			_TT_assert_file_empty "${name}" "${exec_file}"
-		elif [ "${status}" == "${OUT_STATUS_HERE}" ]; then
+		elif [ "${status}" == "${FILE_STATUS_HERE}" ]; then
 			_TT_assert_file_content "${name}" "${expected_file}" "${exec_file}"
-		elif [ "${status}" == "${OUT_STATUS_FILE}" ]; then
+		elif [ "${status}" == "${FILE_STATUS_FILE}" ]; then
 			_TT_assert_same_files "${name}" "${expected_file}" "${exec_file}"
 		else
 			_TT_test_error_exit 5 "Illegal state; invalid status '${status}' for ${name}."
@@ -625,8 +640,11 @@ function capture_exec {
 	local WD_STATUS_GIVEN
 	local working_directory_status
 	local working_directory
-	local IN_STATUS_UNSPECIFIED
-	local IN_STATUS_FILE
+	local FILE_STATUS_UNSPECIFIED
+	local FILE_STATUS_FILE
+	local FILE_STATUS_HERE
+	local FILE_STATUS_EMPTY
+	local FILE_STATUS_IGNORE
 	local stdin_status
 	local stdin_file
 	local RETURN_STATUS_UNSPECIFIED
@@ -636,11 +654,6 @@ function capture_exec {
 	local return_code_status
 	local expected_return_code
 	local make_command_path_absolute
-	local OUT_STATUS_UNSPECIFIED
-	local OUT_STATUS_FILE
-	local OUT_STATUS_HERE
-	local OUT_STATUS_EMPTY
-	local OUT_STATUS_IGNORE
 	local stdout_status
 	local stdout_file
 	local stderr_status
@@ -655,6 +668,7 @@ function capture_exec {
 	local shifts
 	_TT_exec_parse_options ${args[@]+"${args[@]}"}
 
+	local exec_stdin
 	local exec_stdout
 	local exec_stderr
 	local exec_variables
@@ -705,7 +719,7 @@ function capture_exec {
 		local -r name="$1"; shift
 		local -r status="$1"; shift
 		local -r exec_file="$1"; shift
-		[ "${status}" == "${OUT_STATUS_UNSPECIFIED}" ] || return 0
+		[ "${status}" == "${FILE_STATUS_UNSPECIFIED}" ] || return 0
 		if [ -s "${exec_file}" ]; then
 			local -r bytes_limit=100
 			local -r lines_limit=9
