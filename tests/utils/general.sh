@@ -15,6 +15,7 @@ function _TT_error_exit {
 
 function _TT_is_in {
 	local -r item_to_find="$1"; shift
+	local item
 	for item in "$@"; do
 		[ "${item_to_find}" != "${item}" ] ||
 			return 0
@@ -177,6 +178,7 @@ function _TT_check_directory_exists {
 function _TT_recreate_dir {
 	local -r dir="$1"; shift
 	mkdir -p "${dir}"
+	local file
 	ls -A1 "${dir}" | while read file; do
 		[ -n "${file}" ] ||
 			continue
@@ -190,6 +192,7 @@ function run_bash_on {
 	local -r files="$(eval ls -1 "${pattern}" 2>/dev/null || true)"
 	[ -n "${files}" ] ||
 		return 0
+	local f
 	while read f; do
 		bash "${f}" "$@"
 	done <<< "${files}"
