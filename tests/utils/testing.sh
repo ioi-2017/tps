@@ -24,7 +24,8 @@ function print_test_context {
 
 function push_test_context {
 	local -r tc="$1"; shift
-	[ -z "${_TT_TEST_CONTEXT}" ] || _TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${_TT_NEW_LINE}"
+	[ -z "${_TT_TEST_CONTEXT}" ] ||
+		_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${_TT_NEW_LINE}"
 	_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${tc}"
 	# _TT_errcho "$(get_test_context) ((";
 }
@@ -34,7 +35,8 @@ function pop_test_context {
 	local last_new_line_index=0
 	local i
 	for ((i=0; i<${#_TT_TEST_CONTEXT}; i++)); do
-		[ "${_TT_TEST_CONTEXT:${i}:1}" != "${_TT_NEW_LINE}" ] || last_new_line_index=${i}
+		[ "${_TT_TEST_CONTEXT:${i}:1}" != "${_TT_NEW_LINE}" ] ||
+			last_new_line_index="${i}"
 	done
 	_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT:0:${last_new_line_index}}"
 }
@@ -48,7 +50,7 @@ function pushd_test_context {
 
 function pushd_test_context_here {
 	_TT_pushdq_here
-	push_test_context "$(basename ${PWD})"
+	push_test_context "$(basename "${PWD}")"
 }
 
 function popd_test_context {
@@ -88,7 +90,8 @@ function _TT_assert_equal {
 	local -r name="$1"; shift
 	local -r expected="$1"; shift
 	local -r actual="$1"; shift
-	[ "${expected}" == "${actual}" ] || _TT_test_failure "Incorrect value for ${name}, expected: '${expected}', actual: '${actual}'."
+	[ "${expected}" == "${actual}" ] ||
+		_TT_test_failure "Incorrect value for ${name}, expected: '${expected}', actual: '${actual}'."
 }
 
 function _TT_assert_equal_array {
@@ -96,10 +99,12 @@ function _TT_assert_equal_array {
 	local -r expected_varname="$1"; shift
 	local -r actual_varname="$1"; shift
 	if _TT_variable_not_exists "${expected_varname}"; then
-		_TT_variable_not_exists "${actual_varname}" || _TT_test_failure "Array ${name} expected to be undefined."
+		_TT_variable_not_exists "${actual_varname}" ||
+			_TT_test_failure "Array ${name} expected to be undefined."
 		return
 	fi
-	_TT_variable_exists "${actual_varname}" || _TT_test_failure "Array ${name} expected to be defined."
+	_TT_variable_exists "${actual_varname}" ||
+		_TT_test_failure "Array ${name} expected to be defined."
 	local -a expected_array
 	_TT_set_array_variable "expected_array" "${expected_varname}"
 	readonly expected_array
@@ -108,10 +113,12 @@ function _TT_assert_equal_array {
 	readonly actual_array
 	local -r actual_len="${#actual_array[@]}"
 	local -a expected_len="${#expected_array[@]}"
-	[ "${expected_len}" == "${actual_len}" ] || _TT_test_failure "Incorrect length for ${name}, expected: ${expected_len}, actual: ${actual_len}."
+	[ "${expected_len}" == "${actual_len}" ] ||
+		_TT_test_failure "Incorrect length for ${name}, expected: ${expected_len}, actual: ${actual_len}."
 	local i
 	for ((i=0; i<expected_len; i++)); do
-		[ "${expected_array[$i]}" == "${actual_array[$i]}" ] || _TT_test_failure "Incorrect value at item $i of ${name}, expected: '${expected_array[$i]}', actual: '${actual_array[$i]}'."
+		[ "${expected_array[${i}]}" == "${actual_array[${i}]}" ] ||
+			_TT_test_failure "Incorrect value at item ${i} of ${name}, expected: '${expected_array[${i}]}', actual: '${actual_array[${i}]}'."
 	done
 }
 
@@ -147,7 +154,8 @@ ${diff_info}"
 function _TT_assert_file_empty {
 	local -r name="$1"; shift
 	local -r actual="$1"; shift
-	! [ -s "${actual}" ] || _TT_test_failure "Expected ${name} to be empty, actual: '${actual}'."
+	! [ -s "${actual}" ] ||
+		_TT_test_failure "Expected ${name} to be empty, actual: '${actual}'."
 }
 
 
@@ -224,19 +232,23 @@ function _TT_exec_parse_options {
 				local -r option_suffix_char="${option_suffix:0:1}"
 				if [ -n "${option_suffix:1}" ]; then
 					local -r num_lines="${option_suffix:1}"
-					_TT_is_nonnegative_integer "${num_lines}" || _TT_test_error_exit 2 "Undefined option '${option_flag}'."
+					_TT_is_nonnegative_integer "${num_lines}" ||
+						_TT_test_error_exit 2 "Undefined option '${option_flag}'."
 				else
 					local -r num_lines=1
 				fi
-				[ $# -ge "${num_lines}" ] || _TT_test_error_exit 2 "Insufficient number of arguments after '${option_flag}'."
+				[ $# -ge "${num_lines}" ] ||
+					_TT_test_error_exit 2 "Insufficient number of arguments after '${option_flag}'."
 				local file_value
 				local i line
 				for ((i=0; i<num_lines; i++)); do
 					line="$1"; shift; _TT_increment arg_shifts
-					[ "${i}" -eq 0 ] || file_value="${file_value}${_TT_NEW_LINE}"
+					[ "${i}" -eq 0 ] ||
+						file_value="${file_value}${_TT_NEW_LINE}"
 					file_value="${file_value}${line}"
 				done
-				[ "${option_suffix_char}" != "h" ] || file_value="${file_value}${_TT_NEW_LINE}"
+				[ "${option_suffix_char}" != "h" ] ||
+					file_value="${file_value}${_TT_NEW_LINE}"
 				_TT_set_variable "${status_varname}" "${FILE_STATUS_HERE}"
 				_TT_set_variable "${file_varname}" "${file_value}"
 				;;
@@ -263,7 +275,8 @@ function _TT_exec_parse_options {
 		probed_variables+=("${var_name}")
 		case "${option_suffix}" in
 			c)
-				"${is_capture_mode}" || _TT_test_error_exit 2 "Option '${option_flag}' is only available in capture mode."
+				"${is_capture_mode}" ||
+					_TT_test_error_exit 2 "Option '${option_flag}' is only available in capture mode."
 				_TT_set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_CAPTURE}"
 				probed_variable_capture_arg_indices+=("$((shifts-1))")
 				;;
@@ -278,8 +291,10 @@ function _TT_exec_parse_options {
 			a)
 				_TT_set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_ARRAY}"
 				local -r array_len="$1"; shift; _TT_increment arg_shifts
-				_TT_is_nonnegative_integer "${array_len}" || _TT_test_error_exit 2 "Undefined option '${option_flag}'."
-				[ $# -ge "${array_len}" ] || _TT_test_error_exit 2 "Insufficient number of arguments after '${option_flag}'."
+				_TT_is_nonnegative_integer "${array_len}" ||
+					_TT_test_error_exit 2 "Undefined option '${option_flag}'."
+				[ $# -ge "${array_len}" ] ||
+					_TT_test_error_exit 2 "Insufficient number of arguments after '${option_flag}'."
 				local -a var_value=()
 				local i item
 				for ((i=0; i<array_len; i++)); do
@@ -336,9 +351,11 @@ function _TT_exec_parse_options {
 		esac
 	done
 
-	[ $# -gt 0 ] || _TT_test_error_exit 2 "Command is not given."
+	[ $# -gt 0 ] ||
+		_TT_test_error_exit 2 "Command is not given."
 	readonly command_name="$1"; shift; _TT_increment shifts
 }
+
 
 function _TT_exec_run_command {
 	if [ "${working_directory_status}" == "${WD_STATUS_UNSPECIFIED}" ]; then
@@ -412,16 +429,18 @@ function _TT_exec_run_command {
 		local _TT_exec_py_cmd
 		function _TT_exec_check_py_cmd {
 			local -r CMD="$1"; shift
-			_TT_command_exists "${CMD}" || return 1
+			_TT_command_exists "${CMD}" ||
+				return 1
 			_TT_exec_py_cmd="${CMD}"
 			return 0
 		}
 		if _TT_variable_exists "PYTHON" ; then
-			_TT_exec_check_py_cmd "${PYTHON}" || _TT_test_error_exit 3 "Python command '${PYTHON}' does not exist."
+			_TT_exec_check_py_cmd "${PYTHON}" ||
+				_TT_test_error_exit 3 "Python command '${PYTHON}' does not exist."
 		else
-			if ! _TT_exec_check_py_cmd "python3" ; then
-				_TT_exec_check_py_cmd "python" || _TT_test_error_exit 3 "Neither of python commands 'python3' nor 'python' exists."
-			fi
+			_TT_exec_check_py_cmd "python3" ||
+				_TT_exec_check_py_cmd "python" ||
+				_TT_test_error_exit 3 "Neither of python commands 'python3' nor 'python' exists."
 		fi
 		local -ra command_array=("${_TT_exec_py_cmd}" "${abs_command}")
 	else
@@ -436,7 +455,8 @@ function _TT_exec_run_command {
 		"${command_array[@]}" "$@" < "${exec_abs_stdin}" > "${exec_abs_stdout}" 2>"${exec_abs_stderr}" || exec_return_code=$?
 		local probed_var_name
 		for probed_var_name in ${probed_variables[@]+"${probed_variables[@]}"}; do
-			_TT_variable_exists "${probed_var_name}" || continue
+			_TT_variable_exists "${probed_var_name}" ||
+				continue
 			local var_actual_value_varname
 			var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
 			printf "%s=" "${var_actual_value_varname}"
@@ -463,6 +483,7 @@ function _TT_exec_run_command {
 	) || exec_return_code=$?
 	_TT_popdq
 }
+
 
 function expect_exec {
 	(
@@ -500,10 +521,12 @@ function expect_exec {
 	local command_name
 	local shifts
 	_TT_exec_parse_options "$@"
-	shift ${shifts}
+	shift "${shifts}"
 
-	[ "${stdout_status}" != "${FILE_STATUS_UNSPECIFIED}" ] || _TT_test_error_exit 2 "Status of stdout is not specified."
-	[ "${stderr_status}" != "${FILE_STATUS_UNSPECIFIED}" ] || _TT_test_error_exit 2 "Status of stderr is not specified."
+	[ "${stdout_status}" != "${FILE_STATUS_UNSPECIFIED}" ] ||
+		_TT_test_error_exit 2 "Status of stdout is not specified."
+	[ "${stderr_status}" != "${FILE_STATUS_UNSPECIFIED}" ] ||
+		_TT_test_error_exit 2 "Status of stderr is not specified."
 
 	local exec_stdin
 	local exec_stdout
@@ -519,7 +542,8 @@ function expect_exec {
 	elif [ "${return_code_status}" == "${RETURN_STATUS_FIXED}" ]; then
 		_TT_assert_equal "execution return code" "${expected_return_code}" "${exec_return_code}"
 	elif [ "${return_code_status}" == "${RETURN_STATUS_NONZERO}" ]; then
-		[ "${exec_return_code}" -ne 0 ] || _TT_test_failure "Execution return code is zero, while expected to be nonzero."
+		[ "${exec_return_code}" -ne 0 ] ||
+			_TT_test_failure "Execution return code is zero, while expected to be nonzero."
 	else
 		_TT_test_error_exit 5 "Illegal state; invalid return code status '${return_code_status}'."
 	fi
@@ -554,9 +578,11 @@ function expect_exec {
 		var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
 
 		if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_UNSET}" ]; then
-			_TT_variable_not_exists "${var_actual_value_varname}" || _TT_test_failure "Variable '${probed_var_name}' should not have been defined."
+			_TT_variable_not_exists "${var_actual_value_varname}" ||
+				_TT_test_failure "Variable '${probed_var_name}' should not have been defined."
 		else
-			_TT_variable_exists "${var_actual_value_varname}" || _TT_test_failure "Variable '${probed_var_name}' should have been defined."
+			_TT_variable_exists "${var_actual_value_varname}" ||
+				_TT_test_failure "Variable '${probed_var_name}' should have been defined."
 			local var_expected_value_varname
 			var_expected_value_varname="$(get_probed_variable_expected_value_varname "${probed_var_name}")"
 			if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_STRING}" ]; then
@@ -585,7 +611,8 @@ function run_captured_tests {
 }
 
 function begin_capturing {
-	__capture_stdout_backup_fd__=$(_TT_next_free_fd) || _TT_test_error_exit 5 "Could not open '${CAPTURED_SCRIPTS_FILE_NAME}'."
+	__capture_stdout_backup_fd__="$(_TT_next_free_fd)" ||
+		_TT_test_error_exit 5 "Could not open '${CAPTURED_SCRIPTS_FILE_NAME}'."
 	_TT_recreate_dir "${CAPTURED_DATA_DIR_NAME}"
 	local -r readme_file=
 	cat > "${CAPTURED_DATA_DIR_NAME}/README.md" <<EOF
@@ -679,9 +706,9 @@ function capture_exec {
 	source "${exec_variables}"
 	local i
 	for ((i=0; i<shifts-1; i++)); do
-		if _TT_is_in "$i" ${probed_variable_capture_arg_indices[@]+"${probed_variable_capture_arg_indices[@]}"}; then
+		if _TT_is_in "${i}" ${probed_variable_capture_arg_indices[@]+"${probed_variable_capture_arg_indices[@]}"}; then
 			_TT_increment i
-			local probed_var_name="${args[$i]}"
+			local probed_var_name="${args[${i}]}"
 			local var_actual_value_varname
 			var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
 			if _TT_variable_not_exists "${var_actual_value_varname}"; then
@@ -699,9 +726,10 @@ function capture_exec {
 				exec_args+=("-vs" "${probed_var_name}" "$(_TT_escape_arg_if_needed "${probed_variable_actual_value}")")
 			fi
 		else
-			exec_args+=("$(_TT_escape_arg_if_needed "${args[$i]}")")
+			exec_args+=("$(_TT_escape_arg_if_needed "${args[${i}]}")")
 		fi
 	done
+
 	if [ ${#probed_variables[@]} -gt 0 ]; then
 		local probed_var_name
 		for probed_var_name in ${probed_variables[@]+"${probed_variables[@]}"}; do
@@ -719,7 +747,8 @@ function capture_exec {
 		local -r name="$1"; shift
 		local -r status="$1"; shift
 		local -r exec_file="$1"; shift
-		[ "${status}" == "${FILE_STATUS_UNSPECIFIED}" ] || return 0
+		[ "${status}" == "${FILE_STATUS_UNSPECIFIED}" ] ||
+			return 0
 		if [ -s "${exec_file}" ]; then
 			local -r bytes_limit=100
 			local -r lines_limit=9
@@ -729,7 +758,7 @@ function capture_exec {
 			local exec_file_lines
 			exec_file_lines="$(head -n $((lines_limit+2)) "${exec_file}" | wc -l)"
 			readonly exec_file_lines
-			if [ "${exec_file_bytes}" -gt "${bytes_limit}" ] || [ "${exec_file_lines}" -gt "${lines_limit}" ] ; then
+			if [ "${exec_file_bytes}" -gt "${bytes_limit}" -o "${exec_file_lines}" -gt "${lines_limit}" ] ; then
 				cp "${exec_file}" "${data_temp_dir}/${name}"
 				exec_args+=("${flag}" "$(_TT_escape_arg "${data_dir}/${name}")")
 			else
@@ -737,18 +766,19 @@ function capture_exec {
 				_TT_read_file_exactly exec_content "${exec_file}"
 				local -r exec_content_len="${#exec_content}"
 				local -r last_index="$((exec_content_len-1))"
-				if [ "${exec_content: ${last_index}}" == "${_TT_NEW_LINE}" ]; then
+				if [ "${exec_content:${last_index}}" == "${_TT_NEW_LINE}" ]; then
 					local flag_suffix="h"
-					exec_content="${exec_content:0: ${last_index}}"
+					exec_content="${exec_content:0:${last_index}}"
 				else
 					local flag_suffix="H"
 				fi
 				local -a lines=()
 				while IFS= read -r; do
-					lines+=("$REPLY")
+					lines+=("${REPLY}")
 				done <<< "${exec_content}"
 				local -r num_lines="${#lines[@]}"
-				[ "${num_lines}" -le 1 ] || flag_suffix="${flag_suffix}${num_lines}"
+				[ "${num_lines}" -le 1 ] ||
+					flag_suffix="${flag_suffix}${num_lines}"
 				exec_args+=("${flag}${flag_suffix}")
 				local line
 				for line in "${lines[@]}"; do
@@ -771,7 +801,8 @@ function capture_exec {
 
 	# Add return code expectation if needed
 	if [ "${return_code_status}" == "${RETURN_STATUS_UNSPECIFIED}" ]; then
-		[ "${exec_return_code}" -eq 0 ] || exec_args+=("-r" "${exec_return_code}")
+		[ "${exec_return_code}" -eq 0 ] ||
+			exec_args+=("-r" "${exec_return_code}")
 	fi
 
 	local temp_arg

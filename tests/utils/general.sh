@@ -12,10 +12,12 @@ function _TT_error_exit {
 	exit "${exit_code}"
 }
 
+
 function _TT_is_in {
 	local -r item_to_find="$1"; shift
 	for item in "$@"; do
-		[ "${item_to_find}" != "${item}" ] || return 0
+		[ "${item_to_find}" != "${item}" ] ||
+			return 0
 	done
 	return 1
 }
@@ -106,7 +108,8 @@ function _TT_escape_arg_if_needed {
 function _TT_array_to_str_args {
 	local first="true"
 	while [ $# -gt 0 ]; do
-		"${first}" || printf " "
+		"${first}" ||
+			printf " "
 		first="false"
 		_TT_escape_arg_if_needed "$1"; shift
 	done
@@ -150,11 +153,13 @@ function _TT_check_any_type_file_exists {
 	fi
 	readonly error_prefix
 
-	[ -e "${file_path}" ] || _TT_error_exit 4 -e "\
+	[ -e "${file_path}" ] ||
+		_TT_error_exit 4 -e "\
 ${error_prefix}${file_title} '$(basename "${file_path}")' not found.
 Given address: '${file_path}'"
 
-	[ "$test_flag" "${file_path}" ] || _TT_error_exit 4 -e "\
+	[ "${test_flag}" "${file_path}" ] ||
+		_TT_error_exit 4 -e "\
 ${error_prefix}${file_title} '$(basename "${file_path}")' ${the_problem}.
 Given address: '${file_path}'"
 }
@@ -173,7 +178,8 @@ function _TT_recreate_dir {
 	local -r dir="$1"; shift
 	mkdir -p "${dir}"
 	ls -A1 "${dir}" | while read file; do
-		[ -n "${file}" ] || continue
+		[ -n "${file}" ] ||
+			continue
 		rm -rf "${dir}/${file}"
 	done
 	return 0 # For safety
@@ -182,7 +188,8 @@ function _TT_recreate_dir {
 function run_bash_on {
 	local -r pattern="$1"; shift
 	local -r files="$(eval ls -1 "${pattern}" 2>/dev/null || true)"
-	[ -n "${files}" ] || return 0
+	[ -n "${files}" ] ||
+		return 0
 	while read f; do
 		bash "${f}" "$@"
 	done <<< "${files}"
@@ -236,7 +243,7 @@ function _TT_next_free_fd {
 	local -r max="$(ulimit -n)"
 	local fd
 	for ((fd=3; fd<max; ++fd)); do
-		! true >&${fd} && ! true <&${fd} && echo ${fd} && return 0
+		! true >&${fd} && ! true <&${fd} && echo "${fd}" && return 0
 	done 2>/dev/null
 	return 1
 }
