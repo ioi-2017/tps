@@ -154,7 +154,7 @@ ${diff_info}"
 function _TT_assert_file_empty {
 	local -r name="$1"; shift
 	local -r actual="$1"; shift
-	! [ -s "${actual}" ] ||
+	_TT_is_file_empty "${actual}" ||
 		_TT_test_failure "Expected ${name} to be empty, actual: '${actual}'."
 }
 
@@ -748,7 +748,9 @@ function capture_exec {
 		local -r exec_file="$1"; shift
 		[ "${status}" == "${FILE_STATUS_UNSPECIFIED}" ] ||
 			return 0
-		if [ -s "${exec_file}" ]; then
+		if _TT_is_file_empty "${exec_file}"; then
+			exec_args+=("${flag}empty")
+		else
 			local -r bytes_limit=100
 			local -r lines_limit=9
 			local exec_file_bytes
@@ -784,8 +786,6 @@ function capture_exec {
 					exec_args+=("$(_TT_escape_arg "${line}")")
 				done
 			fi
-		else
-			exec_args+=("${flag}empty")
 		fi
 	}
 

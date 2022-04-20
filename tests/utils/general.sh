@@ -175,6 +175,11 @@ function _TT_check_directory_exists {
 }
 
 
+function _TT_is_file_empty {
+	local -r file_path="$1"; shift
+	[ ! -s "${file_path}" ]
+}
+
 function _TT_recreate_dir {
 	local -r dir="$1"; shift
 	mkdir -p "${dir}"
