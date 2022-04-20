@@ -357,6 +357,16 @@ function _TT_exec_parse_options {
 }
 
 
+function _TT_absolute_stage_path {
+	local -r the_path="$1"; shift
+	if _TT_str_starts_with "${the_path}" "/"; then
+		echo "${the_path}"
+	else
+		echo "${_TT_STAGE}/${the_path}"
+	fi
+}
+
+
 function _TT_exec_run_command {
 	if [ "${working_directory_status}" == "${WD_STATUS_UNSPECIFIED}" ]; then
 		if _TT_variable_exists "EXEC_WORKING_DIRECTORY"; then
@@ -366,11 +376,9 @@ function _TT_exec_run_command {
 		fi
 	fi
 
-	if _TT_str_starts_with "${working_directory}" "/"; then
-		local -r abs_working_directory="${working_directory}"
-	else
-		local -r abs_working_directory="${_TT_STAGE}/${working_directory}"
-	fi
+	local abs_working_directory
+	abs_working_directory="$(_TT_absolute_stage_path "${working_directory}")"
+	readonly abs_working_directory
 	_TT_check_directory_exists "Working directory" "${abs_working_directory}"
 
 	mkdir -p "${_TT_SANDBOX}"
