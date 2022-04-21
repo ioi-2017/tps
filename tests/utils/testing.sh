@@ -215,6 +215,44 @@ function _TT_exec_parse_options {
 	shifts=0
 
 	local arg_shifts
+
+	function _TT_read_here_file_arguments {
+		# Reads a file content given as arguments & stores in a variable (given by its name).
+		# The amount of arguments to shift is also stored in a variable (given by its name).
+		# Examples ("flag-suffix" "args"... --> "content" shift):
+		# "h" "abc" --> "abc\n" 1
+		# "H" "abc" --> "abc" 1
+		# "h2" "abc" "def" --> "abc\ndef\n" 2
+		local -r option_flag="$1"; shift
+		local -r option_suffix="$1"; shift
+		local -r arg_shifts_varname="$1"; shift
+		local -r file_content_varname="$1"; shift
+		local -r option_suffix_char="${option_suffix:0:1}"
+		local -r option_suffix_num="${option_suffix:1}"
+		if [ -n "${option_suffix_num}" ]; then
+			local -r num_lines="${option_suffix_num}"
+			_TT_is_nonnegative_integer "${num_lines}" ||
+				_TT_test_error_exit 2 "Undefined option '${option_flag}'."
+		else
+			local -r num_lines=1
+		fi
+		[ $# -ge "${num_lines}" ] ||
+			_TT_test_error_exit 2 "Insufficient number of arguments after '${option_flag}'."
+		local _TT_f_file_content
+		local _TT_f_arg_shifts=0
+		local i line
+		for ((i=0; i<num_lines; i++)); do
+			line="$1"; shift; _TT_increment "_TT_f_arg_shifts"
+			[ "${i}" -eq 0 ] ||
+				_TT_f_file_content="${_TT_f_file_content}${_TT_NEW_LINE}"
+			_TT_f_file_content="${_TT_f_file_content}${line}"
+		done
+		[ "${option_suffix_char}" != "h" ] ||
+			_TT_f_file_content="${_TT_f_file_content}${_TT_NEW_LINE}"
+		_TT_set_variable "${arg_shifts_varname}" "${_TT_f_arg_shifts}"
+		_TT_set_variable "${file_content_varname}" "${_TT_f_file_content}"
+	}
+
 	function _TT_exec_read_file_status_args {
 		local -r option_flag="$1"; shift
 		local -r status_varname="$1"; shift
@@ -229,28 +267,12 @@ function _TT_exec_parse_options {
 				_TT_set_variable "${file_varname}" "${file_value}"
 				;;
 			h*|H*)
-				local -r option_suffix_char="${option_suffix:0:1}"
-				if [ -n "${option_suffix:1}" ]; then
-					local -r num_lines="${option_suffix:1}"
-					_TT_is_nonnegative_integer "${num_lines}" ||
-						_TT_test_error_exit 2 "Undefined option '${option_flag}'."
-				else
-					local -r num_lines=1
-				fi
-				[ $# -ge "${num_lines}" ] ||
-					_TT_test_error_exit 2 "Insufficient number of arguments after '${option_flag}'."
-				local file_value
-				local i line
-				for ((i=0; i<num_lines; i++)); do
-					line="$1"; shift; _TT_increment arg_shifts
-					[ "${i}" -eq 0 ] ||
-						file_value="${file_value}${_TT_NEW_LINE}"
-					file_value="${file_value}${line}"
-				done
-				[ "${option_suffix_char}" != "h" ] ||
-					file_value="${file_value}${_TT_NEW_LINE}"
+				local file_content
+				local here_arg_shifts
+				_TT_read_here_file_arguments "${option_flag}" "${option_suffix}" "here_arg_shifts" "file_content" "$@"
+				shift "${here_arg_shifts}"; _TT_increment "arg_shifts" "${here_arg_shifts}"
 				_TT_set_variable "${status_varname}" "${FILE_STATUS_HERE}"
-				_TT_set_variable "${file_varname}" "${file_value}"
+				_TT_set_variable "${file_varname}" "${file_content}"
 				;;
 			empty)
 				_TT_set_variable "${status_varname}" "${FILE_STATUS_EMPTY}"
@@ -713,6 +735,52 @@ function capture_exec {
 	local -r data_temp_dir="${captured_data_dir}/${test_capture_key}.tmp"
 	mkdir -p "${data_temp_dir}"
 
+	function _TT_make_here_file_arguments_if_possible {
+		# Converts the contents of a file to a list of arguments if it is not too large.
+		# Examples ("content" --> "flag-suffix" "args"...):
+		# "abc\n" --> "h" "abc"
+		# "abc" --> "H" "abc"
+		# "abc\ndef\n" --> "h2" "abc" "def"
+		local -r file_path="$1"; shift
+		local -r flag_suffix_varname="$1"; shift
+		local -r here_file_arguments_varname="$1"; shift
+		local -r bytes_limit=100
+		local -r lines_limit=9
+		local file_bytes_count
+		file_bytes_count="$(head -c $((bytes_limit+2)) "${file_path}" | wc -c)"
+		readonly file_bytes_count
+		local file_lines_count
+		file_lines_count="$(head -n $((lines_limit+2)) "${file_path}" | wc -l)"
+		readonly file_lines_count
+		[ "${file_bytes_count}" -le "${bytes_limit}" -a "${file_lines_count}" -le "${lines_limit}" ] ||
+			return 0
+		local file_content
+		_TT_read_file_exactly "file_content" "${file_path}"
+		local -r file_content_len="${#file_content}"
+		local -r last_index="$((file_content_len-1))"
+		local _TT_f_flag_suffix
+		if [ "${file_content:${last_index}}" == "${_TT_NEW_LINE}" ]; then
+			_TT_f_flag_suffix="h"
+			file_content="${file_content:0:${last_index}}"
+		else
+			_TT_f_flag_suffix="H"
+		fi
+		local -a lines=()
+		while IFS= read -r; do
+			lines+=("${REPLY}")
+		done <<< "${file_content}"
+		local -r num_lines="${#lines[@]}"
+		[ "${num_lines}" -le 1 ] ||
+			_TT_f_flag_suffix="${_TT_f_flag_suffix}${num_lines}"
+		local -a _TT_f_here_file_arguments=()
+		local line
+		for line in "${lines[@]}"; do
+			_TT_f_here_file_arguments+=("$(_TT_escape_arg "${line}")")
+		done
+		_TT_set_variable "${flag_suffix_varname}" "${_TT_f_flag_suffix}"
+		_TT_set_array_variable "${here_file_arguments_varname}" "_TT_f_here_file_arguments"
+	}
+
 	local exec_args=("expect_exec")
 	source "${exec_variables}"
 	local i
@@ -759,37 +827,11 @@ function capture_exec {
 		if _TT_is_file_empty "${exec_file}"; then
 			exec_args+=("${flag}empty")
 		else
-			local -r bytes_limit=100
-			local -r lines_limit=9
-			local exec_file_bytes
-			exec_file_bytes="$(head -c $((bytes_limit+2)) "${exec_file}" | wc -c)"
-			readonly exec_file_bytes
-			local exec_file_lines
-			exec_file_lines="$(head -n $((lines_limit+2)) "${exec_file}" | wc -l)"
-			readonly exec_file_lines
-			if [ "${exec_file_bytes}" -le "${bytes_limit}" -a "${exec_file_lines}" -le "${lines_limit}" ] ; then
-				local exec_content
-				_TT_read_file_exactly exec_content "${exec_file}"
-				local -r exec_content_len="${#exec_content}"
-				local -r last_index="$((exec_content_len-1))"
-				if [ "${exec_content:${last_index}}" == "${_TT_NEW_LINE}" ]; then
-					local flag_suffix="h"
-					exec_content="${exec_content:0:${last_index}}"
-				else
-					local flag_suffix="H"
-				fi
-				local -a lines=()
-				while IFS= read -r; do
-					lines+=("${REPLY}")
-				done <<< "${exec_content}"
-				local -r num_lines="${#lines[@]}"
-				[ "${num_lines}" -le 1 ] ||
-					flag_suffix="${flag_suffix}${num_lines}"
-				exec_args+=("${flag}${flag_suffix}")
-				local line
-				for line in "${lines[@]}"; do
-					exec_args+=("$(_TT_escape_arg "${line}")")
-				done
+			local flag_suffix here_file_arguments
+			unset flag_suffix
+			_TT_make_here_file_arguments_if_possible "${exec_file}" "flag_suffix" "here_file_arguments"
+			if _TT_variable_exists "flag_suffix"; then
+				exec_args+=("${flag}${flag_suffix}" ${here_file_arguments[@]+"${here_file_arguments[@]}"})
 			else
 				cp "${exec_file}" "${data_temp_dir}/${name}"
 				exec_args+=("${flag}" "$(_TT_escape_arg "${data_dir}/${name}")")
