@@ -709,6 +709,10 @@ function capture_exec {
 	local exec_return_code
 	_TT_exec_run_command "${args[@]:${shifts}}"
 
+	local -r data_dir="${captured_data_dir}/${test_capture_key}"
+	local -r data_temp_dir="${captured_data_dir}/${test_capture_key}.tmp"
+	mkdir -p "${data_temp_dir}"
+
 	local exec_args=("expect_exec")
 	source "${exec_variables}"
 	local i
@@ -745,10 +749,6 @@ function capture_exec {
 	fi
 
 	# Add stdout/stderr expectation if needed
-	local -r data_dir="${captured_data_dir}/${test_capture_key}"
-	local -r data_temp_dir="${captured_data_dir}/${test_capture_key}.tmp"
-	mkdir -p "${data_temp_dir}"
-
 	function _TT_capture_handle_output_file {
 		local -r flag="$1"; shift
 		local -r name="$1"; shift
@@ -767,10 +767,7 @@ function capture_exec {
 			local exec_file_lines
 			exec_file_lines="$(head -n $((lines_limit+2)) "${exec_file}" | wc -l)"
 			readonly exec_file_lines
-			if [ "${exec_file_bytes}" -gt "${bytes_limit}" -o "${exec_file_lines}" -gt "${lines_limit}" ] ; then
-				cp "${exec_file}" "${data_temp_dir}/${name}"
-				exec_args+=("${flag}" "$(_TT_escape_arg "${data_dir}/${name}")")
-			else
+			if [ "${exec_file_bytes}" -le "${bytes_limit}" -a "${exec_file_lines}" -le "${lines_limit}" ] ; then
 				local exec_content
 				_TT_read_file_exactly exec_content "${exec_file}"
 				local -r exec_content_len="${#exec_content}"
@@ -793,6 +790,9 @@ function capture_exec {
 				for line in "${lines[@]}"; do
 					exec_args+=("$(_TT_escape_arg "${line}")")
 				done
+			else
+				cp "${exec_file}" "${data_temp_dir}/${name}"
+				exec_args+=("${flag}" "$(_TT_escape_arg "${data_dir}/${name}")")
 			fi
 		fi
 	}
