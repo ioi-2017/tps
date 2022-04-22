@@ -4,10 +4,19 @@ set -euo pipefail
 
 set -a
 
+_TT_VERBOSE="false"
+if [ $# -gt 0 ] && [ "$1" == "-v" -o "$1" == "--verbose" ]; then
+	_TT_VERBOSE="true"
+	shift
+fi
+
 _TPS_TESTS_DIR="$(dirname "$0")"
 
 _TT_UTILS_DIR="${_TPS_TESTS_DIR}/utils"
 source "${_TT_UTILS_DIR}/all.sh"
+
+[ $# -gt 0 ] ||
+	_TT_error_exit 1 "Usage: \"$0\" [-v|--verbose] <script-name> [script-arguments...]"
 
 set +a
 

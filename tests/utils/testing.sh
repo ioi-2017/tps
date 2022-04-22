@@ -22,16 +22,24 @@ function print_test_context {
 	_TT_errcho
 }
 
+function _TT_is_verbose {
+	_TT_variable_exists "_TT_VERBOSE" && "${_TT_VERBOSE}"
+}
+
 function push_test_context {
 	local -r tc="$1"; shift
 	[ -z "${_TT_TEST_CONTEXT}" ] ||
 		_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${_TT_NEW_LINE}"
 	_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${tc}"
-	# _TT_errcho "$(get_test_context) ((";
+	if _TT_is_verbose; then
+		_TT_errcho "++ $(get_test_context)"
+	fi
 }
 
 function pop_test_context {
-	# _TT_errcho "$(get_test_context) ))";
+	if _TT_is_verbose; then
+		_TT_errcho "-- $(get_test_context)"
+	fi
 	local last_new_line_index=0
 	local i
 	for ((i=0; i<${#_TT_TEST_CONTEXT}; i++)); do
