@@ -23,6 +23,22 @@ function _TT_is_in {
 	return 1
 }
 
+function _TT_index_of {
+	# Finds index of an item in a list.
+	# The index is 0-based.
+	local -r item_to_find="$1"; shift
+	local -ra arr=("$@")
+	local i item
+	for i in "${!arr[@]}"; do
+		item="${arr[${i}]}"
+		if [ "${item_to_find}" == "${item}" ]; then
+			echo "${i}"
+			return 0
+		fi
+	done
+	return 1
+}
+
 
 function _TT_variable_exists {
 	local -r varname="$1"; shift

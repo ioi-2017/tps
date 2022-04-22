@@ -151,6 +151,20 @@ ${diff_info}"
 	fi
 }
 
+function _TT_assert_same_directories {
+	local -r name="$1"; shift
+	local -r expected="$1"; shift
+	local -r actual="$1"; shift
+	local -r diff_file="${_TT_SANDBOX}/latest.diff"
+	if ! diff -rq "${expected}" "${actual}" > "${diff_file}" 2>&1; then
+		local diff_info
+		diff_info="$(_TT_truncated_cat "${diff_file}" 20)"
+		readonly diff_info
+		_TT_test_failure "Incorrect directory contents in ${name}, expected: '${expected}', actual: '${actual}'.
+${diff_info}"
+	fi
+}
+
 function _TT_assert_file_empty {
 	local -r name="$1"; shift
 	local -r actual="$1"; shift
@@ -211,6 +225,17 @@ function _TT_exec_parse_options {
 	readonly PROBED_VAR_STATUS_ARRAY="array"
 	probed_variables=()
 	probed_variable_capture_arg_indices=()
+	readonly PROBED_FILE_STATUS_UNSPECIFIED="unspecified"
+	readonly PROBED_FILE_STATUS_CAPTURE="capture"
+	readonly PROBED_FILE_STATUS_NONEXISTING="nonexisting"
+	readonly PROBED_FILE_STATUS_EMPTY_FILE="empty-file"
+	readonly PROBED_FILE_STATUS_EMPTY_DIR="empty-dir"
+	readonly PROBED_FILE_STATUS_FILE="file"
+	readonly PROBED_FILE_STATUS_HERE="here"
+	probed_files=()
+	probed_files_status=()
+	probed_files_expected_value=()
+	probed_file_capture_arg_indices=()
 
 	shifts=0
 
@@ -331,6 +356,51 @@ function _TT_exec_parse_options {
 		esac
 	}
 
+	function _TT_exec_read_probed_file_status_args {
+		local -r option_flag="$1"; shift
+		arg_shifts=0
+		local -r file_name="$1"; shift; _TT_increment arg_shifts
+		local probed_file_status="${PROBED_FILE_STATUS_UNSPECIFIED}"
+		local probed_file_expected_value="?"
+		local -r option_suffix="${option_flag:2}"
+		case "${option_suffix}" in
+			c)
+				"${is_capture_mode}" ||
+					_TT_test_error_exit 2 "Option '${option_flag}' is only available in capture mode."
+				probed_file_status="${PROBED_FILE_STATUS_CAPTURE}"
+				probed_file_capture_arg_indices+=("$((shifts-1))")
+				;;
+			u)
+				probed_file_status="${PROBED_FILE_STATUS_NONEXISTING}"
+				;;
+			empty)
+				probed_file_status="${PROBED_FILE_STATUS_EMPTY_FILE}"
+				;;
+			empty-dir)
+				probed_file_status="${PROBED_FILE_STATUS_EMPTY_DIR}"
+				;;
+			"")
+				local -r file_value="$1"; shift; _TT_increment arg_shifts
+				probed_file_status="${PROBED_FILE_STATUS_FILE}"
+				probed_file_expected_value="${file_value}"
+				;;
+			h*|H*)
+				local file_content
+				local here_arg_shifts
+				_TT_read_here_file_arguments "${option_flag}" "${option_suffix}" "here_arg_shifts" "file_content" "$@"
+				shift "${here_arg_shifts}"; _TT_increment "arg_shifts" "${here_arg_shifts}"
+				probed_file_status="${PROBED_FILE_STATUS_HERE}"
+				probed_file_expected_value="${file_content}"
+				;;
+			*)
+				_TT_test_error_exit 2 "Undefined option '${option_flag}'."
+				;;
+		esac
+		probed_files+=("${file_name}")
+		probed_files_status+=("${probed_file_status}")
+		probed_files_expected_value+=("${probed_file_expected_value}")
+	}
+
 	while [ $# -gt 0 ] && _TT_str_starts_with "$1" "-"; do
 		local option="$1"; shift; _TT_increment shifts
 		case "${option}" in
@@ -352,6 +422,10 @@ function _TT_exec_parse_options {
 				;;
 			-v*)
 				_TT_exec_read_var_status_args "${option}" "$@"
+				shift "${arg_shifts}"; _TT_increment shifts "${arg_shifts}"
+				;;
+			-f*)
+				_TT_exec_read_probed_file_status_args "${option}" "$@"
 				shift "${arg_shifts}"; _TT_increment shifts "${arg_shifts}"
 				;;
 			-r)
@@ -547,6 +621,17 @@ function expect_exec {
 	local PROBED_VAR_STATUS_ARRAY
 	local probed_variables
 	local probed_variable_capture_arg_indices
+	local PROBED_FILE_STATUS_UNSPECIFIED
+	local PROBED_FILE_STATUS_CAPTURE
+	local PROBED_FILE_STATUS_NONEXISTING
+	local PROBED_FILE_STATUS_EMPTY_FILE
+	local PROBED_FILE_STATUS_EMPTY_DIR
+	local PROBED_FILE_STATUS_FILE
+	local PROBED_FILE_STATUS_HERE
+	local probed_files
+	local probed_files_status
+	local probed_files_expected_value
+	local probed_file_capture_arg_indices
 	local command_name
 	local shifts
 	_TT_exec_parse_options "$@"
@@ -624,6 +709,61 @@ function expect_exec {
 				_TT_test_error_exit 5 "Illegal state; invalid status '${var_expected_status}' for probed variable '${probed_var_name}'."
 			fi
 		fi
+	done
+
+	local probed_file_name
+	local probed_file_expected_status
+	local probed_file_expected_value
+	local probed_file_absolute_path
+	local probed_file_title
+	function expect_probed_file_to_be_ordinary_file {
+		[ -f "${probed_file_absolute_path}" ] ||
+			_TT_test_failure "Expected ${probed_file_title} as an ordinary file."
+	}
+	function expect_probed_file_to_be_directory {
+		[ -d "${probed_file_absolute_path}" ] ||
+			_TT_test_failure "Expected ${probed_file_title} as a directory."
+	}
+	local probed_file_index
+	for probed_file_index in "${!probed_files[@]}"; do
+		probed_file_name="${probed_files[${probed_file_index}]}"
+		probed_file_expected_status="${probed_files_status[${probed_file_index}]}"
+		probed_file_expected_value="${probed_files_expected_value[${probed_file_index}]}"
+		probed_file_absolute_path="$(_TT_absolute_stage_path "${probed_file_name}")"
+		probed_file_title="probed file '${probed_file_name}'"
+		case "${probed_file_expected_status}" in
+			"${PROBED_FILE_STATUS_NONEXISTING}")
+				[ ! -e "${probed_file_absolute_path}" ] ||
+					_TT_test_failure "Expected ${probed_file_title} to be nonexisting."
+				;;
+			"${PROBED_FILE_STATUS_EMPTY_FILE}")
+				expect_probed_file_to_be_ordinary_file
+				_TT_assert_file_empty "${probed_file_title}" "${probed_file_absolute_path}"
+				;;
+			"${PROBED_FILE_STATUS_EMPTY_DIR}")
+				expect_probed_file_to_be_directory
+				_TT_is_directory_empty "${probed_file_absolute_path}" ||
+					_TT_test_failure "Expected ${probed_file_title} to be an empty directory, actual: '${probed_file_absolute_path}'."
+				;;
+			"${PROBED_FILE_STATUS_HERE}")
+				expect_probed_file_to_be_ordinary_file
+				_TT_assert_file_content "${probed_file_title}" "${probed_file_expected_value}" "${probed_file_absolute_path}"
+				;;
+			"${PROBED_FILE_STATUS_FILE}")
+				if [ -f "${probed_file_expected_value}" ]; then
+					expect_probed_file_to_be_ordinary_file
+					_TT_assert_same_files "${probed_file_title}" "${probed_file_expected_value}" "${probed_file_absolute_path}"
+				elif [ -d "${probed_file_expected_value}" ]; then
+					expect_probed_file_to_be_directory
+					_TT_assert_same_directories "${probed_file_title}" "${probed_file_expected_value}" "${probed_file_absolute_path}"
+				else
+					_TT_test_error_exit 13 "Unknown file type: '${probed_file_expected_value}'"
+				fi
+				;;
+			*)
+				_TT_test_error_exit 5 "Illegal state; invalid probed file status '${probed_file_expected_status}' for '${probed_file_name}'."
+				;;
+		esac
 	done
 
 	pop_test_context
@@ -720,6 +860,17 @@ function capture_exec {
 	local PROBED_VAR_STATUS_ARRAY
 	local probed_variables
 	local probed_variable_capture_arg_indices
+	local PROBED_FILE_STATUS_UNSPECIFIED
+	local PROBED_FILE_STATUS_CAPTURE
+	local PROBED_FILE_STATUS_NONEXISTING
+	local PROBED_FILE_STATUS_EMPTY_FILE
+	local PROBED_FILE_STATUS_EMPTY_DIR
+	local PROBED_FILE_STATUS_FILE
+	local PROBED_FILE_STATUS_HERE
+	local probed_files
+	local probed_files_status
+	local probed_files_expected_value
+	local probed_file_capture_arg_indices
 	local command_name
 	local shifts
 	_TT_exec_parse_options ${args[@]+"${args[@]}"}
@@ -803,6 +954,54 @@ function capture_exec {
 			else
 				local probed_variable_actual_value="${!var_actual_value_varname}"
 				exec_args+=("-vs" "${probed_var_name}" "$(_TT_escape_arg_if_needed "${probed_variable_actual_value}")")
+			fi
+		elif _TT_is_in "${i}" ${probed_file_capture_arg_indices[@]+"${probed_file_capture_arg_indices[@]}"}; then
+			_TT_increment i
+			local probed_file_name="${args[${i}]}"
+			local probed_file_absolute_path
+			probed_file_absolute_path="$(_TT_absolute_stage_path "${probed_file_name}")"
+			local escaped_probed_file_name
+			escaped_probed_file_name="$(_TT_escape_arg "${probed_file_name}")"
+			function _TT_handle_pf_status_as_stored_file {
+				local probed_file_storage_name
+				if [[ "${probed_file_name}" == *"/"* ]]; then
+					probed_file_storage_name="${probed_file_name%%/*}_$(basename "${probed_file_name}")"
+				else
+					probed_file_storage_name="${probed_file_name}"
+				fi
+				local probed_file_index
+				probed_file_index="$(_TT_index_of "${probed_file_name}" "${probed_files[@]}")"
+				readonly probed_file_index
+				probed_file_storage_name="${probed_file_index}_${probed_file_storage_name}"
+				readonly probed_file_storage_name
+				local -r probed_files_storage_dir_name="probed_files"
+				mkdir -p "${data_temp_dir}/${probed_files_storage_dir_name}"
+				cp -R "${probed_file_absolute_path}" "${data_temp_dir}/${probed_files_storage_dir_name}/${probed_file_storage_name}"
+				exec_args+=("-f" "${escaped_probed_file_name}" "$(_TT_escape_arg "${data_dir}/${probed_files_storage_dir_name}/${probed_file_storage_name}")")
+			}
+			if [ ! -e "${probed_file_absolute_path}" ]; then
+				exec_args+=("-fu" "${escaped_probed_file_name}")
+			elif [ -d "${probed_file_absolute_path}" ]; then
+				if _TT_is_directory_empty "${probed_file_absolute_path}"; then
+					exec_args+=("-fempty-dir" "${escaped_probed_file_name}")
+				else
+					_TT_handle_pf_status_as_stored_file
+				fi
+			elif [ -f "${probed_file_absolute_path}" ]; then
+				if _TT_is_file_empty "${probed_file_absolute_path}"; then
+					exec_args+=("-fempty" "${escaped_probed_file_name}")
+				else
+					local flag_suffix here_file_arguments
+					unset flag_suffix
+					_TT_make_here_file_arguments_if_possible "${probed_file_absolute_path}" "flag_suffix" "here_file_arguments"
+					if _TT_variable_exists "flag_suffix"; then
+						exec_args+=("-f${flag_suffix}" "${escaped_probed_file_name}" ${here_file_arguments[@]+"${here_file_arguments[@]}"})
+					else
+						_TT_handle_pf_status_as_stored_file
+					fi
+				fi
+			else
+				_TT_test_error_exit 13 "Unknown file type for '${probed_file_name}'; location: '${probed_file_absolute_path}'"
 			fi
 		else
 			exec_args+=("$(_TT_escape_arg_if_needed "${args[${i}]}")")
