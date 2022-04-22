@@ -792,7 +792,7 @@ function capture_exec {
 	_TT_capture_handle_output_file "-o" "stdout" "${stdout_status}" "${exec_stdout}"
 	_TT_capture_handle_output_file "-e" "stderr" "${stderr_status}" "${exec_stderr}"
 
-	if [ -z "$(ls -A "${data_temp_dir}")" ]; then
+	if _TT_is_directory_empty "${data_temp_dir}"; then
 		rm -rf "${data_temp_dir}"
 	else
 		mv "${data_temp_dir}" "${data_dir}"

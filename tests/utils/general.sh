@@ -180,6 +180,12 @@ function _TT_is_file_empty {
 	[ ! -s "${file_path}" ]
 }
 
+function _TT_is_directory_empty {
+	local -r dir_path="$1"; shift
+	[ -z "$(ls -A "${dir_path}")" ]
+}
+
+
 function _TT_recreate_dir {
 	local -r dir="$1"; shift
 	mkdir -p "${dir}"
