@@ -106,6 +106,15 @@ function _TT_assert_equal {
 		_TT_test_failure "Incorrect value for ${name}, expected: '${expected}', actual: '${actual}'."
 }
 
+function _TT_assert_equal_variable {
+	local -r name="$1"; shift
+	local -r expected_varname="$1"; shift
+	local -r actual_varname="$1"; shift
+	local -r var_expected_value="${!expected_varname}"
+	local -r var_actual_value="${!actual_varname}"
+	_TT_assert_equal "${name}" "${var_expected_value}" "${var_actual_value}"
+}
+
 function _TT_assert_equal_array {
 	local -r name="$1"; shift
 	local -r expected_varname="$1"; shift
@@ -712,9 +721,7 @@ function expect_exec {
 			local var_expected_value_varname
 			var_expected_value_varname="$(get_probed_variable_expected_value_varname "${probed_var_name}")"
 			if [ "${var_expected_status}" == "${PROBED_VAR_STATUS_STRING}" ]; then
-				local var_expected_value="${!var_expected_value_varname}"
-				local var_actual_value="${!var_actual_value_varname}"
-				_TT_assert_equal "probed variable '${probed_var_name}'" "${var_expected_value}" "${var_actual_value}"
+				_TT_assert_equal_variable "probed variable '${probed_var_name}'" "${var_expected_value_varname}" "${var_actual_value_varname}"
 			elif [ "${var_expected_status}" == "${PROBED_VAR_STATUS_ARRAY}" ]; then
 				_TT_assert_equal_array "probed variable '${probed_var_name}'" "${var_expected_value_varname}" "${var_actual_value_varname}"
 			else
