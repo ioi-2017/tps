@@ -230,6 +230,35 @@ function get_probed_variable_actual_value_varname {
 }
 
 
+function _TT_dump_variable_value {
+	local -r _TT_f_variable_value_varname="$1"; shift
+	if _TT_is_variable_array "${_TT_f_variable_value_varname}"; then
+		local -a _TT_f_array_value
+		_TT_set_array_variable "_TT_f_array_value" "${_TT_f_variable_value_varname}"
+		printf "("
+		local _TT_f_array_item _TT_f_array_item_escaped
+		for _TT_f_array_item in ${_TT_f_array_value[@]+"${_TT_f_array_value[@]}"}; do
+			_TT_f_array_item_escaped="$(_TT_escape_arg "${_TT_f_array_item}")"
+			printf " %s" "${_TT_f_array_item_escaped}"
+		done
+		printf " )"
+	else
+		local _TT_f_variable_value="${!_TT_f_variable_value_varname}"
+		local _TT_f_variable_value_escaped
+		_TT_f_variable_value_escaped="$(_TT_escape_arg "${_TT_f_variable_value}")"
+		printf "%s" "${_TT_f_variable_value_escaped}"
+	fi
+}
+
+function _TT_dump_variable_name_and_value {
+	local -r _TT_f_variable_name="$1"; shift
+	local -r _TT_f_variable_value_varname="$1"; shift
+	printf "%s=" "${_TT_f_variable_name}"
+	_TT_dump_variable_value "${_TT_f_variable_value_varname}"
+	printf "\n"
+}
+
+
 function _TT_exec_parse_options {
 	make_command_path_absolute="false"
 	readonly WD_STATUS_UNSPECIFIED="unspecified"
@@ -594,25 +623,7 @@ function _TT_exec_run_command {
 				continue
 			local var_actual_value_varname
 			var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
-			printf "%s=" "${var_actual_value_varname}"
-			if _TT_is_variable_array "${probed_var_name}"; then
-				local -a probed_array_actual_value
-				_TT_set_array_variable "probed_array_actual_value" "${probed_var_name}"
-				printf "("
-				local probed_array_item
-				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
-					local _TT_escaped_actual_value
-					_TT_escaped_actual_value="$(_TT_escape_arg "${probed_array_item}")"
-					printf " %s" "${_TT_escaped_actual_value}"
-				done
-				printf " )"
-			else
-				local probed_variable_actual_value="${!probed_var_name}"
-				local _TT_escaped_actual_value
-				_TT_escaped_actual_value="$(_TT_escape_arg "${probed_variable_actual_value}")"
-				printf "%s" "${_TT_escaped_actual_value}"
-			fi
-			printf "\n"
+			_TT_dump_variable_name_and_value "${var_actual_value_varname}" "${probed_var_name}"
 		done > "${exec_abs_variables}"
 		exit "${exec_return_code}"
 	) || exec_return_code=$?
