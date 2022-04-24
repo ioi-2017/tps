@@ -110,6 +110,15 @@ function _TT_assert_equal_variable {
 	local -r name="$1"; shift
 	local -r expected_varname="$1"; shift
 	local -r actual_varname="$1"; shift
+	if _TT_variable_not_exists "${expected_varname}"; then
+		_TT_variable_not_exists "${actual_varname}" ||
+			_TT_test_failure "${name} expected to be undefined."
+		return 0
+	fi
+	_TT_variable_exists "${actual_varname}" ||
+		_TT_test_failure "${name} expected to be defined."
+	! _TT_is_variable_array "${actual_varname}" ||
+		_TT_test_failure "${name} was not expected to be an array."
 	local -r var_expected_value="${!expected_varname}"
 	local -r var_actual_value="${!actual_varname}"
 	_TT_assert_equal "${name}" "${var_expected_value}" "${var_actual_value}"
@@ -126,6 +135,8 @@ function _TT_assert_equal_array {
 	fi
 	_TT_variable_exists "${actual_varname}" ||
 		_TT_test_failure "${name} expected to be defined."
+	_TT_is_variable_array "${actual_varname}" ||
+		_TT_test_failure "${name} expected to be an array."
 	local -a expected_array
 	_TT_set_array_variable "expected_array" "${expected_varname}"
 	readonly expected_array
