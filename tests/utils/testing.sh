@@ -977,13 +977,16 @@ function capture_exec {
 				local -a probed_array_actual_value
 				_TT_set_array_variable "probed_array_actual_value" "${var_actual_value_varname}"
 				exec_args+=("-va" "${probed_var_name}" "${#probed_array_actual_value[@]}")
-				local probed_array_item
+				local probed_array_item probed_array_item_escaped
 				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
-					exec_args+=("$(_TT_escape_arg_if_needed "${probed_array_item}")")
+					probed_array_item_escaped="$(_TT_escape_arg_if_needed "${probed_array_item}")"
+					exec_args+=("${probed_array_item_escaped}")
 				done
 			else
 				local probed_variable_actual_value="${!var_actual_value_varname}"
-				exec_args+=("-vs" "${probed_var_name}" "$(_TT_escape_arg_if_needed "${probed_variable_actual_value}")")
+				local probed_variable_actual_value_escaped
+				probed_variable_actual_value_escaped="$(_TT_escape_arg_if_needed "${probed_variable_actual_value}")"
+				exec_args+=("-vs" "${probed_var_name}" "${probed_variable_actual_value_escaped}")
 			fi
 		elif _TT_is_in "${i}" ${probed_file_capture_arg_indices[@]+"${probed_file_capture_arg_indices[@]}"}; then
 			_TT_increment i
