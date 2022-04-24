@@ -30,7 +30,11 @@ function push_test_context {
 	local -r tc="$1"; shift
 	[ -z "${_TT_TEST_CONTEXT}" ] ||
 		_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${_TT_NEW_LINE}"
-	_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${tc}"
+	local tc_escaped
+	# Escaping newline (\n) and backslash (\\) in the test context
+	# Source: https://stackoverflow.com/a/1252191
+	tc_escaped="$(echo "${tc}" | sed -e ':a' -e 'N' -e '$!ba' -e 's/\\\\/\\\\\\\\/g' -e 's/\n/\\\\n/g')"
+	_TT_TEST_CONTEXT="${_TT_TEST_CONTEXT}${tc_escaped}"
 	if _TT_is_verbose; then
 		_TT_errcho "++ $(get_test_context)"
 	fi
