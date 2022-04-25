@@ -259,6 +259,31 @@ function _TT_dump_variable_name_and_value {
 }
 
 
+readonly _TT_DUMPED_PROBED_VARIABLE_NAME="variable_value"
+
+function _TT_dump_probed_variable_to_file {
+	local -r _TT_f_variable_value_varname="$1"; shift
+	local -r _TT_f_dump_file_path="$1"; shift
+	_TT_dump_variable_name_and_value "${_TT_DUMPED_PROBED_VARIABLE_NAME}" "${_TT_f_variable_value_varname}" > "${_TT_f_dump_file_path}"
+}
+
+function _TT_read_dumped_variable_from_file {
+	local -r _TT_f_variable_value_varname="$1"; shift
+	local -r _TT_f_dump_file_path="$1"; shift
+	_TT_check_file_exists "File" "${_TT_f_dump_file_path}" "Error in reading variable dump file: "
+	local "${_TT_DUMPED_PROBED_VARIABLE_NAME}"
+	unset "${_TT_DUMPED_PROBED_VARIABLE_NAME}"
+	source "${_TT_f_dump_file_path}"
+	_TT_variable_exists "${_TT_DUMPED_PROBED_VARIABLE_NAME}" ||
+		_TT_test_error_exit 3 "Variable '${_TT_DUMPED_PROBED_VARIABLE_NAME}' is not defined in file '${_TT_f_dump_file_path}'."
+	if _TT_is_variable_array "${_TT_DUMPED_PROBED_VARIABLE_NAME}"; then
+		_TT_set_array_variable "${_TT_f_variable_value_varname}" "${_TT_DUMPED_PROBED_VARIABLE_NAME}"
+	else
+		_TT_set_variable "${_TT_f_variable_value_varname}" "${!_TT_DUMPED_PROBED_VARIABLE_NAME}"
+	fi
+}
+
+
 function _TT_exec_parse_options {
 	make_command_path_absolute="false"
 	readonly WD_STATUS_UNSPECIFIED="unspecified"
@@ -410,6 +435,15 @@ function _TT_exec_parse_options {
 					var_value+=("${item}")
 				done
 				_TT_set_array_variable "${var_expected_value_varname}" "var_value"
+				;;
+			f)
+				local -r variable_dump_file_path="$1"; shift; _TT_increment arg_shifts
+				_TT_read_dumped_variable_from_file "${var_expected_value_varname}" "${variable_dump_file_path}"
+				if _TT_is_variable_array "${var_expected_value_varname}"; then
+					_TT_set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_ARRAY}"
+				else
+					_TT_set_variable "${var_status_varname}" "${PROBED_VAR_STATUS_STRING}"
+				fi
 				;;
 			*)
 				_TT_test_error_exit 2 "Undefined option '${option_flag}'."
@@ -982,22 +1016,61 @@ function capture_exec {
 			local probed_var_name="${args[${i}]}"
 			local var_actual_value_varname
 			var_actual_value_varname="$(get_probed_variable_actual_value_varname "${probed_var_name}")"
+			function _TT_handle_probed_variable_as_dumped_file {
+				local -r variable_value_varname="$1"; shift
+				local probed_variable_index
+				probed_variable_index="$(_TT_index_of "${probed_var_name}" "${probed_variables[@]}")"
+				readonly probed_variable_index
+				local -r probed_variable_dump_file_name="${probed_variable_index}_${probed_var_name}"
+				local -r probed_variables_dump_dir_name="probed_variables"
+				mkdir -p "${data_temp_dir}/${probed_variables_dump_dir_name}"
+				_TT_dump_probed_variable_to_file "${variable_value_varname}" "${data_temp_dir}/${probed_variables_dump_dir_name}/${probed_variable_dump_file_name}"
+				exec_args+=("-vf" "${probed_var_name}" "$(_TT_escape_arg "${data_dir}/${probed_variables_dump_dir_name}/${probed_variable_dump_file_name}")")
+			}
 			if _TT_variable_not_exists "${var_actual_value_varname}"; then
 				exec_args+=("-vu" "${probed_var_name}")
 			elif _TT_is_variable_array "${var_actual_value_varname}"; then
 				local -a probed_array_actual_value
 				_TT_set_array_variable "probed_array_actual_value" "${var_actual_value_varname}"
-				exec_args+=("-va" "${probed_var_name}" "${#probed_array_actual_value[@]}")
-				local probed_array_item probed_array_item_escaped
-				for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
-					probed_array_item_escaped="$(_TT_escape_arg "${probed_array_item}")"
-					exec_args+=("${probed_array_item_escaped}")
-				done
+				function _TT_should_dump_probed_array_variable {
+					[ "${#probed_array_actual_value[@]}" -le 9 ] ||
+						return 0
+					local -r array_as_str="${probed_array_actual_value[*]-}"
+					[ "${#array_as_str}" -le 60 ] ||
+						return 0
+					local item
+					for item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
+						[[ "${item}" != *"${_TT_NEW_LINE}"* ]] ||
+							return 0
+					done
+					return 1
+				}
+				if _TT_should_dump_probed_array_variable; then
+					_TT_handle_probed_variable_as_dumped_file "probed_array_actual_value"
+				else
+					exec_args+=("-va" "${probed_var_name}" "${#probed_array_actual_value[@]}")
+					local probed_array_item probed_array_item_escaped
+					for probed_array_item in ${probed_array_actual_value[@]+"${probed_array_actual_value[@]}"}; do
+						probed_array_item_escaped="$(_TT_escape_arg "${probed_array_item}")"
+						exec_args+=("${probed_array_item_escaped}")
+					done
+				fi
 			else
 				local probed_variable_actual_value="${!var_actual_value_varname}"
-				local probed_variable_actual_value_escaped
-				probed_variable_actual_value_escaped="$(_TT_escape_arg "${probed_variable_actual_value}")"
-				exec_args+=("-vs" "${probed_var_name}" "${probed_variable_actual_value_escaped}")
+				function _TT_should_dump_probed_string_variable {
+					[ "${#probed_variable_actual_value}" -le 60 ] ||
+						return 0
+					[[ "${probed_variable_actual_value}" != *"${_TT_NEW_LINE}"* ]] ||
+						return 0
+					return 1
+				}
+				if _TT_should_dump_probed_string_variable; then
+					_TT_handle_probed_variable_as_dumped_file "probed_variable_actual_value"
+				else
+					local probed_variable_actual_value_escaped
+					probed_variable_actual_value_escaped="$(_TT_escape_arg "${probed_variable_actual_value}")"
+					exec_args+=("-vs" "${probed_var_name}" "${probed_variable_actual_value_escaped}")
+				fi
 			fi
 		elif _TT_is_in "${i}" ${probed_file_capture_arg_indices[@]+"${probed_file_capture_arg_indices[@]}"}; then
 			_TT_increment i
