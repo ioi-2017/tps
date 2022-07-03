@@ -17,7 +17,7 @@ function extension {
 
 function variable_exists {
 	local -r varname="$1"; shift
-	declare -p "${varname}" &>/dev/null
+	declare -p "${varname}" &> "/dev/null"
 }
 
 function variable_not_exists {
@@ -76,8 +76,17 @@ function py_test {
 }
 
 
+function pushdq {
+	pushd "$@" > "/dev/null"
+}
+
+function popdq {
+	popd "$@" > "/dev/null"
+}
+
+
 function are_same {
-	diff "$1" "$2" > /dev/null 2>&1
+	diff "$1" "$2" &> "/dev/null"
 }
 
 function recreate_dir {
@@ -454,7 +463,7 @@ function check_executable_exists {
 
 
 function command_exists {
-	command -v "$1" >/dev/null 2>&1
+	command -v "$1" &> "/dev/null"
 }
 
 

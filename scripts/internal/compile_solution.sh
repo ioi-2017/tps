@@ -151,7 +151,7 @@ function set_coloring_flag {
 
 
 vecho "Entering the sandbox."
-pushd "${SANDBOX}" > /dev/null
+pushdq "${SANDBOX}"
 
 
 compiler_out="compile.outputs"
@@ -350,7 +350,7 @@ else
 fi
 
 vecho "Exiting the sandbox."
-popd > /dev/null
+popdq
 
 
 function replace_tokens {

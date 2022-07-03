@@ -39,9 +39,9 @@ fi
 function signal_handler {
 	local -r sig="$1"; shift
 	for ((i=0; i<NUM_SOL_PROCESSES; i++)); do
-		kill "${sig}" "-${solution_pid[$i]}" > /dev/null 2>&1 || true
+		kill "${sig}" "-${solution_pid[$i]}" &> "/dev/null" || true
 	done
-	kill "${sig}" "${manager_pid}" > /dev/null 2>&1 || true
+	kill "${sig}" "${manager_pid}" &> "/dev/null" || true
 	echo "${manager_ret_value}" > "${manager_ret}"
 }
 

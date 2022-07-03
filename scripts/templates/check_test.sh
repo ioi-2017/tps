@@ -32,11 +32,11 @@ else
 	# Not using test_name & input & sol_stderr
 	DIFF="diff"
 	DIFF_FLAGS="-bq"
-	if ! command -v "${DIFF}" >/dev/null 2>&1 ; then
+	if ! command -v "${DIFF}" &> "/dev/null"; then
 		echo "0"
 		>&2 echo "Judge Failure; Contact staff!"
 		>&2 echo "Command '${DIFF}' not found."
-	elif "${DIFF}" "${DIFF_FLAGS}" "${judge_answer}" "${sol_stdout}" >/dev/null; then
+	elif "${DIFF}" "${DIFF_FLAGS}" "${judge_answer}" "${sol_stdout}" > "/dev/null"; then
 		echo "1"
 		>&2 echo "Correct"
 	else

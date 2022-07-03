@@ -14,7 +14,7 @@ function fix() {
 	cecho yellow -n "fix: "
 	echo "$@"
 	check_file_exists "file" "${public}/$1"
-	dos2unix -q "${public}/$1" > /dev/null
+	dos2unix -q "${public}/$1" > "/dev/null"
 }
 
 function pgg() {
@@ -46,7 +46,7 @@ function replace_tokens {
 
 sensitive check_file_exists "Public package description file" "${public_files}"
 
-pushd "${PUBLIC_DIR}" > /dev/null
+pushdq "${PUBLIC_DIR}"
 
 while read raw_line; do
 	line=$(echo ${raw_line} | replace_tokens | xargs)
@@ -80,7 +80,7 @@ while read raw_line; do
 			cecho yellow -n "copy: "
 			echo "${relative_public_input}"
 			cp "${generated_input}" "${absolute_public_input}"
-			dos2unix -q "${absolute_public_input}" > /dev/null
+			dos2unix -q "${absolute_public_input}" > "/dev/null"
 		done
 		continue
 	fi
@@ -120,7 +120,7 @@ while read raw_line; do
 	echo "${file}"
 done < "${public_files}" | zip -@ "${attachment_name}"
 
-popd > /dev/null
+popdq
 
 mv "${PUBLIC_DIR}/${attachment_name}" "${BASE_DIR}/"
 

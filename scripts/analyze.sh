@@ -14,7 +14,7 @@ analysis_url="${tps_web_url}/problem/${problem_code}/${commit}/analysis"
 echo "Openning address: '${analysis_url}'"
 
 function try_open {
-	if which "$1" >/dev/null 2>&1 ; then
+	if which "$1" &> "/dev/null"; then
 		"$@"
 		exit
 	fi

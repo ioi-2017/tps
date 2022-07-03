@@ -3,16 +3,16 @@
 
 PROBLEM_NAME="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "name")"
 PROBLEM_TYPE="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "type")"
-HAS_GRADER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_grader" 2> /dev/null)" || true
-HAS_MANAGER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_manager" 2> /dev/null)" || true
-HAS_CHECKER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_checker" 2> /dev/null)" || true
-GRADER_NAME="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "grader_name" 2> /dev/null)" || true
-NUM_SOL_PROCESSES="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "num_processes" 2> /dev/null)" || true
+HAS_GRADER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_grader" 2> "/dev/null")" || true
+HAS_MANAGER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_manager" 2> "/dev/null")" || true
+HAS_CHECKER="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "has_checker" 2> "/dev/null")" || true
+GRADER_NAME="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "grader_name" 2> "/dev/null")" || true
+NUM_SOL_PROCESSES="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "num_processes" 2> "/dev/null")" || true
 
-HAS_LANG_CPP="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "cpp_enabled" 2> /dev/null)" || true
-HAS_LANG_JAVA="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "java_enabled" 2> /dev/null)" || true
-HAS_LANG_PASCAL="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "pascal_enabled" 2> /dev/null)" || true
-HAS_LANG_PYTHON="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "python_enabled" 2> /dev/null)" || true
+HAS_LANG_CPP="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "cpp_enabled" 2> "/dev/null")" || true
+HAS_LANG_JAVA="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "java_enabled" 2> "/dev/null")" || true
+HAS_LANG_PASCAL="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "pascal_enabled" 2> "/dev/null")" || true
+HAS_LANG_PYTHON="$("${PYTHON}" "${INTERNALS}/json_extract.py" "${PROBLEM_JSON}" "python_enabled" 2> "/dev/null")" || true
 
 
 function check_bool {

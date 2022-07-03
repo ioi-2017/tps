@@ -16,7 +16,7 @@ output="${tests_dir}/${test_name}.out"
 
 function gen_input {
 	temp_input=${input}.tmp
-	pushd "${GEN_DIR}" > /dev/null
+	pushdq "${GEN_DIR}"
 	if is_in "${command}" "manual" "copy"; then
 		if [ ${#args[@]} -ne 1 ] ; then
 			errcho "There must be exactly one argument for test generation command '${command}', but found ${#args[@]} arguments."
@@ -42,7 +42,7 @@ Searched for $(searched_runnable_files_str "${command}" ".")."
 		#   simple usage of empty arrays causes unbound variable error in old versions of bash with 'set -u'.
 		run_file "${gen_file}" ${args[@]+"${args[@]}"} > "${temp_input}" || return $?
 	fi
-	popd > /dev/null
+	popdq
 	
 	header_file=${GEN_DIR}/input.header
 	footer_file=${GEN_DIR}/input.footer
@@ -59,7 +59,7 @@ Searched for $(searched_runnable_files_str "${command}" ".")."
 	fi
 	
 	if command_exists dos2unix ; then
-		dos2unix "${temp_input}" >/dev/null 2>&1
+		dos2unix "${temp_input}" &> "/dev/null"
 	fi
 	mv "${temp_input}" "${input}"
 }

@@ -49,7 +49,7 @@ fi
 source "${INTERNALS}/run_util.sh"
 
 function list_exporters {
-	ls -a -1 "${EXPORTERS_DIR}" 2>/dev/null | filter_files_as_runnable_commands
+	ls -a -1 "${EXPORTERS_DIR}" 2> "/dev/null" | filter_files_as_runnable_commands
 }
 
 

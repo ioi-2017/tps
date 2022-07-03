@@ -126,7 +126,7 @@ if variable_not_exists "solution" ; then
 	exit 2
 fi
 
-if ! is_windows && ! "${PYTHON}" -c "import psutil" >/dev/null 2>/dev/null; then
+if ! is_windows && ! "${PYTHON}" -c "import psutil" &> "/dev/null"; then
 	cerrcho error -n "Error: "
 	errcho "Package 'psutil' is not installed."
 	errcho "You can install it using:"
