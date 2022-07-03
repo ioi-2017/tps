@@ -4,9 +4,9 @@ set -euo pipefail
 
 set -a
 
-_TT_VERBOSE="false"
-if [ $# -gt 0 ] && [ "$1" == "-v" -o "$1" == "--verbose" ]; then
-	_TT_VERBOSE="true"
+_TT_VERBOSE="true"
+if [ $# -gt 0 ] && [ "$1" == "-q" -o "$1" == "--quiet" ]; then
+	_TT_VERBOSE="false"
 	shift
 fi
 
@@ -15,8 +15,8 @@ _TPS_TESTS_DIR="$(dirname "$0")"
 _TT_UTILS_DIR="${_TPS_TESTS_DIR}/utils"
 source "${_TT_UTILS_DIR}/all.sh"
 
-[ $# -gt 0 ] ||
-	_TT_error_exit 1 "Usage: \"$0\" [-v|--verbose] <script-name> [script-arguments...]"
+[ $# -gt 0 ] && [[ "$1" != -* ]] ||
+	_TT_error_exit 1 "Usage: \"$0\" [-q|--quiet] <script-name> [script-arguments...]"
 
 set +a
 

@@ -16,6 +16,15 @@ In order to regenerate those tests, run:
 You can use `run.bat` instead of `./run` in windows.
 Though, the tool runs slower in windows.
 
+By default, some details about the process of running/capturing the tests is printed.
+Adding the option `-q` or `--quiet` after `run` prevents writing these information.
+Examples:
+```
+./run -q test-all.sh
+./run --quiet capture-all.sh
+```
+
+
 ## Command `expect_exec`
 
 A major tool in the tests is the command `expect_exec`,
