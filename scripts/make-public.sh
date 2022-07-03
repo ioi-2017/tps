@@ -20,8 +20,10 @@ function fix() {
 function pgg() {
 	cecho yellow -n "pgg: "
 	echo "$@"
-	check_file_exists "file" "${grader}/$1"
-	"${PYTHON}" "${INTERNALS}/pgg.py" < "${grader}/$1" > "${public}/$1"
+	local -r input_grader="${grader}/$1"
+	local -r output_grader="${public}/$1"
+	check_file_exists "file" "${input_grader}"
+	"${PYTHON}" "${INTERNALS}/pgg.py" "${input_grader}" "${output_grader}"
 	fix "$@"
 }
 
