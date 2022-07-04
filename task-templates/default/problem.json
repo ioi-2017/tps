@@ -1,0 +1,12 @@
+{
+    "name": "__TPARAM_SHORT_NAME__",
+    "code": "__TPARAM_SHORT_NAME__",
+    "title": "__TPARAM_TASK_TITLE__",
+    "type": "Batch",
+    "has_grader": __TPARAM_HAS_GRADER__,
+    "java_enabled": __TPARAM_HAS_JAVA__,
+    "python_enabled": __TPARAM_HAS_PYTHON__,
+    "time_limit": 1.0,
+    "memory_limit": 2048,
+    "description": "Task description"
+}

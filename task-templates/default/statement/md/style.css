@@ -1,0 +1,50 @@
+.header {
+	font-family: IRANSans, Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	letter-spacing: -.02em;
+	font-weight: 400;
+}
+
+.header .title {
+	float: left;
+	line-height: 1.5em;
+}
+
+.header .title div:first-child {
+	font-weight: 500;
+	font-size: 1.1em;
+	letter-spacing: -.03em;
+}
+
+.header .logo {
+	float: left;
+	margin-right: 0px;
+	margin-top: -2px;
+}
+
+.header .logo img {
+	height: 70px;
+	margin-top: -1px;
+	padding-right: 15px;
+}
+
+.header .meta {
+	float: right;
+	text-align: right;
+	margin-top: 4px;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.header .meta div:first-child {
+	font-family: "Courier New", monospace;
+	font-size: 18px;
+	letter-spacing: -.03em;
+}
+
+.header hr {
+	margin: 10px 0 30px;
+	border: none;
+	border-top: 1px solid #666;
+	height: 1px;
+}

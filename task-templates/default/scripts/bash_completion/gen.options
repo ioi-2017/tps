@@ -1,0 +1,12 @@
+--help
+--sensitive
+--warning-sensitive
+--update
+--test=
+--model-solution=
+--gen-data=
+--tests-dir=
+--no-gen
+--no-sol
+--no-val
+--no-sol-compile

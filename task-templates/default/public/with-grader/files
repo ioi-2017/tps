@@ -1,0 +1,18 @@
+public cpp/compile_cpp.sh
+public cpp/run_cpp.sh
+public cpp/PROBLEM_NAME_PLACE_HOLDER.cpp
+grader cpp/PROBLEM_NAME_PLACE_HOLDER.h
+grader cpp/GRADER_NAME_PLACE_HOLDER.cpp
+
+public java/compile_java.sh
+public java/run_java.sh
+public java/PROBLEM_NAME_PLACE_HOLDER.java
+grader java/GRADER_NAME_PLACE_HOLDER.java
+
+public py/compile_py.sh
+public py/run_py.sh
+public py/PROBLEM_NAME_PLACE_HOLDER.py
+grader py/GRADER_NAME_PLACE_HOLDER.py
+
+public examples/01.in
+public examples/01.out

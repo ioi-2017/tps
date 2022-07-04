@@ -1,0 +1,26 @@
+stages:
+  - verify
+  - gen
+
+variables:
+  WEB_TERMINAL: "true"
+
+verify integrity:
+  stage: verify
+  tags:
+    - tps
+  script:
+    - tps verify
+
+test generation:
+  stage: gen
+  when: manual
+  tags:
+    - tps
+  script:
+    - tps gen --sensitive
+  artifacts:
+    paths:
+    - tests
+    - logs
+    expire_in: 1 week

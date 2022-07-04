@@ -1,0 +1,9 @@
+*.out
+!samples/*.out
+*.aux
+*.log
+*.dvi
+*.pdf
+
+# Texmaker
+*.ptd

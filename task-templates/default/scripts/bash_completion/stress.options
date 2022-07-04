@@ -1,0 +1,16 @@
+--help
+--sensitive
+--warning-sensitive
+--hack-sensitive
+--model-solution=
+--rounds=
+--import
+--seed=
+--no-val
+--no-sol-compile
+--no-model
+--no-check
+--no-tle
+--time-limit=
+--hard-time-limit=
+--min-score=

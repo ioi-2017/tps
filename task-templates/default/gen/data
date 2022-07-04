@@ -1,0 +1,8 @@
+@subtask samples
+__TPARAM_SAMPLE_TESTS__
+
+@subtask full
+@include samples
+manual small-1.in
+gen1	20
+gen1	30

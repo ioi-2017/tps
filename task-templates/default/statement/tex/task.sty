@@ -1,0 +1,152 @@
+
+\usepackage{graphicx,comment,framed}
+\usepackage{amsthm,amssymb,amsmath}
+\usepackage{color,xcolor,colortbl}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{wrapfig}
+\usepackage{listings,xifthen}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\usepackage{makerobust}
+\MakeRobustCommand\rotatebox
+
+%--------------------- page settings ----------------------
+
+\addtolength{\textheight}{3.2cm}
+\addtolength{\topmargin}{-22mm}
+\addtolength{\textwidth}{3cm}
+\addtolength{\oddsidemargin}{-1.5cm}
+
+\setlength{\parskip}{1em}
+\setlength{\parindent}{0em}
+
+\renewcommand{\labelitemi}{$\small\bullet$}
+\renewcommand{\labelitemii}{$\small\bullet$}
+\renewcommand{\arraystretch}{1.3}
+
+\usepackage[margin=2cm, top=2.2cm, bottom=2.8cm]{geometry}
+
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\cfoot{\thepage\ of \pageref{LastPage}}
+
+
+
+
+% ------------------------------------------------------------------------------------------
+% ----------------------------------- listings styles --------------------------------------
+% ------------------------------------------------------------------------------------------
+
+% --------------------- reusable styles ----------------------
+
+\lstdefinestyle{commonStyle}{
+    language={},
+    basicstyle=\ttfamily,
+    tabsize=4,
+    extendedchars=false,
+}
+
+\lstdefinestyle{whiteSpaceBlank}{
+    showspaces=false,
+    showtabs=false,
+    showstringspaces=false,
+}
+\lstdefinestyle{whiteSpaceVisible}{
+    showspaces=true,
+    showtabs=true,
+    showstringspaces=true,
+}
+
+\lstdefinestyle{lineWrappingIndented}{
+    breaklines=true, breakatwhitespace=true,
+    breakindent=29.99pt,
+}
+\lstdefinestyle{lineWrappingMarked}{
+    breaklines=true, breakatwhitespace=true,
+    breakindent=9pt,
+    prebreak=\mbox{\space\space\textcolor{red}{\def\space{ }{%
+        %\rotatebox[origin=lc]{270}{$\curvearrowright$}
+        \raisebox{-0.85pt}[0pt][0pt]{\rotatebox[origin=br]{20}{$\hookleftarrow$}}%
+    }}},
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+%% The reason for using \raisebox{-0.85pt}[0pt][0pt]{\rotatebox[origin=br]{20}{$\hookleftarrow$}}
+%% instead of \rotatebox[origin=lc]{270}{$\curvearrowright$}
+%% is a bug in the listings package.
+%% It is also mentioned in section 7.2 of http://mirrors.ctan.org/macros/latex/contrib/listings/listings.pdf
+%% This bug appears when a background/frame is provided and the text exceeds from top/bottom area.
+%% If no background/frame is used, the former option is more elegant.
+
+% Style used when the listing is a boxed paragraph
+\lstdefinestyle{paragraphBox}{
+    backgroundcolor=\color[HTML]{EEEEEE},
+    frame=single,
+    framesep=0.3em,
+    rulecolor=\color[HTML]{DDDDDD},
+    xleftmargin=4.1pt, xrightmargin=4.1pt,
+}
+
+% Style used when the listing is in a tabular cell
+\lstdefinestyle{tableCellBox}{
+    xleftmargin=3pt, xrightmargin=1pt,
+    aboveskip=-11pt, belowskip=-15.8pt,
+}
+
+% --------------------- program listings ----------------------
+
+% Listings style:
+\lstdefinestyle{progStyle}{
+    style=commonStyle,
+    style=whiteSpaceBlank,
+    style=lineWrappingIndented,
+}
+
+% Environment:
+\lstnewenvironment{prog}[1][]
+	{\lstset{style=progStyle,style=paragraphBox,#1}}
+	{}
+
+% Inline usage command:
+\newcommand{\code}[1]{\lstinline[style=progStyle]{#1}}
+
+% Command for reading from files:
+\newcommand{\inputProg}[1]{\lstinputlisting[style=progStyle]{#1}}
+
+%--------------------- text quote listings ----------------------
+
+% Listings styles:
+\lstdefinestyle{textQuoteStyle}{
+    style=commonStyle,
+    style=whiteSpaceVisible,
+    style=lineWrappingMarked,
+}
+
+\lstdefinestyle{textQuoteParagraph}{
+    style=textQuoteStyle,
+    style=paragraphBox,
+}
+
+\lstdefinestyle{textQuoteCell}{
+    style=textQuoteStyle,
+    style=tableCellBox,
+}
+
+% Environments:
+\lstnewenvironment{textQuoteParagraph}[1][]
+    {\lstset{style=textQuoteParagraph,#1}}
+    {}
+
+\lstnewenvironment{textQuoteCell}[1][]
+    {\lstset{style=textQuoteCell,#1}}
+    {}
+
+% Inline usage command:
+\newcommand{\iquote}[1]{\lstinline[style=textQuoteStyle]{#1}}
+
+% Commands for reading from files:
+\newcommand{\inputTextQuoteParagraph}[1]{\lstinputlisting[style=textQuoteParagraph]{#1}}
+\newcommand{\inputTextQuoteCell}[1]{\lstinputlisting[style=textQuoteCell]{#1}}
+
+

@@ -1,0 +1,11 @@
+--help
+--sensitive
+--warning-sensitive
+--show-reason
+--test=
+--tests-dir=
+--no-check
+--no-sol-compile
+--no-tle
+--time-limit=
+--hard-time-limit=

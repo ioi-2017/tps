@@ -1,0 +1,73 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{task}
+
+\newcommand{\contestName}{Olympiad in Informatics 20YY}
+\newcommand{\contestDates}{Month 1 -- 8 20YY}
+\newcommand{\contestPlace}{The place}
+\newcommand{\contestRound}{Contest...}
+\newcommand{\statementLanguage}{English (Official)}
+\newcommand{\taskShortName}{__TPARAM_SHORT_NAME__}
+
+
+\begin{document}
+
+\input{header.tex}
+
+\section*{__TPARAM_TASK_TITLE__}
+
+Here we go.
+
+\begin{center}
+\includegraphics[width=.5\textwidth]{board.png}
+\end{center}
+
+\subsection*{Implementation details}
+
+You should write a program with the following behavior.
+It will be run once for each test case.
+The program should read the standard input in the following format: 
+\begin{itemize}
+    \item line $1$:  $\;\;n$
+\end{itemize}
+    
+The program should print to the standard output a single line containing the required result.
+
+\subsection*{Constraints}
+
+\begin{itemize}
+    \item $1 \leq n \leq  1000$
+\end{itemize}
+
+\subsection*{Subtasks}
+
+\begin{enumerate}
+    \item (20 points) $n \leq 100$,
+    \item (80 points) No additional constraints.
+\end{enumerate}
+
+\subsection*{Examples}
+
+\begin{tabular}{|@{}p{0.5\textwidth}@{}|@{}p{0.5\textwidth}@{}|}
+\hline
+\multicolumn{1}{|c|}{\bfseries Standard input} &
+\multicolumn{1}{c|}{\bfseries Standard output} \\
+\hline
+% Example 1
+\inputTextQuoteCell{samples/1.in} & 
+\inputTextQuoteCell{samples/1.out} \\
+\hline
+% Example 2
+\begin{textQuoteCell}
+5
+\end{textQuoteCell} &
+\begin{textQuoteCell}
+0
+\end{textQuoteCell} \\    
+\hline
+\end{tabular}
+
+In the first example, $n=5$. The answer is $0$ because...
+
+In the second example, $n=5$. The answer is $0$ because...
+
+\end{document}

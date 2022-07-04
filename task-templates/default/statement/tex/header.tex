@@ -1,0 +1,57 @@
+
+
+% Tex fragment for task statement headers
+% Usage:
+%       % Defining parameters required for header
+%       \newcommand{\contestName}{Name of the Contest Series}
+%       \newcommand{\contestDates}{Month 1 -- 8 20XX}
+%       \newcommand{\contestPlace}{City, Country}
+%       \newcommand{\contestRound}{Day 1}
+%       \newcommand{\statementLanguage}{en (US)}
+%       \newcommand{\taskShortName}{task_short_name}
+%       \input{header.tex}
+%
+
+
+%--------------------- tools ----------------------
+\makeatletter
+% \expandafter for the case that the parameter is given in a command
+\newcommand{\escapeUnderscores}[1]{\expandafter\@repl@underscores#1_\relax}
+\def\@repl@underscores#1_#2\relax{%
+    \ifx \relax #2\relax
+        % #2 is empty => finish
+        #1%
+    \else
+        % #2 is not empty => underscore was contained, needs to be replaced
+        #1%
+        \textunderscore
+        % continue replacing
+        % #2 ends with an extra underscore so I don't need to add another one
+        \@repl@underscores#2\relax
+    \fi
+}
+\makeatother
+% -------------------------------------------------
+
+\vspace*{-3em}\hspace*{-.5cm}
+\begin{tabular}{ccl}
+    \hspace{1mm}\includegraphics[width=2.5cm]{logo.png}
+    & 
+    \begin{minipage}[b]{10cm}
+        \setlength{\baselineskip}{1.05\baselineskip}
+        \sffamily
+        \makebox[0pt][l]{\bfseries \large \contestName}  \\
+        \contestDates \\ 
+        \contestPlace
+    \end{minipage}
+    & 
+    \begin{minipage}[b]{3.7cm}
+        \begin{flushright}
+            \makebox[0pt][r]{\ttfamily \bfseries \large \escapeUnderscores{\taskShortName}}  \\[.2em]
+            \sffamily
+            \contestRound \\
+            \statementLanguage
+        \end{flushright}
+    \end{minipage}
+\end{tabular} 
+\hrule height .06em

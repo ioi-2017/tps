@@ -1,0 +1,73 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{task}
+
+\newcommand{\contestName}{Olympiad in Informatics 20YY}
+\newcommand{\contestDates}{Month 1 -- 8 20YY}
+\newcommand{\contestPlace}{The place}
+\newcommand{\contestRound}{Contest...}
+\newcommand{\statementLanguage}{English (Official)}
+\newcommand{\taskShortName}{__TPARAM_SHORT_NAME__}
+
+
+\begin{document}
+
+\input{header.tex}
+
+\section*{__TPARAM_TASK_TITLE__}
+
+Here we go.
+
+\begin{center}
+\includegraphics[width=.5\textwidth]{board.png}
+\end{center}
+
+\subsection*{Implementation details}
+
+You should implement the following procedure.
+It will be called by the grader once for each test case.
+
+\begin{prog}
+int __TPARAM_GRADER_FUNCTION_NAME__(int n)
+\end{prog}
+
+\begin{itemize}
+    \item $n$: ...
+    \item This procedure should return ...
+\end{itemize}
+
+
+\subsection*{Examples}
+
+\subsubsection*{Example 1}
+
+Consider $n=5$.
+
+\begin{prog}
+__TPARAM_GRADER_FUNCTION_NAME__(5)
+\end{prog}
+
+The answer is $0$ because...
+
+\subsection*{Constraints}
+
+\begin{itemize}
+    \item $1 \leq n \leq  1000$
+\end{itemize}
+
+\subsection*{Subtasks}
+
+\begin{enumerate}
+    \item (20 points) $n \leq 100$,
+    \item (80 points) No additional constraints.
+\end{enumerate}
+
+\subsection*{Sample grader}
+
+The sample grader reads the input in the following format:
+\begin{itemize}
+    \item line $1$:  $\;\;n$
+\end{itemize}
+
+The sample grader prints a single line containing the return value of \code{__TPARAM_GRADER_FUNCTION_NAME__}.
+
+\end{document}

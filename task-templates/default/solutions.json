@@ -1,0 +1,5 @@
+{
+    "correct1.cpp": { "verdict": "model_solution" },
+    "correct1.java": { "verdict": "correct" },
+    "correct1.py": { "verdict": "correct" }
+}
