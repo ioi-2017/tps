@@ -481,38 +481,38 @@ function invalid_arg_with_usage {
 # ${next} denotes the next token when ${next_available} is "true"
 # the next token is allowed to be used when ${can_use_next} is "true"
 function fetch_arg_value {
-	local -r variable_name="$1"; shift
-	local -r short_name="$1"; shift
-	local -r long_name="$1"; shift
-	local -r argument_name="$1"; shift
+	local -r __fav_local__variable_name="$1"; shift
+	local -r __fav_local__short_name="$1"; shift
+	local -r __fav_local__long_name="$1"; shift
+	local -r __fav_local__argument_name="$1"; shift
 
-	local fetched_arg_value
-	local is_fetched="false"
-	if [ "${curr}" == "${short_name}" ]; then
+	local __fav_local__fetched_arg_value
+	local __fav_local__is_fetched="false"
+	if [ "${curr}" == "${__fav_local__short_name}" ]; then
 		if "${can_use_next}" && "${next_available}"; then
-			fetched_arg_value="${next}"
-			is_fetched="true"
+			__fav_local__fetched_arg_value="${next}"
+			__fav_local__is_fetched="true"
 			increment "arg_shifts"
 		fi
 	else
-		fetched_arg_value="${curr#${long_name}=}"
-		is_fetched="true"
+		__fav_local__fetched_arg_value="${curr#${__fav_local__long_name}=}"
+		__fav_local__is_fetched="true"
 	fi
-	if "${is_fetched}"; then
-		set_variable "${variable_name}" "${fetched_arg_value}"
+	if "${__fav_local__is_fetched}"; then
+		set_variable "${__fav_local__variable_name}" "${__fav_local__fetched_arg_value}"
 	else
-		"${invalid_arg_callback}" "${curr}" "missing ${argument_name}"
+		"${invalid_arg_callback}" "${curr}" "missing ${__fav_local__argument_name}"
 	fi
 }
 
 function fetch_nonempty_arg_value {
 	fetch_arg_value "$@"
-	local -r variable_name="$1"; shift
-	local -r short_name="$1"; shift
-	local -r long_name="$1"; shift
-	local -r argument_name="$1"; shift
-	[ -n "${!variable_name}" ] ||
-		"${invalid_arg_callback}" "${curr}" "Given ${argument_name} shall not be empty."
+	local -r __fnav_local__variable_name="$1"; shift
+	local -r __fnav_local__short_name="$1"; shift
+	local -r __fnav_local__long_name="$1"; shift
+	local -r __fnav_local__argument_name="$1"; shift
+	[ -n "${!__fnav_local__variable_name}" ] ||
+		"${invalid_arg_callback}" "${curr}" "Given ${__fnav_local__argument_name} shall not be empty."
 }
 
 # Fetches the value of the next argument, while parsing the arguments of a command.
@@ -520,16 +520,16 @@ function fetch_nonempty_arg_value {
 # ${next} denotes the next token when ${next_available} is "true"
 # the next token is allowed to be used when ${can_use_next} is "true"
 function fetch_next_arg {
-	local -r variable_name="$1"; shift
-	local -r short_name="$1"; shift
-	local -r long_name="$1"; shift
-	local -r argument_name="$1"; shift
+	local -r __fna_local__variable_name="$1"; shift
+	local -r __fna_local__short_name="$1"; shift
+	local -r __fna_local__long_name="$1"; shift
+	local -r __fna_local__argument_name="$1"; shift
 
 	if "${can_use_next}" && "${next_available}"; then
 		increment "arg_shifts"
-		set_variable "${variable_name}" "${next}"
+		set_variable "${__fna_local__variable_name}" "${next}"
 	else
-		"${invalid_arg_callback}" "${curr}" "missing ${argument_name}"
+		"${invalid_arg_callback}" "${curr}" "missing ${__fna_local__argument_name}"
 	fi
 }
 
