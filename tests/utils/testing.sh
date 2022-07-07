@@ -272,10 +272,16 @@ function _TT_read_dumped_variable_from_file {
 	local -r _TT_f_dump_file_path="$1"; shift
 	_TT_check_file_exists "File" "${_TT_f_dump_file_path}" "Error in reading variable dump file: "
 	local "${_TT_DUMPED_PROBED_VARIABLE_NAME}"
-	unset "${_TT_DUMPED_PROBED_VARIABLE_NAME}"
+	# Using 'unset' for local variables does not work perfectly in some environments.
+	_TT_set_variable "${_TT_DUMPED_PROBED_VARIABLE_NAME}" "_TT_initial_value_1"
 	source "${_TT_f_dump_file_path}"
-	_TT_variable_exists "${_TT_DUMPED_PROBED_VARIABLE_NAME}" ||
-		_TT_test_error_exit 3 "Variable '${_TT_DUMPED_PROBED_VARIABLE_NAME}' is not defined in file '${_TT_f_dump_file_path}'."
+	if [ "${!_TT_DUMPED_PROBED_VARIABLE_NAME}" == "_TT_initial_value_1" ]; then
+		_TT_set_variable "${_TT_DUMPED_PROBED_VARIABLE_NAME}" "_TT_initial_value_2"
+		source "${_TT_f_dump_file_path}"
+		if [ "${!_TT_DUMPED_PROBED_VARIABLE_NAME}" == "_TT_initial_value_2" ]; then
+			_TT_test_error_exit 3 "Variable '${_TT_DUMPED_PROBED_VARIABLE_NAME}' is not defined in file '${_TT_f_dump_file_path}'."
+		fi
+	fi
 	if _TT_is_variable_array "${_TT_DUMPED_PROBED_VARIABLE_NAME}"; then
 		_TT_set_array_variable "${_TT_f_variable_value_varname}" "${_TT_DUMPED_PROBED_VARIABLE_NAME}"
 	else
@@ -349,7 +355,7 @@ function _TT_exec_parse_options {
 		fi
 		[ $# -ge "${num_lines}" ] ||
 			_TT_test_error_exit 2 "Insufficient number of arguments after '${option_flag}'."
-		local _TT_f_file_content
+		local _TT_f_file_content=""
 		local _TT_f_arg_shifts=0
 		local i line
 		for ((i=0; i<num_lines; i++)); do
@@ -961,12 +967,15 @@ function capture_exec {
 	local -r data_temp_dir="${captured_data_dir}/${test_capture_key}.tmp"
 	mkdir -p "${data_temp_dir}"
 
+	local -r _TT_making_here_file_arguments_not_possible="LARGE"
+
 	function _TT_make_here_file_arguments_if_possible {
 		# Converts the contents of a file to a list of arguments if it is not too large.
 		# Examples ("content" --> "flag-suffix" "args"...):
 		# "abc\n" --> "h" "abc"
 		# "abc" --> "H" "abc"
 		# "abc\ndef\n" --> "h2" "abc" "def"
+		# A large file --> "LARGE"
 		local -r file_path="$1"; shift
 		local -r flag_suffix_varname="$1"; shift
 		local -r here_file_arguments_varname="$1"; shift
@@ -978,8 +987,10 @@ function capture_exec {
 		local file_lines_count
 		file_lines_count="$(head -n $((lines_limit+2)) "${file_path}" | wc -l)"
 		readonly file_lines_count
-		[ "${file_bytes_count}" -le "${bytes_limit}" -a "${file_lines_count}" -le "${lines_limit}" ] ||
+		[ "${file_bytes_count}" -le "${bytes_limit}" -a "${file_lines_count}" -le "${lines_limit}" ] || {
+			_TT_set_variable "${flag_suffix_varname}" "${_TT_making_here_file_arguments_not_possible}"
 			return 0
+		}
 		local file_content
 		_TT_read_file_exactly "file_content" "${file_path}"
 		local -r file_content_len="${#file_content}"
@@ -1109,12 +1120,11 @@ function capture_exec {
 					exec_args+=("-fempty" "${escaped_probed_file_name}")
 				else
 					local flag_suffix here_file_arguments
-					unset flag_suffix
 					_TT_make_here_file_arguments_if_possible "${probed_file_absolute_path}" "flag_suffix" "here_file_arguments"
-					if _TT_variable_exists "flag_suffix"; then
-						exec_args+=("-f${flag_suffix}" "${escaped_probed_file_name}" ${here_file_arguments[@]+"${here_file_arguments[@]}"})
-					else
+					if [ "${flag_suffix}" == "${_TT_making_here_file_arguments_not_possible}" ]; then
 						_TT_handle_pf_status_as_stored_file
+					else
+						exec_args+=("-f${flag_suffix}" "${escaped_probed_file_name}" ${here_file_arguments[@]+"${here_file_arguments[@]}"})
 					fi
 				fi
 			else
@@ -1144,13 +1154,12 @@ function capture_exec {
 			exec_args+=("${flag}empty")
 		else
 			local flag_suffix here_file_arguments
-			unset flag_suffix
 			_TT_make_here_file_arguments_if_possible "${exec_file}" "flag_suffix" "here_file_arguments"
-			if _TT_variable_exists "flag_suffix"; then
-				exec_args+=("${flag}${flag_suffix}" ${here_file_arguments[@]+"${here_file_arguments[@]}"})
-			else
+			if [ "${flag_suffix}" == "${_TT_making_here_file_arguments_not_possible}" ]; then
 				cp "${exec_file}" "${data_temp_dir}/${name}"
 				exec_args+=("${flag}" "$(_TT_escape_arg "${data_dir}/${name}")")
+			else
+				exec_args+=("${flag}${flag_suffix}" ${here_file_arguments[@]+"${here_file_arguments[@]}"})
 			fi
 		fi
 	}
