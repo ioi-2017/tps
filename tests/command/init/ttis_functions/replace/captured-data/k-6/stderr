@@ -1,0 +1,29 @@
+Template parameter 'myvar'...
+Parameter 'myvar' has predefined value 'trs2'.
+Copying task template 'templates_dir/template2' to the new directory 'output_dir'...
+Done.
+Entering the new directory 'output_dir'
+Replacing 'str1' with 'trs2' in all file names under '.'...
+Renaming './.hidden/.str1.py' to './.hidden/.trs2.py'
+Renaming './.hidden/.str1.sh' to './.hidden/.trs2.sh'
+Renaming './.hidden/str1.py' to './.hidden/trs2.py'
+Renaming './.hidden/str1.sh' to './.hidden/trs2.sh'
+Renaming './.str1' to './.trs2'
+Renaming './.str1.py' to './.trs2.py'
+Renaming './.str1.sh' to './.trs2.sh'
+Renaming './.str1/.str1.py' to './.str1/.trs2.py'
+Renaming './.str1/.str1.sh' to './.str1/.trs2.sh'
+Renaming './.str1/str1.py' to './.str1/trs2.py'
+Renaming './.str1/str1.sh' to './.str1/trs2.sh'
+Renaming './str1' to './trs2'
+Renaming './str1.py' to './trs2.py'
+Renaming './str1.sh' to './trs2.sh'
+Renaming './str1/.str1.py' to './str1/.trs2.py'
+Renaming './str1/.str1.sh' to './str1/.trs2.sh'
+Renaming './str1/str1.py' to './str1/trs2.py'
+Renaming './str1/str1.sh' to './str1/trs2.sh'
+Renaming './vis/.str1.py' to './vis/.trs2.py'
+Renaming './vis/.str1.sh' to './vis/.trs2.sh'
+Renaming './vis/str1.py' to './vis/trs2.py'
+Renaming './vis/str1.sh' to './vis/trs2.sh'
+Done.

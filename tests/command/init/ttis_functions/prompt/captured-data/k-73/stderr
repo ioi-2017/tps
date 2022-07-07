@@ -1,0 +1,4 @@
+Template parameter 'my_var'...
+Parameter 'my_var' has predefined value 'x'.
+Invalid unsigned decimal value.
+Enter a value of type 'unsigned_decimal' for 'my_var':

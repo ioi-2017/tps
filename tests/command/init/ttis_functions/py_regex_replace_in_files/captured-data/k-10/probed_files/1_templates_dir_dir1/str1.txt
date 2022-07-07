@@ -1,0 +1,2 @@
+This is str
+This is a str too.

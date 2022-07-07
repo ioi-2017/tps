@@ -1,0 +1,19 @@
+Error at argument '--templates-dir=': Given task templates directory path shall not be empty.
+Usage: tps init <new-dir-name> [options]
+	<new-dir-name> is the name of the new directory created by this command.
+Options:
+  -h, --help
+	Shows this help.
+  -t, --template=<task-template-name>
+	Specifies the task template name.
+	Note: Value 'default' is considered for <task-template-name> if this option is not specified.
+  -T, --templates-dir=<task-templates-dir>
+	Specifies the directory where the task templates are stored.
+	Note:
+	If this argument is provided, the template is searched only in the given directory.
+	Otherwise, the template is searched in the directories specified in the environment variable TPS_TASK_TEMPLATES_PATH.
+	TPS_TASK_TEMPLATES_PATH should be a colon-delimited list of paths containing task templates.
+	Example: /etc/tps/task-templates:/home/user/tps/task-templates
+  -D, --define <param-name>=<param-value>
+	Predefines the value of a task template parameter.
+	Note: This option can be used multiple times.

@@ -1,0 +1,17 @@
+Template parameter 'myvar'...
+Parameter 'myvar' has predefined value 'trs.2'.
+Copying task template 'templates_dir/template2' to the new directory 'output_dir'...
+Done.
+Entering the new directory 'output_dir'
+Replacing 'str1' with 'trs.2' in all file contents under 'vis'...
+Modifying 'vis/.foo.sh'
+Modifying 'vis/.str1.py'
+Modifying 'vis/boo.sh'
+Modifying 'vis/str1.py'
+Done.
+Replacing 'str1' with 'trs.2' in all file contents under '.str1'...
+Modifying '.str1/.foo.sh'
+Modifying '.str1/.str1.py'
+Modifying '.str1/boo.sh'
+Modifying '.str1/str1.py'
+Done.

@@ -1,0 +1,21 @@
+iiiiiiii
+byeiiiiii
+hhhbyeiii
+hhhhhhbye
+hhhhhhhh
+ab
+a b
+a	b
+a
+b
+a        b
+xz
+xyz
+xyyz
+x1z
+abc/def/gbye
+abc//def/gbye
+abc/\def/gbye
+abc\def/gbye
+abc\\def/gbye
+abc\/def/gbye

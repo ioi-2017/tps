@@ -1,0 +1,11 @@
+Template parameter 'myvar'...
+Parameter 'myvar' has predefined value 'aaa'.
+Copying task template 'templates_dir/template1' to the new directory 'output_dir'...
+Done.
+Entering the new directory 'output_dir'
+Error in calling function 'select_file_by_value' (file: 'templates_dir/template1/task-template-instantiate.sh', line #7): Destination 'b' already exists.
+Usage:
+	select_file_by_value <selected-value> <destination-path> <value1> <file1> <value2> <file2>...
+This function gets a <selected-value>, a <destination-path>, and multiple pairs of (<value>, <file>).
+If there is a match of the <selected-value> among the <value>s in the pairs, the corresponding <file> in that pair is moved/renamed to <destination-path>.
+All <file>s in the non-matching pairs are deleted.

@@ -1,0 +1,3 @@
+<task-template-name> is not specified. Using 'default' as the template.
+Found template 'default' in 'templates1'.
+Error: Task template directory 'templates1/default' does not contain 'task-template-instantiate.sh' as the instantiation script.

@@ -1,0 +1,16 @@
+Error in calling function 'general_prompt' (file: 'templates_dir/default/task-template-instantiate.sh', line #28): Validation command 'non_existing_cmd_123' is not a callable command/function.
+Usage:
+	general_prompt <var-name> <validation-command> <prompt-message> [<description>]
+Prompts for a text that is validated and stored in variable <var-name>.
+<var-name> must be in identifier format.
+The <validation-command> is called with the user-input text as standard input
+ and should return 0 if the user-input is valid.
+If the user-input is not valid,
+ the <validation-command> should write the error message in the standard error
+ (in addition to non-zero exit code).
+Otherwise, it must write the valid form of user-input in the standard output.
+So, any kind of conversion can be handled inside the <validation-command>.
+The user prompt is skipped if the variable is defined using -D/--define in the command-line arguments.
+The user prompt is repeated if the entered value (or the predefined) is not valid (according to the return value of <validation-function>).
+The <prompt-message> is printed before each input trial.
+If <description> is provided, it will also be shown to the user (only once).

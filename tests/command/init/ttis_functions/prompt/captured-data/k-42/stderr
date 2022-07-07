@@ -1,0 +1,4 @@
+Template parameter 'my_var' (a description)...
+Parameter 'my_var' has predefined value '-2'.
+Invalid unsigned integer value.
+Enter a value of type 'unsigned_integer' for 'my_var':

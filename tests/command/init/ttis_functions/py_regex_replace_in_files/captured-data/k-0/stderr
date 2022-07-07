@@ -1,0 +1,4 @@
+Warning: No task template parameters are prompted in 'templates_dir/template1/task-template-instantiate.sh'.
+Copying task template 'templates_dir/template1' to the new directory 'output_dir'...
+Done.
+Entering the new directory 'output_dir'

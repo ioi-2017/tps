@@ -1,0 +1,10 @@
+hi
+hib
+ahi
+ahib
+bye
+^hi
+^bye
+hi\$
+(hi)
+\(hi\)

@@ -1,0 +1,20 @@
+Template parameter 'myvar'...
+Parameter 'myvar' has predefined value 'trs2.py'.
+Copying task template 'templates_dir/template2' to the new directory 'output_dir'...
+Done.
+Entering the new directory 'output_dir'
+Replacing 'str1.py' with 'trs2.py' in all file contents under '.'...
+Modifying './task-template-instantiate.orig-ttis.sh'
+Done.
+Replacing 'str1.py' with 'trs2.py' in all file names under '.'...
+Renaming './.hidden/.str1.py' to './.hidden/.trs2.py'
+Renaming './.hidden/str1.py' to './.hidden/trs2.py'
+Renaming './.str1.py' to './.trs2.py'
+Renaming './.str1/.str1.py' to './.str1/.trs2.py'
+Renaming './.str1/str1.py' to './.str1/trs2.py'
+Renaming './str1.py' to './trs2.py'
+Renaming './str1/.str1.py' to './str1/.trs2.py'
+Renaming './str1/str1.py' to './str1/trs2.py'
+Renaming './vis/.str1.py' to './vis/.trs2.py'
+Renaming './vis/str1.py' to './vis/trs2.py'
+Done.

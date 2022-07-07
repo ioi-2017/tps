@@ -1,0 +1,4 @@
+Template parameter 'my_var'...
+Parameter 'my_var' has predefined value 'aa'.
+Length must be at least 3 characters.
+Enter a string of length at least 3:

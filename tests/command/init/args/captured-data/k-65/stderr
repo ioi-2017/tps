@@ -1,0 +1,3 @@
+<task-template-name> is not specified. Using 'default' as the template.
+Found template 'default' in 'templates2'.
+Error: Task template 'default' in 'templates2' is not a valid directory.

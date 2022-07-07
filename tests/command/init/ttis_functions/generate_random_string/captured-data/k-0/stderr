@@ -1,0 +1,6 @@
+Error in calling function 'generate_random_string' (file: 'templates_dir/template1/task-template-instantiate.sh', line #3): Incorrect number of arguments.
+Usage:
+	generate_random_string <string-length> <string-character-set> <random-seed>
+Generates a string of length <string-length> with characters of <string-character-set>.
+The parameter <string-length> must be a nonnegative integer.
+The parameter <random-seed> can be any string.

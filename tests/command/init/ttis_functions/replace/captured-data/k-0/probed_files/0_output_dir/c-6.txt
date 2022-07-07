@@ -1,0 +1,10 @@
+bye&
+bye&b
+abye&
+abye&b
+bye&$
+^bye&
+^bye&$
+bye&\$
+(bye&)
+\(bye&\)

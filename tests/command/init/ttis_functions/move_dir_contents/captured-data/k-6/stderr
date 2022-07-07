@@ -1,0 +1,12 @@
+Template parameter 'a_var'...
+Parameter 'a_var' has predefined value 'a_value'.
+Copying task template 'templates_dir/template1' to the new directory 'output_dir'...
+Done.
+Entering the new directory 'output_dir'
+Error in calling function 'move_dir_contents' (file: 'templates_dir/template1/task-template-instantiate.sh', line #8): Given destination directory 'aa/ff' is not a valid directory.
+Usage:
+	move_dir_contents <source-dir> <destination-dir>
+Moves all the contents of <source-dir> to <destination-dir>.
+The hidden files are also moved.
+The <source-dir> is then deleted.
+The <source-dir> shall not be the same as, or a direct/indirect parent of <destination-dir>.

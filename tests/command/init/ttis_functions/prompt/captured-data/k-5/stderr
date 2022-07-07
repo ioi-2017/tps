@@ -1,0 +1,19 @@
+Error in calling function 'prompt' (file: 'templates_dir/default/task-template-instantiate.sh', line #3): Variable name '1not_id' is not in a valid identifier format.
+Usage:
+	prompt <type> <var-name> [<description>]
+Prompts for a text of type <type> and stores it in variable <var-name>.
+<var-name> must be in identifier format.
+Valid variable types for <type>:
+ * string: any string of characters
+ * identifier: common identifier format in programming languages
+ * int, integer: signed integer format
+ * uint, unsigned_integer: unsigned integer format
+ * decimal: signed decimal format for real numbers
+ * udecimal, unsigned_decimal: unsigned decimal format for real numbers
+ * bool: boolean values, true (true,yes,y) and false (false,no,n)
+ * enum: enum value format.
+   The keyword 'enum' must be followed by the enum values in a format like 'enum:value1:value2:value3'.
+   The enum values must be in identifier format.
+If <description> is provided, it will be shown to the user.
+The user prompt is skipped if the variable is defined using -D/--define in the command-line arguments.
+The user prompt is repeated if the entered value (or the predefined) is not valid (according to the type).

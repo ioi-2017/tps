@@ -1,0 +1,4 @@
+Template parameter 'my_var'...
+Enter a value among {cat, dog, hen} for 'my_var':
+Invalid enum value. Valid values: cat, dog, hen
+Enter a value among {cat, dog, hen} for 'my_var':

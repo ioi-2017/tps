@@ -1,0 +1,2 @@
+Found template 'tpl1' in 'templates1'.
+Error: Task template directory 'templates1/tpl1' does not contain 'task-template-instantiate.sh' as the instantiation script.

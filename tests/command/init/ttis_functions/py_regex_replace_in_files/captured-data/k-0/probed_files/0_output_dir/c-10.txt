@@ -1,0 +1,21 @@
+iiiiiiii
+hiiiiiii
+hhhhiiii
+hhhhhhhi
+hhhhhhhh
+ab
+a b
+a	b
+a
+b
+a        b
+xz
+XYZ
+XYZ
+x1z
+abc/def/ghi
+abc//def/ghi
+abc/\def/ghi
+abc\def/ghi
+abc\\def/ghi
+abc\/def/ghi

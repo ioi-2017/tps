@@ -1,0 +1,6 @@
+Template parameter 'myvar'...
+Parameter 'myvar' has predefined value 'REPL'.
+Copying task template 'templates_dir/template2' to the new directory 'output_dir'...
+Done.
+Entering the new directory 'output_dir'
+Error: Given file 'a_dir' is not an ordinary file.
