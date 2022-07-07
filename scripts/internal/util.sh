@@ -487,16 +487,18 @@ function fetch_arg_value {
 	local -r argument_name="$1"; shift
 
 	local fetched_arg_value
-	unset fetched_arg_value
+	local is_fetched="false"
 	if [ "${curr}" == "${short_name}" ]; then
 		if "${can_use_next}" && "${next_available}"; then
-			local fetched_arg_value="${next}"
+			fetched_arg_value="${next}"
+			is_fetched="true"
 			increment "arg_shifts"
 		fi
 	else
-		local fetched_arg_value="${curr#${long_name}=}"
+		fetched_arg_value="${curr#${long_name}=}"
+		is_fetched="true"
 	fi
-	if variable_exists "fetched_arg_value"; then
+	if "${is_fetched}"; then
 		set_variable "${variable_name}" "${fetched_arg_value}"
 	else
 		"${invalid_arg_callback}" "${curr}" "missing ${argument_name}"
