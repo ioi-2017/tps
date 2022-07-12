@@ -2,15 +2,20 @@
 
 set -euo pipefail
 
-if [ -n "${PYTHON+x}" ] ; then
-	if ! command -v "${PYTHON}" >/dev/null 2>&1; then
+source_dir="$(dirname "$0")"
+export INTERNALS="${source_dir}/scripts/internal"
+
+source "${INTERNALS}/util.sh"
+
+if [ -n "${PYTHON+x}" ]; then
+	if ! command -v "${PYTHON}" &> "/dev/null"; then
 		>&2 echo "Error: Python command '${PYTHON}' set by environment variable 'PYTHON' does not exist."
 		exit 3
 	fi
 else
-	if command -v "python3" >/dev/null 2>&1 ; then
+	if command -v "python3" &> "/dev/null"; then
 		PYTHON="python3"
-	elif command -v "python" >/dev/null 2>&1 ; then
+	elif command -v "python" &> "/dev/null"; then
 		PYTHON="python"
 	else
 		>&2 echo "Error: Environment variable 'PYTHON' is not set and neither of python commands 'python3' nor 'python' exists."
@@ -18,9 +23,6 @@ else
 	fi
 fi
 
-export INTERNALS="scripts/internal"
-
-source "${INTERNALS}/util.sh"
 
 function usage {
 	errcho "Usage: upgrade-scripts.sh [options] <problem-dir>"
@@ -33,8 +35,8 @@ function usage {
 dry_run="false"
 
 function handle_option {
-	shifts=0
-	case "${curr}" in
+	local -r curr_arg="$1"; shift
+	case "${curr_arg}" in
 		-h|--help)
 			usage
 			exit 0
@@ -43,23 +45,23 @@ function handle_option {
 			dry_run="true"
 			;;
 		*)
-			invalid_arg "undefined option"
+			invalid_arg_with_usage "${curr_arg}" "undefined option"
 			;;
 	esac
 }
 
 function handle_positional_arg {
-	if [ -z "${problem_dir+x}" ]; then
-		problem_dir="${curr}"
+	local -r curr_arg="$1"; shift
+	if variable_not_exists "problem_dir"; then
+		problem_dir="${curr_arg}"
 		return
 	fi
-	invalid_arg "meaningless argument"
+	invalid_arg_with_usage "${curr_arg}" "meaningless argument"
 }
 
-argument_parser "handle_positional_arg" "handle_option" "$@"
+argument_parser "handle_positional_arg" "handle_option" "invalid_arg_with_usage" "$@"
 
-
-if [ -z "${problem_dir+x}" ]; then
+if variable_not_exists "problem_dir"; then
 	cecho red >&2 "Problem directory is not specified."
 	usage
 	exit 2
