@@ -570,6 +570,19 @@ function _TT_absolute_stage_path {
 }
 
 
+function run_in_stage {
+	local abs_working_directory
+	abs_working_directory="$(_TT_absolute_stage_path ".")"
+	readonly abs_working_directory
+
+	_TT_pushdq "${abs_working_directory}"
+	local run_return_code=0
+	"$@" || run_return_code=$?
+	_TT_popdq
+	return "${run_return_code}"
+}
+
+
 function _TT_exec_run_command {
 	if [ "${working_directory_status}" == "${WD_STATUS_UNSPECIFIED}" ]; then
 		if _TT_variable_exists "EXEC_WORKING_DIRECTORY"; then
@@ -901,6 +914,10 @@ function capture_run {
 	done
 	echo ${escaped_args[@]+"${escaped_args[@]}"}
 	${args[@]+"${args[@]}"}
+}
+
+function capture_run_in_stage {
+	capture_run run_in_stage "$@"
 }
 
 
