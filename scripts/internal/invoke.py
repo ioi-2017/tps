@@ -81,13 +81,22 @@ if __name__ == '__main__':
             score = verdict = None
             try:
                 with open(os.path.join(LOGS_DIR, "{}.score".format(test)), 'r') as sf:
-                    score = float(sf.readlines()[0].strip('\n'))
+                    score_str = sf.readlines()[0].strip('\n')
+                    if score_str == "?":
+                        score = None # Checker is not run
+                    else:
+                        try:
+                            score = float(score_str)
+                        except ValueError:
+                            cprinterr(colors.ERROR, "Error:")
+                            sys.stderr.write("Invalid score value '{}'\n".format(score_str))
+                            sys.exit(3)
                 with open(os.path.join(LOGS_DIR, "{}.verdict".format(test)), 'r') as vf:
                     verdict = vf.readlines()[0].strip('\n')
             except FileNotFoundError:
                 pass
             else:
-                if subtask_result is None or score < subtask_result[0]:
+                if (score is not None) and (subtask_result is None or score < subtask_result[0]):
                     subtask_result = (score, verdict, test)
                 testcases_run += 1
 

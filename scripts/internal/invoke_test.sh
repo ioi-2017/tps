@@ -114,7 +114,9 @@ echo_status "${check_status}"
 
 
 score_str="$(printf "%6s" "${score}")"
-if py_test "${score} <= 0"; then
+if [ "${score}" == "?" ]; then
+	score_color="skipped"
+elif py_test "${score} <= 0"; then
 	score_color="red"
 elif py_test "${score} >= 1"; then
 	score_color="green"
