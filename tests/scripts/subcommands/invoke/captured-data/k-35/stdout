@@ -1,0 +1,15 @@
+solution            compile[OK]
+0-01                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]               Checker skipped
+1-01                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]               Checker skipped
+1-02                sol[FAIL]  ATIME     check[SKIP]      0  [Runtime Error]         solution finished with exit code 20
+1-03                sol[FAIL]  ATIME     check[SKIP]      0  [Runtime Error]         solution finished with exit code 20
+2-01                sol[FAIL]  ATIME     check[SKIP]      0  [Runtime Error]         solution finished with exit code 20
+2-02                sol[FAIL]  ATIME     check[SKIP]      0  [Runtime Error]         solution finished with exit code 20
+samples             [0/1 tests]
+mid                 [4/4 tests]    [Runtime Error]       [0/40 pts]     [match with expected]             1-02
+full                [6/6 tests]    [Runtime Error]       [0/60 pts]     [match with expected]             1-02
+
+Subtask summary
+0/100 pts
+
+Finished.

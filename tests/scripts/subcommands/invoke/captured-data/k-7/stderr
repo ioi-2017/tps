@@ -1,0 +1,34 @@
+Provided hard time limit '-2' is not a positive real number.
+Usage: <invoke> [options] <solution-path>
+Options:
+  -h, --help
+	Shows this help.
+  -s, --sensitive
+	Terminates on the first error and shows the error details.
+  -w, --warning-sensitive
+	Terminates on the first warning or error and shows the details.
+  -r, --show-reason
+	Displays the reason for not being correct.
+	The checker message is written in the case of wrong answer.
+  -t, --test=<test-name-pattern>
+	Invokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'
+	Multiple patterns can be given using commas or pipes. Examples: '1-01, 2-*', '?-01|*2|0-*'
+	Note: Use quotation marks or escaping (with '\') when using wildcards in the pattern to prevent shell expansion.
+	      Also, use escaping (with '\') when separating multiple patterns using pipes.
+      --tests-dir=<tests-directory-path>
+	Overrides the location of the tests directory
+      --no-check
+	Skips running the checker on solution outputs.
+      --no-sol-compile
+	Skips compiling the solution.
+	Uses the solution already compiled and available in the sandbox.
+      --no-tle
+	Removes the default time limit on the execution of the solution.
+	Actually, a limit of 24 hours is applied.
+      --time-limit=<time-limit>
+	Overrides the (soft) time limit on the solution execution.
+	Given in seconds, e.g. --time-limit=1.2 means 1.2 seconds
+      --hard-time-limit=<hard-time-limit>
+	Solution process will be killed after <hard-time-limit> seconds.
+	Defaults to <time-limit> + 2.
+	Note: The hard time limit must be greater than the (soft) time limit.

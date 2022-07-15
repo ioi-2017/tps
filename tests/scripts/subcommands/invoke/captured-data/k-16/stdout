@@ -1,0 +1,15 @@
+solution            compile[OK]
+0-01                sol[OK]    ATIME     check[OK]        1  [Correct]             
+1-01                sol[OK]    ATIME     check[OK]        1  [Correct]             
+1-02                sol[OK]    ATIME     check[OK]        1  [Correct]             
+1-03                sol[OK]    ATIME     check[OK]        1  [Correct]             
+2-01                sol[FAIL]  ATIME     check[SKIP]      0  [Time Limit Exceeded] 
+2-02                sol[FAIL]  ATIME     check[SKIP]      0  [Time Limit Exceeded] 
+samples             [1/1 tests]    [Correct]             [0/0 pts]      0-01
+mid                 [4/4 tests]    [Correct]             [40/40 pts]    0-01
+full                [6/6 tests]    [Time Limit Exceeded] [0/60 pts]     2-01
+
+Subtask summary
+40/100 pts
+
+Finished.

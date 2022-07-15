@@ -1,0 +1,15 @@
+solution            compile[OK]
+0-01                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]               Checker skipped
+1-01                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]               Checker skipped
+1-02                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]               Checker skipped
+1-03                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]               Checker skipped
+2-01                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]               Checker skipped
+2-02                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]               Checker skipped
+samples             [0/1 tests]
+mid                 [0/4 tests]
+full                [0/6 tests]
+
+Subtask summary
+0/0 pts
+
+Finished.

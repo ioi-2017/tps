@@ -1,0 +1,5 @@
+solution            compile[OK]
+checker             compile[OK]
+0-01                sol[OK]    ATIME     check[FAIL]      0  [Judge Failure]         checker exited with code 127
+
+failed job: 0-01.check

@@ -1,0 +1,7 @@
+solution            compile[OK]
+checker             compile[OK]
+0-01                sol[OK]    ATIME     check[OK]        1  [Correct]             
+1-01                sol[OK]    ATIME     check[OK]        1  [Correct]             
+1-02                sol[OK]    ATIME     check[FAIL]      0  [Judge Failure]       
+
+failed job: 1-02.check

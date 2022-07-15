@@ -1,0 +1,14 @@
+{
+    "correct1.cpp": { "verdict": "model_solution" },
+    "correct1.java": { "verdict": "correct" },
+    "correct1.py": { "verdict": "correct" },
+    "wrong1.cpp": { "verdict": "incorrect" },
+    "wrong1.java": { "verdict": "incorrect" },
+    "wrong1.py": { "verdict": "incorrect" },
+    "rte1.cpp": { "verdict": "runtime_error" },
+    "rte1.java": { "verdict": "runtime_error" },
+    "rte1.py": { "verdict": "runtime_error" },
+    "slow1.cpp": { "verdict": "time_limit" },
+    "slow1.java": { "verdict": "time_limit" },
+    "slow1.py": { "verdict": "time_limit" }
+}

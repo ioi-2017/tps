@@ -1,0 +1,16 @@
+solution            compile[OK]
+checker             compile[SKIP]
+0-01                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]             
+1-01                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]             
+1-02                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]             
+1-03                sol[OK]    ATIME     check[SKIP]      ?  [Unknown]             
+2-01                sol[FAIL]  ATIME     check[SKIP]      0  [Time Limit Exceeded] 
+2-02                sol[FAIL]  ATIME     check[SKIP]      0  [Time Limit Exceeded] 
+samples             [0/1 tests]
+mid                 [0/4 tests]
+full                [6/6 tests]    [Time Limit Exceeded] [0/60 pts]     [match with expected]             2-01
+
+Subtask summary
+0/60 pts
+
+Finished.

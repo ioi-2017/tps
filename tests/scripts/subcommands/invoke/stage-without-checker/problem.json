@@ -1,0 +1,13 @@
+{
+    "name": "add1",
+    "code": "add1",
+    "title": "Add",
+    "type": "Batch",
+    "has_grader": false,
+    "has_checker": false,
+    "java_enabled": true,
+    "python_enabled": true,
+    "time_limit": 2.0,
+    "memory_limit": 256,
+    "description": "Task description"
+}

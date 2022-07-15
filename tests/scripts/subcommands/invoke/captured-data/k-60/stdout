@@ -1,0 +1,16 @@
+solution            compile[OK]
+checker             compile[OK]
+0-01                sol[OK]    ATIME     check[FAIL]      0  [Judge Failure]       
+1-01                sol[OK]    ATIME     check[FAIL]      0  [Judge Failure]       
+1-02                sol[OK]    ATIME     check[FAIL]      0  [Judge Failure]       
+1-03                sol[OK]    ATIME     check[FAIL]      0  [Judge Failure]       
+2-01                sol[OK]    ATIME     check[FAIL]      0  [Judge Failure]       
+2-02                sol[OK]    ATIME     check[FAIL]      0  [Judge Failure]       
+samples             [1/1 tests]    [Judge Failure]       [0/0 pts]      [expected: model_solution]        0-01
+mid                 [4/4 tests]    [Judge Failure]       [0/40 pts]     [expected: model_solution]        0-01
+full                [6/6 tests]    [Judge Failure]       [0/60 pts]     [expected: model_solution]        0-01
+
+Subtask summary
+0/100 pts
+
+Finished.

@@ -1,0 +1,13 @@
+solution            compile[OK]
+1-02                sol[OK]    ATIME     check[OK]        1  [Correct]               
+1-03                sol[OK]    ATIME     check[OK]        1  [Correct]               
+2-01                sol[OK]    ATIME     check[OK]        1  [Correct]               
+2-02                sol[OK]    ATIME     check[OK]        1  [Correct]               
+samples             [0/1 tests]
+mid                 [2/4 tests]    [Correct]             [40/40 pts]    [match with expected]             1-02
+full                [4/6 tests]    [Correct]             [60/60 pts]    [match with expected]             1-02
+
+Subtask summary
+100/100 pts
+
+Finished.
