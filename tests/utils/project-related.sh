@@ -15,3 +15,9 @@ function tps_bc {
 }
 
 PROJECT_SCRIPTS_DIR="${PROJECT_ROOT}/scripts"
+
+function stage_dir_with_scripts {
+	local -r dir="$1"; shift
+	stage_dir "${dir}"
+	cp -R "${PROJECT_SCRIPTS_DIR}" "${_TT_STAGE}"
+}
