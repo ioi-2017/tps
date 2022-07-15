@@ -277,3 +277,32 @@ function _TT_next_free_fd {
 	done 2>/dev/null
 	return 1
 }
+
+
+function _TT_dos2unixq {
+	# Silently runs dos2unix if the command is available
+	if _TT_command_exists "dos2unix"; then
+		dos2unix "$@" &> "/dev/null" || true
+	fi
+}
+
+function _TT_dos2unixify {
+	# Runs dos2unix on the (stdout & stderr) outputs of a command if dos2unix is available
+	if ! _TT_command_exists "dos2unix"; then
+		"$@"
+		return $?
+	fi
+	local -r out_file="_TT_dos2unixify.out.tmp"
+	local -r err_file="_TT_dos2unixify.err.tmp"
+	local exit_code=0
+	"$@" > "${out_file}" 2> "${err_file}" || exit_code=$?
+	function _TT_dos2unixify_handle {
+		local -r file_name="$1"; shift
+		dos2unix "${file_name}" &> "/dev/null"
+		cat "${file_name}"
+		rm -f "${file_name}"
+	}
+	_TT_dos2unixify_handle "${out_file}"
+	>&2 _TT_dos2unixify_handle "${err_file}"
+	return "${exit_code}"
+}
