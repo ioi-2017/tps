@@ -1,0 +1,6 @@
+generator           compile[OK]
+validator           compile[OK]
+solution            compile[OK]
+0-01                gen[OK]     val[FAIL]   sol[OK]     
+
+failed job: 0-01.val

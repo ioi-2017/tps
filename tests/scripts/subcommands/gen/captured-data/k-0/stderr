@@ -1,0 +1,35 @@
+Usage: <gen> [options]
+Options:
+  -h, --help
+	Shows this help.
+  -s, --sensitive
+	Terminates on the first error and shows the error details.
+  -w, --warning-sensitive
+	Terminates on the first warning or error and shows the details.
+  -u, --update
+	Updates the existing set of tests.
+	Prevents the initial cleanup of the tests directory.
+	Used when a subset of test data needs to be generated again.
+	Warning: Use this feature only when the other tests are not needed or already generated correctly.
+  -t, --test=<test-name-pattern>
+	Generates only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'
+	Multiple patterns can be given using commas or pipes. Examples: '1-01, 2-*', '?-01|*2|0-*'
+	Note: Use quotation marks or escaping (with '\') when using wildcards in the pattern to prevent shell expansion.
+	      Also, use escaping (with '\') when separating multiple patterns using pipes.
+  -m, --model-solution=<model-solution-path>
+	Generates test outputs using the given solution.
+  -d, --gen-data=<gen-data-file>
+	Overrides the location of meta-data file used for test generation.
+      --tests-dir=<tests-directory-path>
+	Overrides the location of the tests directory.
+      --no-gen
+	Skips running the generators for generating test inputs.
+	Prevents the initial cleanup of the tests directory.
+	Used when test inputs are already thoroughly generated and only test outputs need to be generated.
+      --no-sol
+	Skips running the model solution for generating test outputs.
+      --no-val
+	Skips validating test inputs.
+      --no-sol-compile
+	Skips compiling the model solution.
+	Uses the solution already compiled and available in the sandbox.

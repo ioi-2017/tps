@@ -1,0 +1,11 @@
+generator           compile[OK]
+validator           compile[SKIP]
+solution            compile[SKIP]
+0-01                gen[OK]     val[SKIP]   sol[SKIP]   
+1-01                gen[OK]     val[SKIP]   sol[SKIP]   
+1-02                gen[OK]     val[SKIP]   sol[SKIP]   
+1-03                gen[OK]     val[SKIP]   sol[SKIP]   
+2-01                gen[OK]     val[SKIP]   sol[SKIP]   
+2-02                gen[OK]     val[SKIP]   sol[SKIP]   
+
+Finished.

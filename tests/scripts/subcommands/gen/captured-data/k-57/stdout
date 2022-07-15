@@ -1,0 +1,5 @@
+generator           compile[OK]
+validator           compile[OK]
+solution            compile[WARN]
+exit-code: 0
+warnings:

@@ -1,0 +1,13 @@
+@subtask samples
+copy ../pub/example-01.in extra-arg
+
+@subtask mid
+@include samples
+manual example-01.in extra-arg
+gen1	20 301
+gen1	547 812
+
+@subtask full
+@include mid
+gen1	1002 799
+gen1	10010 32464

@@ -1,0 +1,13 @@
+@subtask samples
+copy ../pub/non-exist.in
+
+@subtask mid
+@include samples
+manual not-existing.in
+gen1	20 301
+gen1	547 812
+
+@subtask full
+@include mid
+gen1	1002 799
+gen1	10010 32464

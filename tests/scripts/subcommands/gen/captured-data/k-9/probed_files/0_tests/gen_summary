@@ -1,0 +1,7 @@
+# test_name gen_line_number gen_line_content
+0-01	  2	copy ../pub/example-01.in
+1-01	  6	manual small-1.in
+1-02	  7	gen1	20 301
+1-03	  8	gen1	547 812
+2-01	 12	gen1	1002 799
+2-02	 13	gen1	10010 32464

@@ -1,0 +1,7 @@
+generator           compile[SKIP]
+validator           compile[SKIP]
+solution            compile[OK]
+Warning: tests directory is not cleared.
+0-01                gen[SKIP]   val[SKIP]   sol[FAIL]   
+
+failed job: 0-01.sol

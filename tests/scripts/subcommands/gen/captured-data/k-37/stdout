@@ -1,0 +1,12 @@
+generator           compile[SKIP]
+validator           compile[SKIP]
+solution            compile[SKIP]
+Warning: tests directory is not cleared.
+0-01                gen[SKIP]   val[SKIP]   sol[SKIP]   
+1-01                gen[SKIP]   val[SKIP]   sol[SKIP]   
+1-02                gen[SKIP]   val[SKIP]   sol[SKIP]   
+1-03                gen[SKIP]   val[SKIP]   sol[SKIP]   
+2-01                gen[SKIP]   val[SKIP]   sol[SKIP]   
+2-02                gen[SKIP]   val[SKIP]   sol[SKIP]   
+
+Finished.

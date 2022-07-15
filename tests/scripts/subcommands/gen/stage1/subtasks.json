@@ -1,0 +1,20 @@
+{
+    "global_validators": ["validator.cpp"],
+    "subtasks": {
+        "samples": {
+            "index": 0,
+            "score": 0,
+            "validators": []
+        },
+        "mid": {
+            "index": 1,
+            "score": 40,
+            "validators": ["validator-mid.cpp"]
+        },
+        "full": {
+            "index": 2,
+            "score": 60,
+            "validators": []
+        }
+    }
+}
