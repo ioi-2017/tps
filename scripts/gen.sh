@@ -69,6 +69,7 @@ SKIP_GEN="false"
 SKIP_SOL="false"
 SKIP_VAL="false"
 skip_compile_sol="false"
+flag_for_not_recreating_tests_dir=""
 
 function handle_option {
 	local -r curr_arg="$1"; shift
@@ -86,6 +87,7 @@ function handle_option {
 			;;
 		-u|--update)
 			UPDATE_MODE="true"
+			flag_for_not_recreating_tests_dir="${curr_arg}"
 			;;
 		-t|--test=*)
 			fetch_nonempty_arg_value "SPECIFIED_TESTS_PATTERN" "-t" "--test" "test name pattern"
@@ -102,6 +104,7 @@ function handle_option {
 			;;
 		--no-gen)
 			SKIP_GEN="true"
+			flag_for_not_recreating_tests_dir="${curr_arg}"
 			;;
 		--no-sol)
 			SKIP_SOL="true"
@@ -135,6 +138,13 @@ fi
 
 
 sensitive check_file_exists "Generation data file" "${gen_data_file}"
+
+
+if [ -n "${flag_for_not_recreating_tests_dir}" -a ! -d "${tests_dir}" ]; then
+	errcho "Error: tests directory '${tests_dir}' does not exist (needed due to flag '${flag_for_not_recreating_tests_dir}')."
+	exit 3
+fi
+
 
 command_exists dos2unix || cecho yellow "WARNING: dos2unix is not available. Line endings might be incorrect."
 
