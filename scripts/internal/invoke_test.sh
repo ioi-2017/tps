@@ -115,11 +115,11 @@ echo_status "${check_status}"
 
 score_str="$(printf "%6s" "${score}")"
 if py_test "${score} <= 0"; then
-	score_color=red
+	score_color="red"
 elif py_test "${score} >= 1"; then
-	score_color=green
+	score_color="green"
 else
-	score_color=yellow
+	score_color="yellow"
 fi
 cecho "${score_color}" -n "${score_str}"
 
