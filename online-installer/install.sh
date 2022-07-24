@@ -44,6 +44,31 @@ fmt_error() {
 	printf "Error: %s\n" "$*" >&2
 }
 
+user_can_sudo() {
+  # Check if sudo is installed
+  command_exists sudo || return 1
+  # The following command has 3 parts:
+  #
+  # 1. Run `sudo` with `-v`. Does the following:
+  #    • with privilege: asks for a password immediately.
+  #    • without privilege: exits with error code 1 and prints the message:
+  #      Sorry, user <username> may not run sudo on <hostname>
+  #
+  # 2. Pass `-n` to `sudo` to tell it to not ask for a password. If the
+  #    password is not required, the command will finish with exit code 0.
+  #    If one is required, sudo will exit with error code 1 and print the
+  #    message:
+  #    sudo: a password is required
+  #
+  # 3. Check for the words "may not run sudo" in the output to really tell
+  #    whether the user has privileges or not. For that we have to make sure
+  #    to run `sudo` in the default locale (with `LANG=`) so that the message
+  #    stays consistent regardless of the user's locale.
+  #
+  ! LANG= sudo -n -v 2>&1 | grep -q "may not run sudo"
+}
+
+
 clone_tps() {
 	# Prevent the cloned repository from having insecure permissions. Failing to do
 	# so causes compinit() calls to fail with "command not found: compdef" errors
@@ -53,7 +78,7 @@ clone_tps() {
 	umask g-w,o-w
 
 	echo -n " ########################## "
-	echo -n "Cloning TPS Repo..."
+	echo -n "Cloning TPS Repo to ${TPS_LOCAL_REPO}..."
 	echo -n " ########################## "
 	echo
 
@@ -90,53 +115,36 @@ clone_tps() {
 		exit 1
 	}
 	# Exit installation directory
-	cd -
+	cd - > "/dev/null"
 
 	echo
 }
 
 setup_tps() {
 	echo -n " ########################## "
-	echo -n "Setting up TPS"
+	echo -n "Installing TPS system-wide"
 	echo -n " ########################## "
 	echo
+	
+	cd ${TPS_LOCAL_REPO}
 
-	TPS_BIN_DIR=$(dirname "$TPS_BIN")
-	mkdir -p "$TPS_BIN_DIR"
+	if user_can_sudo; then
+		echo "You might need to enter your password for installation."
+		sudo -k bash "install-tps.sh"
+	else
+		bash "install-tps.sh"
+	fi 
 
-	ln -s "$TPS_LOCAL_REPO/tps.sh" "$TPS_BIN"
-	chmod +x "$TPS_BIN"
+	# Check if installation was successful
+	if [ $? -ne 0 ]; then
+    	fmt_error "Installation failed."
+		exit 1
+	fi
 
-	echo "Installed TPS at $TPS_BIN"
-
-	command_exists tps || {
-		echo "\"$TPS_BIN_DIR\" is not in \$PATH. Adding to \$PATH for bash and zsh." \
-			"If your shell is different, add the following to your shell config:"
-		echo "export PATH=\"\$PATH:$TPS_BIN_DIR\""
-		echo "Please restart your shell to be able to run tps"
-		echo
-
-		for CONFIG_DIR in ".profile" ".bash_profile" ".zprofile" ".zshrc" ".bashrc"; do
-			echo "export PATH=\"\$PATH:$TPS_BIN_DIR\"" >> "$HOME/$CONFIG_DIR"
-		done
-	}
-
-	for CONFIG_DIR in ".profile" ".bash_profile" ".zprofile" ".zshrc" ".bashrc"; do
-		echo "export TPS_LOCAL_REPO=\"$TPS_LOCAL_REPO\"" >> "$HOME/$CONFIG_DIR"
-	done
-
-	BC_FILE="$TPS_LOCAL_REPO/tps.bash_completion.sh"
-
-	echo "Adding bash completion file \"$BC_FILE\" to \"~/.bashrc\" to load on bash startup." 
-	echo ". \"$BC_FILE\"" >> "$HOME/.bashrc"
+	cd - > "/dev/null"
 }
 
 main() {
-	!(command_exists tps) || {
-		fmt_error "tps is installed in $(command -v tps). You need to remove it if you want to reinstall."
-		exit 1
-	}
-
 	if [ -d "$TPS_LOCAL_REPO" ]; then
 		echo "The \$TPS_LOCAL_REPO folder already exists ($TPS_LOCAL_REPO). You need to remove it if you want to reinstall."
 		exit 1
