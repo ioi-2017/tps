@@ -13,7 +13,7 @@
 #   wget https://raw.githubusercontent.com/ioi-2017/tps/master/online-installer/install.sh
 #   bash online-installer/install.sh
 
-set -euo pipefail
+set -uo pipefail
 
 # Making sure important variables exist if not already defined
 #
