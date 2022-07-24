@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-# Make sure important variables exist if not already defined
+# Making sure important variables exist if not already defined
 #
 # $USER is defined by login(1) which is not always executed (e.g. containers)
 # POSIX: https://pubs.opengroup.org/onlinepubs/009695299/utilities/id.html
@@ -27,7 +27,7 @@ HOME="${HOME:-$(getent passwd $USER 2> "/dev/null" | cut -d: -f6)}"
 # macOS does not have getent, but this works even if $HOME is unset
 HOME="${HOME:-$(eval echo ~$USER)}"
 
-# Directory of TPS code repository
+# Directory to store TPS code repository in
 TPS_LOCAL_REPO="${TPS_LOCAL_REPO:-$HOME/.local/share/tps}"
 
 # Tps cli file path. It will be a symlink from the code repository and the directory should be added to the path.
@@ -45,22 +45,22 @@ fmt_error() {
 }
 
 user_can_sudo() {
-  # Check if sudo is installed
+  # Checking if sudo is installed
   command_exists sudo || return 1
   # The following command has 3 parts:
   #
-  # 1. Run `sudo` with `-v`. Does the following:
+  # 1. Runs `sudo` with `-v`. Does the following:
   #    • with privilege: asks for a password immediately.
   #    • without privilege: exits with error code 1 and prints the message:
   #      Sorry, user <username> may not run sudo on <hostname>
   #
-  # 2. Pass `-n` to `sudo` to tell it to not ask for a password. If the
+  # 2. Passes `-n` to `sudo` to tell it to not ask for a password. If the
   #    password is not required, the command will finish with exit code 0.
   #    If one is required, sudo will exit with error code 1 and print the
   #    message:
   #    sudo: a password is required
   #
-  # 3. Check for the words "may not run sudo" in the output to really tell
+  # 3. Checks for the words "may not run sudo" in the output to really tell
   #    whether the user has privileges or not. For that we have to make sure
   #    to run `sudo` in the default locale (with `LANG=`) so that the message
   #    stays consistent regardless of the user's locale.
@@ -70,7 +70,7 @@ user_can_sudo() {
 
 
 clone_tps() {
-	# Prevent the cloned repository from having insecure permissions. Failing to do
+	# Preventing the cloned repository from having insecure permissions. Failing to do
 	# so causes compinit() calls to fail with "command not found: compdef" errors
 	# for users with insecure umasks (e.g., "002", allowing group writability). Note
 	# that this will be ignored under Cygwin by default, as Windows ACLs take
@@ -94,7 +94,7 @@ clone_tps() {
 		exit 1
 	fi
 
-	# Manual clone with git config options to support git < v1.7.2
+	# Manual cloning with git config options to support git < v1.7.2
 	mkdir -p "$TPS_LOCAL_REPO"
 	git init --quiet "$TPS_LOCAL_REPO" && cd "$TPS_LOCAL_REPO" \
 	&& git config core.eol lf \
@@ -114,7 +114,7 @@ clone_tps() {
 		fmt_error "git clone of tps repo failed"
 		exit 1
 	}
-	# Exit installation directory
+	# Exiting installation directory
 	cd - > "/dev/null"
 
 	echo
@@ -135,7 +135,7 @@ setup_tps() {
 		bash "install-tps.sh"
 	fi 
 
-	# Check if installation was successful
+	# Checking if installation was successful
 	if [ $? -ne 0 ]; then
     	fmt_error "Installation failed."
 		exit 1
