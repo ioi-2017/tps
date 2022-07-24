@@ -129,12 +129,14 @@ function setup_tps {
 	if user_can_sudo; then
 		echo "You might need to enter your password for installation."
 		sudo -k bash "install-tps.sh"
+		install_exit_code=$?
 	else
 		bash "install-tps.sh"
+		install_exit_code=$?
 	fi 
 
 	# Checking if installation was successful
-	if [ $? -ne 0 ]; then
+	if [ "${install_exit_code}" -ne "0" ]; then
     	fmt_error "Installation failed."
 		exit 1
 	fi
