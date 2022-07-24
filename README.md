@@ -16,9 +16,15 @@ You may find the web interface at https://github.com/ioi-2017/tps-web.
 
 Installation
 ------------
-After cloning the project, just run `install-tps.sh` (or `install-tps.bat` in Windows with MSYS/Cygwin).
-This will add `tps` command to PATH and also add bash completion for it.
+Run the following command to install TPS on Linux/MacOS/Windows (with WSL):
 
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ioi-2017/tps/master/online-installer/install.sh)"
+```
+
+To install TPS in Windows (with MSYS/Cygwin), clone the project and, run `install-tps.bat`.
+
+Above methods will add `tps` command to PATH and also add bash completion for it.
 
 Behavior
 --------
