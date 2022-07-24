@@ -19,7 +19,7 @@ set -euo pipefail
 #
 # $USER is defined by login(1) which is not always executed (e.g. containers)
 # POSIX: https://pubs.opengroup.org/onlinepubs/009695299/utilities/id.html
-USER=${USER:-$(id -u -n)}
+USER="${USER:-$(id -u -n)}"
 # $HOME is defined at the time of login, but it could be unset. If it is unset,
 # a tilde by itself (~) will not be expanded to the current user's home directory.
 # POSIX: https://pubs.opengroup.org/onlinepubs/009696899/basedefs/xbd_chap08.html#tag_08_03
@@ -30,21 +30,19 @@ HOME="${HOME:-$(eval echo ~$USER)}"
 # Directory to store TPS code repository in
 TPS_LOCAL_REPO="${TPS_LOCAL_REPO:-$HOME/.local/share/tps}"
 
-# Tps cli file path. It will be a symlink from the code repository and the directory should be added to the path.
-TPS_BIN="${TPS_BIN:-$HOME/.local/bin/tps}"
-TPS_REMOTE_REPO=${TPS_REMOTE_REPO:-ioi-2017/tps}
-TPS_REMOTE_REPO_GIT_URL=${TPS_REMOTE_REPO_GIT_URL:-https://github.com/${TPS_REMOTE_REPO}.git}
-TPS_REMOTE_BRANCH=${TPS_REMOTE_BRANCH:-master}
+TPS_REMOTE_REPO="${TPS_REMOTE_REPO:-ioi-2017/tps}"
+TPS_REMOTE_REPO_GIT_URL="${TPS_REMOTE_REPO_GIT_URL:-https://github.com/${TPS_REMOTE_REPO}.git}"
+TPS_REMOTE_BRANCH="${TPS_REMOTE_BRANCH:-master}"
 
-command_exists() {
+function command_exists {
 	command -v "$@" &> "/dev/null"
 }
 
-fmt_error() {
+function fmt_error {
 	printf "Error: %s\n" "$*" >&2
 }
 
-user_can_sudo() {
+function user_can_sudo {
   # Checking if sudo is installed
   command_exists sudo || return 1
   # The following command has 3 parts:
@@ -69,7 +67,7 @@ user_can_sudo() {
 }
 
 
-clone_tps() {
+function clone_tps {
 	# Preventing the cloned repository from having insecure permissions. Failing to do
 	# so causes compinit() calls to fail with "command not found: compdef" errors
 	# for users with insecure umasks (e.g., "002", allowing group writability). Note
@@ -95,21 +93,21 @@ clone_tps() {
 	fi
 
 	# Manual cloning with git config options to support git < v1.7.2
-	mkdir -p "$TPS_LOCAL_REPO"
-	git init --quiet "$TPS_LOCAL_REPO" && cd "$TPS_LOCAL_REPO" \
+	mkdir -p "${TPS_LOCAL_REPO}"
+	git init --quiet "${TPS_LOCAL_REPO}" && cd "${TPS_LOCAL_REPO}" \
 	&& git config core.eol lf \
 	&& git config core.autocrlf false \
 	&& git config fsck.zeroPaddedFilemode ignore \
 	&& git config fetch.fsck.zeroPaddedFilemode ignore \
 	&& git config receive.fsck.zeroPaddedFilemode ignore \
 	&& git config tps.remote origin \
-	&& git config tps.branch "$TPS_REMOTE_BRANCH" \
-	&& git remote add origin "$TPS_REMOTE_REPO_GIT_URL" \
+	&& git config tps.branch "${TPS_REMOTE_BRANCH}" \
+	&& git remote add origin "${TPS_REMOTE_REPO_GIT_URL}" \
 	&& git fetch --depth=1 origin \
-	&& git checkout -b "$TPS_REMOTE_BRANCH" "origin/$TPS_REMOTE_BRANCH" || {
-		[ ! -d "$TPS_LOCAL_REPO" ] || {
+	&& git checkout -b "${TPS_REMOTE_BRANCH}" "origin/${TPS_REMOTE_BRANCH}" || {
+		[ ! -d "${TPS_LOCAL_REPO}" ] || {
 			cd -
-			rm -rf "$TPS_LOCAL_REPO" 2> "/dev/null"
+			rm -rf "${TPS_LOCAL_REPO}" 2> "/dev/null"
 		}
 		fmt_error "git clone of tps repo failed"
 		exit 1
@@ -120,13 +118,13 @@ clone_tps() {
 	echo
 }
 
-setup_tps() {
+function setup_tps {
 	echo -n " ########################## "
 	echo -n "Installing TPS system-wide"
 	echo -n " ########################## "
 	echo
 	
-	cd ${TPS_LOCAL_REPO}
+	cd "${TPS_LOCAL_REPO}"
 
 	if user_can_sudo; then
 		echo "You might need to enter your password for installation."
@@ -144,9 +142,9 @@ setup_tps() {
 	cd - > "/dev/null"
 }
 
-main() {
-	if [ -d "$TPS_LOCAL_REPO" ]; then
-		echo "The \$TPS_LOCAL_REPO folder already exists ($TPS_LOCAL_REPO). You need to remove it if you want to reinstall."
+function main {
+	if [ -d "${TPS_LOCAL_REPO}" ]; then
+		echo "The \$TPS_LOCAL_REPO folder already exists (${TPS_LOCAL_REPO}). You need to remove it if you want to reinstall."
 		exit 1
 	fi
 
