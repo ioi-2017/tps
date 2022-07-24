@@ -44,7 +44,7 @@ function fmt_error {
 
 function user_can_sudo {
   # Checking if sudo is installed
-  command_exists sudo || return 1
+  command_exists "sudo" || return 1
   # The following command has 3 parts:
   #
   # 1. Runs `sudo` with `-v`. Does the following:
@@ -80,7 +80,7 @@ function clone_tps {
 	echo -n " ########################## "
 	echo
 
-	command_exists git || {
+	command_exists "git" || {
 		fmt_error "git is not installed"
 		exit 1
 	}
