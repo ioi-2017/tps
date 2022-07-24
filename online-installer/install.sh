@@ -37,7 +37,7 @@ REMOTE=${REMOTE:-https://github.com/${REPO}.git}
 BRANCH=${BRANCH:-master}
 
 command_exists() {
-	command -v "$@" >/dev/null 2>&1
+	command -v "$@" &> "/dev/null"
 }
 
 fmt_error() {
