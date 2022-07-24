@@ -28,13 +28,13 @@ HOME="${HOME:-$(getent passwd $USER 2>/dev/null | cut -d: -f6)}"
 HOME="${HOME:-$(eval echo ~$USER)}"
 
 # Directory of TPS code repository
-TPS="${TPS:-$HOME/.local/share/tps}"
+TPS_LOCAL_REPO="${TPS_LOCAL_REPO:-$HOME/.local/share/tps}"
 
 # Tps cli file path. It will be a symlink from the code repository and the directory should be added to the path.
 TPS_BIN="${TPS_BIN:-$HOME/.local/bin/tps}"
-REPO=${REPO:-ioi-2017/tps}
-REMOTE=${REMOTE:-https://github.com/${REPO}.git}
-BRANCH=${BRANCH:-master}
+TPS_REMOTE_REPO=${TPS_REMOTE_REPO:-ioi-2017/tps}
+TPS_REMOTE_REPO_GIT_URL=${TPS_REMOTE_REPO_GIT_URL:-https://github.com/${TPS_REMOTE_REPO}.git}
+TPS_REMOTE_BRANCH=${TPS_REMOTE_BRANCH:-master}
 
 command_exists() {
 	command -v "$@" >/dev/null 2>&1
@@ -53,7 +53,7 @@ clone_tps() {
 	umask g-w,o-w
 
 	echo -n " ########################## "
-	echo -n "Cloning TPS..."
+	echo -n "Cloning TPS Repo..."
 	echo -n " ########################## "
 	echo
 
@@ -70,21 +70,21 @@ clone_tps() {
 	fi
 
 	# Manual clone with git config options to support git < v1.7.2
-	mkdir -p "$TPS"
-	git init --quiet "$TPS" && cd "$TPS" \
+	mkdir -p "$TPS_LOCAL_REPO"
+	git init --quiet "$TPS_LOCAL_REPO" && cd "$TPS_LOCAL_REPO" \
 	&& git config core.eol lf \
 	&& git config core.autocrlf false \
 	&& git config fsck.zeroPaddedFilemode ignore \
 	&& git config fetch.fsck.zeroPaddedFilemode ignore \
 	&& git config receive.fsck.zeroPaddedFilemode ignore \
 	&& git config tps.remote origin \
-	&& git config tps.branch "$BRANCH" \
-	&& git remote add origin "$REMOTE" \
+	&& git config tps.branch "$TPS_REMOTE_BRANCH" \
+	&& git remote add origin "$TPS_REMOTE_REPO_GIT_URL" \
 	&& git fetch --depth=1 origin \
-	&& git checkout -b "$BRANCH" "origin/$BRANCH" || {
-		[ ! -d "$TPS" ] || {
+	&& git checkout -b "$TPS_REMOTE_BRANCH" "origin/$TPS_REMOTE_BRANCH" || {
+		[ ! -d "$TPS_LOCAL_REPO" ] || {
 			cd -
-			rm -rf "$TPS" 2> "/dev/null"
+			rm -rf "$TPS_LOCAL_REPO" 2> "/dev/null"
 		}
 		fmt_error "git clone of tps repo failed"
 		exit 1
@@ -104,7 +104,7 @@ setup_tps() {
 	TPS_BIN_DIR=$(dirname "$TPS_BIN")
 	mkdir -p "$TPS_BIN_DIR"
 
-	ln -s "$TPS/tps.sh" "$TPS_BIN"
+	ln -s "$TPS_LOCAL_REPO/tps.sh" "$TPS_BIN"
 	chmod +x "$TPS_BIN"
 
 	echo "Installed TPS at $TPS_BIN"
@@ -122,10 +122,10 @@ setup_tps() {
 	}
 
 	for CONFIG_DIR in ".profile" ".bash_profile" ".zprofile" ".zshrc" ".bashrc"; do
-		echo "export TPS=\"$TPS\"" >> "$HOME/$CONFIG_DIR"
+		echo "export TPS_LOCAL_REPO=\"$TPS_LOCAL_REPO\"" >> "$HOME/$CONFIG_DIR"
 	done
 
-	BC_FILE="$TPS/tps.bash_completion.sh"
+	BC_FILE="$TPS_LOCAL_REPO/tps.bash_completion.sh"
 
 	echo "Adding bash completion file \"$BC_FILE\" to \"~/.bashrc\" to load on bash startup." 
 	echo ". \"$BC_FILE\"" >> "$HOME/.bashrc"
@@ -137,8 +137,8 @@ main() {
 		exit 1
 	}
 
-	if [ -d "$TPS" ]; then
-		echo "The \$TPS folder already exists ($TPS). You need to remove it if you want to reinstall."
+	if [ -d "$TPS_LOCAL_REPO" ]; then
+		echo "The \$TPS_LOCAL_REPO folder already exists ($TPS_LOCAL_REPO). You need to remove it if you want to reinstall."
 		exit 1
 	fi
 
