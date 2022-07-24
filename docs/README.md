@@ -13,10 +13,23 @@ The TPS has two interfaces: a command-line interface that is ideal for those who
 
 The following sections describe these interfaces.
 
-# Command-line interface
+# Installing command-line interface
 
-To install the TPS command-line interface, clone the `tps` repository,
- and install it using the following commands (in Linux):
+It is possible to install the TPS command-line interface using an online installer, or install it manually.
+
+## Online installation
+
+Run the following command to install TPS on Linux/MacOS/Windows (with WSL):
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ioi-2017/tps/master/online-installer/install.sh)"
+```
+
+Online installer assumes you have `git` installed in your system.
+
+### Manual installation
+
+Clone the `tps` repository, and install it using the following commands (in Linux):
 
 ```
 cd tps
