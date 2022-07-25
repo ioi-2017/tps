@@ -13,7 +13,7 @@
 #   wget https://raw.githubusercontent.com/ioi-2017/tps/master/online-installer/install.sh
 #   bash online-installer/install.sh
 
-set -uo pipefail
+set -euo pipefail
 
 # Making sure important variables exist if not already defined
 #
@@ -126,13 +126,13 @@ function setup_tps {
 	
 	cd "${TPS_LOCAL_REPO}"
 
+	install_exit_code=0
 	if user_can_sudo; then
 		echo "You might need to enter your password for installation."
-		sudo -k bash "install-tps.sh"
-		install_exit_code=$?
+		sudo -k bash "install-tps.sh" || install_exit_code=$?
 	else
 		bash "install-tps.sh"
-		install_exit_code=$?
+		install_exit_code=$? || install_exit_code=$?
 	fi 
 
 	# Checking if installation was successful
