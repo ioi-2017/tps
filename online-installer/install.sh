@@ -30,8 +30,7 @@ HOME="${HOME:-$(eval echo ~$USER)}"
 # Directory to store TPS code repository in
 TPS_LOCAL_REPO="${TPS_LOCAL_REPO:-$HOME/.local/share/tps}"
 
-TPS_REMOTE_REPO="${TPS_REMOTE_REPO:-ioi-2017/tps}"
-TPS_REMOTE_REPO_GIT_URL="${TPS_REMOTE_REPO_GIT_URL:-https://github.com/${TPS_REMOTE_REPO}.git}"
+TPS_REMOTE_REPO_GIT_URL="${TPS_REMOTE_REPO_GIT_URL:-https://github.com/ioi-2017/tps.git}"
 TPS_REMOTE_BRANCH="${TPS_REMOTE_BRANCH:-master}"
 
 function command_exists {
