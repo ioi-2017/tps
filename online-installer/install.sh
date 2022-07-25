@@ -43,27 +43,27 @@ function fmt_error {
 }
 
 function user_can_sudo {
-  # Checking if sudo is installed
-  command_exists "sudo" || return 1
-  # The following command has 3 parts:
-  #
-  # 1. Runs `sudo` with `-v`. Does the following:
-  #    • with privilege: asks for a password immediately.
-  #    • without privilege: exits with error code 1 and prints the message:
-  #      Sorry, user <username> may not run sudo on <hostname>
-  #
-  # 2. Passes `-n` to `sudo` to tell it to not ask for a password. If the
-  #    password is not required, the command will finish with exit code 0.
-  #    If one is required, sudo will exit with error code 1 and print the
-  #    message:
-  #    sudo: a password is required
-  #
-  # 3. Checks for the words "may not run sudo" in the output to really tell
-  #    whether the user has privileges or not. For that we have to make sure
-  #    to run `sudo` in the default locale (with `LANG=`) so that the message
-  #    stays consistent regardless of the user's locale.
-  #
-  ! LANG= sudo -n -v 2>&1 | grep -q "may not run sudo"
+	# Checking if sudo is installed
+	command_exists "sudo" || return 1
+	# The following command has 3 parts:
+	#
+	# 1. Runs `sudo` with `-v`. Does the following:
+	#    • with privilege: asks for a password immediately.
+	#    • without privilege: exits with error code 1 and prints the message:
+	#      Sorry, user <username> may not run sudo on <hostname>
+	#
+	# 2. Passes `-n` to `sudo` to tell it to not ask for a password. If the
+	#    password is not required, the command will finish with exit code 0.
+	#    If one is required, sudo will exit with error code 1 and print the
+	#    message:
+	#    sudo: a password is required
+	#
+	# 3. Checks for the words "may not run sudo" in the output to really tell
+	#    whether the user has privileges or not. For that we have to make sure
+	#    to run `sudo` in the default locale (with `LANG=`) so that the message
+	#    stays consistent regardless of the user's locale.
+	#
+	! LANG= sudo -n -v 2>&1 | grep -q "may not run sudo"
 }
 
 
@@ -137,7 +137,7 @@ function setup_tps {
 
 	# Checking if installation was successful
 	if [ "${install_exit_code}" -ne "0" ]; then
-    	fmt_error "Installation failed."
+		fmt_error "Installation failed."
 		exit 1
 	fi
 
