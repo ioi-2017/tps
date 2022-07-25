@@ -25,7 +25,15 @@ Run the following command to install TPS on Linux/MacOS/Windows (with WSL):
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ioi-2017/tps/master/online-installer/install.sh)"
 ```
 
-Online installer assumes you have `git` installed in your system.
+Online installer assumes you have `git` installed in your system. It clones the tps repo and installs it.
+
+You can customize its installation by setting these enviornment variables before running the above command:
+
+| Variable                  | Description                               | Default                               |
+| ------------------------- | ----------------------------------------- | ------------------------------------- |
+| `TPS_LOCAL_REPO`          | Directory to store TPS code repository in | `$HOME/.local/share/tps`              |
+| `TPS_REMOTE_REPO_GIT_URL` | Git URL of the remote repo                | `https://github.com/ioi-2017/tps.git` | 
+| `TPS_REMOTE_BRANCH`       | Branch to install from                    | `master`                              |
 
 ### Manual installation
 
