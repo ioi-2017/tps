@@ -86,8 +86,8 @@ function clone_tps {
 
 	ostype=$(uname)
 	if [ -z "${ostype%CYGWIN*}" ] && git --version | grep -q msysgit; then
-		fmt_error "Windows/MSYS Git is not supported on Cygwin"
-		fmt_error "Make sure the Cygwin git package is installed and is first on the \$PATH"
+		fmt_error "Windows/MSYS Git is not supported on Cygwin. Make sure the" \
+			"Cygwin git package is installed and is first on the \$PATH"
 		exit 1
 	fi
 
@@ -130,8 +130,7 @@ function setup_tps {
 		echo "You might need to enter your password for installation."
 		sudo -k bash "install-tps.sh" || install_exit_code=$?
 	else
-		bash "install-tps.sh"
-		install_exit_code=$? || install_exit_code=$?
+		bash "install-tps.sh" || install_exit_code=$?
 	fi 
 
 	# Checking if installation was successful
