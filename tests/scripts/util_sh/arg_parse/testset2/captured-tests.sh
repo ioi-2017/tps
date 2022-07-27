@@ -2,6 +2,9 @@
 # Edit 'capture-all.sh' instead.
 
 source definitions.sh
+
+stage_an_empty_dir
+
 expect_exec -vu var_x -vu var_y -vs it_is_A "false" -vs it_is_a "false" -vs it_is_B "false" -vs it_is_b "false" -vs c_counter "0" -va my_positional_args 0 -vs has_exited "false" -oempty -eempty arg_parse2
 expect_exec -vu var_x -vu var_y -vu it_is_A -vu it_is_a -vu it_is_B -vu it_is_b -vu c_counter -vu my_positional_args -vu has_exited -oempty -eh "This is the usage." arg_parse2 -h
 expect_exec -vu var_x -vu var_y -vu it_is_A -vu it_is_a -vu it_is_B -vu it_is_b -vu c_counter -vu my_positional_args -vu has_exited -oempty -eh "This is the usage." arg_parse2 --help

@@ -2,6 +2,9 @@
 # Edit 'capture-all.sh' instead.
 
 source definitions.sh
+
+stage_an_empty_dir
+
 expect_exec -vu var_aaa -vu var_bcd -vu next_param -vs it_is_cool "false" -vu param1 -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1
 expect_exec -vu var_aaa -vu var_bcd -vu next_param -vs it_is_cool "false" -vs param1 "aha" -vu param2 -vs has_exited "false" -oempty -eempty arg_parse1 aha
 expect_exec -vu var_aaa -vu var_bcd -vu next_param -vs it_is_cool "false" -vs param1 "aha" -vs param2 "ehe" -vs has_exited "false" -oempty -eempty arg_parse1 aha ehe

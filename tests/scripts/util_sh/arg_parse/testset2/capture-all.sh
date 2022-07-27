@@ -11,6 +11,10 @@ function arg_parse {
     capture_exec "ts2-$((capture_exec_key_counter++))" "${capture_args2[@]}" arg_parse2 "$@"
 }
 
+echo
+capture_run stage_an_empty_dir
+echo
+
 arg_parse
 arg_parse -h
 arg_parse --help
