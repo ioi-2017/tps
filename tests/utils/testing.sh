@@ -89,6 +89,12 @@ function stage_dir {
 	STAGED_DIR="$(_TT_absolute_path "${dir}")"
 }
 
+function stage_an_empty_dir {
+	rm -rf "${_TT_STAGE}" &> "/dev/null" || true
+	mkdir -p "${_TT_STAGE}"
+	unset STAGED_DIR
+}
+
 
 function _TT_test_failure {
 	local -r message="$1"; shift
