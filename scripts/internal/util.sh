@@ -11,7 +11,7 @@ function print_exit_code {
 }
 
 function extension {
-	local -r file=$1
+	local -r file=$1; shift
 	echo "${file##*.}"
 }
 
@@ -26,7 +26,7 @@ function variable_not_exists {
 }
 
 function check_variable {
-	local -r varname=$1
+	local -r varname=$1; shift
 	if variable_not_exists "${varname}" ; then
 		errcho "Error: Variable '${varname}' is not set."
 		exit 1
@@ -90,7 +90,7 @@ function are_same {
 }
 
 function recreate_dir {
-	local -r dir=$1
+	local -r dir=$1; shift
 	mkdir -p "${dir}"
 	local file
 	ls -A1 "${dir}" | while read file; do
@@ -183,7 +183,7 @@ function boxed_echo {
 }
 
 function echo_status {
-	local -r status="$1"
+	local -r status="$1"; shift
 
 	local color
 	case "${status}" in
@@ -198,7 +198,7 @@ function echo_status {
 }
 
 function echo_verdict {
-	local -r verdict="$1"
+	local -r verdict="$1"; shift
 
 	local color
 	case "${verdict}" in
@@ -215,7 +215,7 @@ function echo_verdict {
 
 
 function has_warnings {
-	local -r job="$1"
+	local -r job="$1"; shift
 	local WARN_FILE="${LOGS_DIR}/${job}.warn"
 	[ -s "${WARN_FILE}" ]
 }
@@ -225,7 +225,7 @@ readonly abort_status=1001
 readonly warn_status=250
 
 function job_ret {
-	local -r job="$1"
+	local -r job="$1"; shift
 	local ret_file="${LOGS_DIR}/${job}.ret"
 	if [ -f "${ret_file}" ]; then
 		cat "${ret_file}"
@@ -243,7 +243,7 @@ function has_sensitive_warnings {
 }
 
 function warning_aware_job_ret {
-	local -r job="$1"
+	local -r job="$1"; shift
 	local ret="$(job_ret "${job}")"
 	readonly ret
 	if [ ${ret} -ne 0 ]; then
@@ -261,13 +261,13 @@ function check_float {
 }
 
 function job_tlog_file {
-	local -r job="$1"
+	local -r job="$1"; shift
 	echo "${LOGS_DIR}/${job}.tlog"
 }
 
 function job_tlog {
 	local -r job="$1"; shift
-	local -r key="$1"
+	local -r key="$1"; shift
 	local tlog_file="$(job_tlog_file "${job}")"
 	readonly tlog_file
 	if [ -f "${tlog_file}" ]; then
@@ -286,7 +286,7 @@ function job_tlog {
 }
 
 function job_status {
-	local -r job="$1"
+	local -r job="$1"; shift
 	local ret="$(job_ret "${job}")"
 	readonly ret
 
@@ -324,14 +324,14 @@ function insensitive {
 }
 
 function boxed_guard {
-	local -r job="$1"
+	local -r job="$1"; shift
 
-	insensitive guard "$@"
+	insensitive guard "${job}" "$@"
 	echo_status "$(job_status "${job}")"
 }
 
 function execution_report {
-	local -r job="$1"
+	local -r job="$1"; shift
 
 	cecho yellow -n "exit-code: "
 	echo "$(job_ret "${job}")"
@@ -346,9 +346,9 @@ function execution_report {
 }
 
 function reporting_guard {
-	local -r job="$1"
+	local -r job="$1"; shift
 
-	boxed_guard "$@"
+	boxed_guard "${job}" "$@"
 
 	local ret="$(warning_aware_job_ret "${job}")"
 	readonly ret
