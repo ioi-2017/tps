@@ -169,14 +169,15 @@ function cerrcho {
 
 function boxed_echo {
 	local -r color="$1"; shift
+	local -r text="$1"; shift
 
 	echo -n "["
-	cecho "${color}" -n "$1"
+	cecho "${color}" -n "${text}"
 	echo -n "]"
 
 	if variable_exists "BOX_PADDING" ; then
 		local pad
-		pad="$((BOX_PADDING - ${#1}))"
+		pad="$((BOX_PADDING - ${#text}))"
 		readonly pad
 		hspace "${pad}"
 	fi
@@ -240,7 +241,8 @@ function is_warning_sensitive {
 }
 
 function has_sensitive_warnings {
-	is_warning_sensitive && has_warnings "$1"
+	local -r job="$1"; shift
+	is_warning_sensitive && has_warnings "${job}"
 }
 
 function warning_aware_job_ret {
@@ -376,18 +378,18 @@ readonly WARNING_TEXT_PATTERN_FOR_JAVA="warning:"
 MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET="compile_outputs_list"
 
 function makefile_compile_outputs_list {
-	local -r make_dir="$1"; shift
-	make --quiet -C "${make_dir}" "${MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET}"
+	local -r makefile_dir="$1"; shift
+	make --quiet -C "${makefile_dir}" "${MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET}"
 }
 
 function build_with_make {
-	local -r make_dir="$1"; shift
+	local -r makefile_dir="$1"; shift
 
-	make -j4 -C "${make_dir}" || return $?
+	make -j4 -C "${makefile_dir}" || return $?
 
 	if variable_exists "WARN_FILE"; then
 		local compile_outputs_list
-		if compile_outputs_list="$(makefile_compile_outputs_list "${make_dir}")"; then
+		if compile_outputs_list="$(makefile_compile_outputs_list "${makefile_dir}")"; then
 			local compile_output
 			for compile_output in ${compile_outputs_list}; do
 				if [[ "${compile_output}" == *.cpp.* ]] || [[ "${compile_output}" == *.cc.* ]]; then
@@ -400,14 +402,14 @@ function build_with_make {
 					errcho "Could not detect the type of compile output '${compile_output}'."
 					continue
 				fi
-				if grep -q "${warning_text_pattern}" "${make_dir}/${compile_output}"; then
+				if grep -q "${warning_text_pattern}" "${makefile_dir}/${compile_output}"; then
 					echo "Text pattern '${warning_text_pattern}' found in compile output '${compile_output}':" >> "${WARN_FILE}"
-					cat "${make_dir}/${compile_output}" >> "${WARN_FILE}"
+					cat "${makefile_dir}/${compile_output}" >> "${WARN_FILE}"
 					echo "----------------------------------------------------------------------" >> "${WARN_FILE}"
 				fi
 			done
 		else
-			echo "Makefile in '${make_dir}' does not have target '${MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET}'." >> "${WARN_FILE}"
+			echo "Makefile in '${makefile_dir}' does not have target '${MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET}'." >> "${WARN_FILE}"
 		fi
 	fi	
 }
@@ -426,7 +428,8 @@ function is_in {
 
 
 function hspace {
-	printf "%$1s" ""
+	local -r width="$1"; shift
+	printf "%${width}s" ""
 }
 
 
@@ -485,7 +488,8 @@ function check_executable_exists {
 
 
 function command_exists {
-	command -v "$1" &> "/dev/null"
+	local -r cmd_name="$1"; shift
+	command -v "${cmd_name}" &> "/dev/null"
 }
 
 
