@@ -498,6 +498,22 @@ function command_exists {
 }
 
 
+# Assumes that a function "usage" is defined
+function usage_exit {
+	local -r exit_code="$1"; shift
+	usage
+	exit "${exit_code}"
+}
+
+# Assumes that a function "usage" is defined
+function error_usage_exit {
+	local -r exit_code="$1"; shift
+	local -r msg="$1"; shift
+	errcho "${msg}"
+	usage_exit "${exit_code}"
+}
+
+
 # This is a commonly used function as an invalid_arg_callback for argument_parser.
 # It assumes that a "usage" function is already defined and available during the argument parsing.
 function invalid_arg_with_usage {

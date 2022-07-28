@@ -41,8 +41,7 @@ function handle_option {
 	local -r curr_arg="$1"; shift
 	case "${curr_arg}" in
 		-h|--help)
-			usage
-			exit 0
+			usage_exit 0
 			;;
 		-v|--verbose)
 			VERBOSE=true
@@ -54,9 +53,7 @@ function handle_option {
 			if "${HAS_GRADER}"; then
 				GRADER_TYPE="public"
 			else
-				errcho "Invalid option '${curr_arg}': There is no grader in this task."
-				usage
-				exit 2
+				error_usage_exit 2 "Invalid option '${curr_arg}': There is no grader in this task."
 			fi
 			;;
 		*)
@@ -77,9 +74,7 @@ function handle_positional_arg {
 argument_parser "handle_positional_arg" "handle_option" "invalid_arg_with_usage" "$@"
 
 if variable_not_exists "SOLUTION" ; then
-	errcho "Solution is not specified."
-	usage
-	exit 2
+	error_usage_exit 2 "Solution is not specified."
 fi
 
 WARN_FILE="${SANDBOX}/compile.warn"

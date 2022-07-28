@@ -75,8 +75,7 @@ function handle_option {
 	local -r curr_arg="$1"; shift
 	case "${curr_arg}" in
 		-h|--help)
-			usage
-			exit 0
+			usage_exit 0
 			;;
 		-s|--sensitive)
 			SENSITIVE_RUN="true"
@@ -128,9 +127,7 @@ function handle_positional_arg {
 argument_parser "handle_positional_arg" "handle_option" "invalid_arg_with_usage" "$@"
 
 if variable_not_exists "solution" ; then
-	errcho "Solution is not specified."
-	usage
-	exit 2
+	error_usage_exit 2 "Solution is not specified."
 fi
 
 if ! is_windows && ! "${PYTHON}" -c "import psutil" &> "/dev/null"; then
@@ -148,9 +145,7 @@ if variable_not_exists "SOFT_TL" ; then
 fi
 
 if ! check_float "${SOFT_TL}"; then
-	errcho "Provided time limit '${SOFT_TL}' is not a positive real number."
-	usage
-	exit 2
+	error_usage_exit 2 "Provided time limit '${SOFT_TL}' is not a positive real number."
 fi
 
 if variable_not_exists "HARD_TL" ; then
@@ -158,15 +153,11 @@ if variable_not_exists "HARD_TL" ; then
 fi
 
 if ! check_float "${HARD_TL}"; then
-	errcho "Provided hard time limit '${HARD_TL}' is not a positive real number."
-	usage
-	exit 2
+	error_usage_exit 2 "Provided hard time limit '${HARD_TL}' is not a positive real number."
 fi
 
 if py_test "${HARD_TL} <= ${SOFT_TL}"; then
-	errcho "Provided hard time limit (${HARD_TL}) is not greater than the soft time limit (${SOFT_TL})."
-	usage
-	exit 2
+	error_usage_exit 2 "Provided hard time limit (${HARD_TL}) is not greater than the soft time limit (${SOFT_TL})."
 fi
 
 sensitive check_file_exists "Solution file" "${solution}"

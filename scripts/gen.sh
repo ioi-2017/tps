@@ -82,8 +82,7 @@ function handle_option {
 	local -r curr_arg="$1"; shift
 	case "${curr_arg}" in
 		-h|--help)
-			usage
-			exit 0
+			usage_exit 0
 			;;
 		-s|--sensitive)
 			SENSITIVE_RUN="true"
