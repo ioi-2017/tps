@@ -4,6 +4,7 @@ set -euo pipefail
 
 source "${INTERNALS}/util.sh"
 source "${INTERNALS}/problem_util.sh"
+source "${INTERNALS}/invoke_util.sh"
 
 
 function usage {
