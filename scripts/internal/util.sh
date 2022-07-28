@@ -11,7 +11,7 @@ function print_exit_code {
 }
 
 function extension {
-	local -r file=$1; shift
+	local -r file="$1"; shift
 	echo "${file##*.}"
 }
 
@@ -26,7 +26,7 @@ function variable_not_exists {
 }
 
 function check_variable {
-	local -r varname=$1; shift
+	local -r varname="$1"; shift
 	if variable_not_exists "${varname}" ; then
 		errcho "Error: Variable '${varname}' is not set."
 		exit 1
@@ -90,7 +90,7 @@ function are_same {
 }
 
 function recreate_dir {
-	local -r dir=$1; shift
+	local -r dir="$1"; shift
 	mkdir -p "${dir}"
 	local file
 	ls -A1 "${dir}" | while read file; do
@@ -176,7 +176,7 @@ function boxed_echo {
 
 	if variable_exists "BOX_PADDING" ; then
 		local pad
-		pad=$((BOX_PADDING - ${#1}))
+		pad="$((BOX_PADDING - ${#1}))"
 		readonly pad
 		hspace "${pad}"
 	fi
@@ -187,11 +187,11 @@ function echo_status {
 
 	local color
 	case "${status}" in
-		OK) color=ok ;;
-		FAIL) color=fail ;;
-		WARN) color=warn ;;
-		SKIP) color=skipped ;;
-		*) color=other ;;
+		OK) color="ok" ;;
+		FAIL) color="fail" ;;
+		WARN) color="warn" ;;
+		SKIP) color="skipped" ;;
+		*) color="other" ;;
 	esac
 
 	boxed_echo "${color}" "${status}"
@@ -202,12 +202,12 @@ function echo_verdict {
 
 	local color
 	case "${verdict}" in
-		Correct) color=ok ;;
-		Partial*) color=warn ;;
-		Wrong*|Runtime*) color=error ;;
-		Time*) color=blue ;;
-		Unknown) color=ignored ;;
-		*) color=other ;;
+		Correct) color="ok" ;;
+		Partial*) color="warn" ;;
+		Wrong*|Runtime*) color="error" ;;
+		Time*) color="blue" ;;
+		Unknown) color="ignored" ;;
+		*) color="other" ;;
 	esac
 
 	boxed_echo "${color}" "${verdict}"
@@ -246,12 +246,12 @@ function warning_aware_job_ret {
 	local -r job="$1"; shift
 	local ret="$(job_ret "${job}")"
 	readonly ret
-	if [ ${ret} -ne 0 ]; then
-		echo ${ret}
+	if [ "${ret}" -ne "0" ]; then
+		echo "${ret}"
 	elif has_sensitive_warnings "${job}"; then
-		echo ${warn_status}
+		echo "${warn_status}"
 	else
-		echo 0
+		echo "0"
 	fi
 }
 
@@ -290,7 +290,7 @@ function job_status {
 	local ret="$(job_ret "${job}")"
 	readonly ret
 
-	if [ "${ret}" -eq 0 ]; then
+	if [ "${ret}" -eq "0" ]; then
 		if has_warnings "${job}"; then
 			echo "WARN"
 		else
@@ -316,7 +316,7 @@ function guard {
 	"$@" > "${outlog}" 2> "${errlog}" || ret=$?
 	echo "${ret}" > "${retlog}"
 
-	return ${ret}
+	return "${ret}"
 }
 
 function insensitive {
@@ -353,7 +353,7 @@ function reporting_guard {
 	local ret="$(warning_aware_job_ret "${job}")"
 	readonly ret
 
-	if [ "${ret}" -ne 0 ]; then
+	if [ "${ret}" -ne "0" ]; then
 		echo
 		execution_report "${job}"
 	fi
@@ -379,7 +379,7 @@ function build_with_make {
 	make -j4 -C "${make_dir}" || return $?
 	if variable_exists "WARN_FILE"; then
 		local compile_outputs_list
-		if compile_outputs_list=$(makefile_compile_outputs_list "${make_dir}"); then
+		if compile_outputs_list="$(makefile_compile_outputs_list "${make_dir}")"; then
 			local compile_output
 			for compile_output in ${compile_outputs_list}; do
 				if [[ "${compile_output}" == *.cpp.* ]] || [[ "${compile_output}" == *.cc.* ]]; then
