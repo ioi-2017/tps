@@ -5,13 +5,13 @@ function errcho {
 }
 
 function print_exit_code {
-	ret=0
+	local ret=0
 	"$@" || ret=$?
 	echo "${ret}"
 }
 
 function extension {
-	file=$1
+	local file=$1
 	echo "${file##*.}"
 }
 
@@ -26,7 +26,7 @@ function variable_not_exists {
 }
 
 function check_variable {
-	varname=$1
+	local varname=$1
 	if variable_not_exists "${varname}" ; then
 		errcho "Error: Variable '${varname}' is not set."
 		exit 1
@@ -90,8 +90,9 @@ function are_same {
 }
 
 function recreate_dir {
-	dir=$1
+	local dir=$1
 	mkdir -p "${dir}"
+	local file
 	ls -A1 "${dir}" | while read file; do
 		[ -z "${file}" ] && continue
 		rm -rf "${dir}/${file}"
@@ -128,7 +129,7 @@ function unified_sort {
 
 function sensitive {
 	"$@"
-	ret=$?
+	local ret=$?
 	if [ "${ret}" -ne 0 ]; then
 		exit ${ret}
 	fi
@@ -156,7 +157,7 @@ function is_web {
 # cecho red -n this is a text with no new line
 
 function cecho {
-	color="$1"; shift
+	local color="$1"; shift
 	echo "$@" | "${PYTHON}" "${INTERNALS}/colored_cat.py" "${color}"
 }
 
@@ -167,21 +168,23 @@ function cerrcho {
 
 
 function boxed_echo {
-	color="$1"; shift
+	local color="$1"; shift
 
 	echo -n "["
 	cecho "${color}" -n "$1"
 	echo -n "]"
 
 	if variable_exists "BOX_PADDING" ; then
+		local pad
 		pad=$((BOX_PADDING - ${#1}))
 		hspace "${pad}"
 	fi
 }
 
 function echo_status {
-	status="$1"
+	local status="$1"
 
+	local color
 	case "${status}" in
 		OK) color=ok ;;
 		FAIL) color=fail ;;
@@ -194,8 +197,9 @@ function echo_status {
 }
 
 function echo_verdict {
-	verdict="$1"
+	local verdict="$1"
 
+	local color
 	case "${verdict}" in
 		Correct) color=ok ;;
 		Partial*) color=warn ;;
@@ -368,7 +372,9 @@ function build_with_make {
 	local make_dir="$1"; shift
 	make -j4 -C "${make_dir}" || return $?
 	if variable_exists "WARN_FILE"; then
+		local compile_outputs_list
 		if compile_outputs_list=$(makefile_compile_outputs_list "${make_dir}"); then
+			local compile_output
 			for compile_output in ${compile_outputs_list}; do
 				if [[ "${compile_output}" == *.cpp.* ]] || [[ "${compile_output}" == *.cc.* ]]; then
 					local warning_text_pattern="${WARNING_TEXT_PATTERN_FOR_CPP}"
@@ -395,7 +401,8 @@ function build_with_make {
 
 
 function is_in {
-	key="$1"; shift
+	local key="$1"; shift
+	local item
 	for item in "$@"; do
 		if [ "${key}" == "${item}" ]; then
 			return 0
@@ -424,11 +431,11 @@ function decorate_lines {
 
 
 function check_any_type_file_exists {
-	test_flag="$1"; shift
-	the_problem="$1"; shift
-	file_title="$1"; shift
-	file_path="$1"; shift
-	error_prefix=""
+	local test_flag="$1"; shift
+	local the_problem="$1"; shift
+	local file_title="$1"; shift
+	local file_path="$1"; shift
+	local error_prefix=""
 	if [[ "$#" > 0 ]] ; then
 		error_prefix="$1"; shift
 	fi
