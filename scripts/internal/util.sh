@@ -11,7 +11,7 @@ function print_exit_code {
 }
 
 function extension {
-	local file=$1
+	local -r file=$1
 	echo "${file##*.}"
 }
 
@@ -26,7 +26,7 @@ function variable_not_exists {
 }
 
 function check_variable {
-	local varname=$1
+	local -r varname=$1
 	if variable_not_exists "${varname}" ; then
 		errcho "Error: Variable '${varname}' is not set."
 		exit 1
@@ -90,7 +90,7 @@ function are_same {
 }
 
 function recreate_dir {
-	local dir=$1
+	local -r dir=$1
 	mkdir -p "${dir}"
 	local file
 	ls -A1 "${dir}" | while read file; do
@@ -157,7 +157,7 @@ function is_web {
 # cecho red -n this is a text with no new line
 
 function cecho {
-	local color="$1"; shift
+	local -r color="$1"; shift
 	echo "$@" | "${PYTHON}" "${INTERNALS}/colored_cat.py" "${color}"
 }
 
@@ -168,7 +168,7 @@ function cerrcho {
 
 
 function boxed_echo {
-	local color="$1"; shift
+	local -r color="$1"; shift
 
 	echo -n "["
 	cecho "${color}" -n "$1"
@@ -177,12 +177,13 @@ function boxed_echo {
 	if variable_exists "BOX_PADDING" ; then
 		local pad
 		pad=$((BOX_PADDING - ${#1}))
+		readonly pad
 		hspace "${pad}"
 	fi
 }
 
 function echo_status {
-	local status="$1"
+	local -r status="$1"
 
 	local color
 	case "${status}" in
@@ -197,7 +198,7 @@ function echo_status {
 }
 
 function echo_verdict {
-	local verdict="$1"
+	local -r verdict="$1"
 
 	local color
 	case "${verdict}" in
@@ -214,17 +215,17 @@ function echo_verdict {
 
 
 function has_warnings {
-	local job="$1"
+	local -r job="$1"
 	local WARN_FILE="${LOGS_DIR}/${job}.warn"
 	[ -s "${WARN_FILE}" ]
 }
 
-skip_status=1000
-abort_status=1001
-warn_status=250
+readonly skip_status=1000
+readonly abort_status=1001
+readonly warn_status=250
 
 function job_ret {
-	local job="$1"
+	local -r job="$1"
 	local ret_file="${LOGS_DIR}/${job}.ret"
 	if [ -f "${ret_file}" ]; then
 		cat "${ret_file}"
@@ -242,8 +243,9 @@ function has_sensitive_warnings {
 }
 
 function warning_aware_job_ret {
-	local job="$1"
+	local -r job="$1"
 	local ret="$(job_ret "${job}")"
+	readonly ret
 	if [ ${ret} -ne 0 ]; then
 		echo ${ret}
 	elif has_sensitive_warnings "${job}"; then
@@ -259,17 +261,19 @@ function check_float {
 }
 
 function job_tlog_file {
-	local job="$1"
+	local -r job="$1"
 	echo "${LOGS_DIR}/${job}.tlog"
 }
 
 function job_tlog {
-	local job="$1"; shift
-	local key="$1"
+	local -r job="$1"; shift
+	local -r key="$1"
 	local tlog_file="$(job_tlog_file "${job}")"
+	readonly tlog_file
 	if [ -f "${tlog_file}" ]; then
 		local ret=0
 		local line="$(grep "^${key} " "${tlog_file}")" || ret=$?
+		readonly line
 		if [ ${ret} -ne 0 ]; then
 			errcho "tlog file '${tlog_file}' does not contain key '${key}'"
 			exit 1
@@ -282,8 +286,9 @@ function job_tlog {
 }
 
 function job_status {
-	local job="$1"
+	local -r job="$1"
 	local ret="$(job_ret "${job}")"
+	readonly ret
 
 	if [ "${ret}" -eq 0 ]; then
 		if has_warnings "${job}"; then
@@ -299,10 +304,10 @@ function job_status {
 }
 
 function guard {
-	local job="$1"; shift
-	local outlog="${LOGS_DIR}/${job}.out"
-	local errlog="${LOGS_DIR}/${job}.err"
-	local retlog="${LOGS_DIR}/${job}.ret"
+	local -r job="$1"; shift
+	local -r outlog="${LOGS_DIR}/${job}.out"
+	local -r errlog="${LOGS_DIR}/${job}.err"
+	local -r retlog="${LOGS_DIR}/${job}.ret"
 	export WARN_FILE="${LOGS_DIR}/${job}.warn"
 
 	echo "${abort_status}" > "${retlog}"
@@ -319,14 +324,14 @@ function insensitive {
 }
 
 function boxed_guard {
-	local job="$1"
+	local -r job="$1"
 
 	insensitive guard "$@"
 	echo_status "$(job_status "${job}")"
 }
 
 function execution_report {
-	local job="$1"
+	local -r job="$1"
 
 	cecho yellow -n "exit-code: "
 	echo "$(job_ret "${job}")"
@@ -341,11 +346,12 @@ function execution_report {
 }
 
 function reporting_guard {
-	local job="$1"
+	local -r job="$1"
 
 	boxed_guard "$@"
 
 	local ret="$(warning_aware_job_ret "${job}")"
+	readonly ret
 
 	if [ "${ret}" -ne 0 ]; then
 		echo
@@ -356,20 +362,20 @@ function reporting_guard {
 }
 
 
-WARNING_TEXT_PATTERN_FOR_CPP="warning:"
-WARNING_TEXT_PATTERN_FOR_PAS="Warning:"
-WARNING_TEXT_PATTERN_FOR_JAVA="warning:"
+readonly WARNING_TEXT_PATTERN_FOR_CPP="warning:"
+readonly WARNING_TEXT_PATTERN_FOR_PAS="Warning:"
+readonly WARNING_TEXT_PATTERN_FOR_JAVA="warning:"
 
 
 MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET="compile_outputs_list"
 
 function makefile_compile_outputs_list {
-	local make_dir="$1"; shift
+	local -r make_dir="$1"; shift
 	make --quiet -C "${make_dir}" "${MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET}"
 }
 
 function build_with_make {
-	local make_dir="$1"; shift
+	local -r make_dir="$1"; shift
 	make -j4 -C "${make_dir}" || return $?
 	if variable_exists "WARN_FILE"; then
 		local compile_outputs_list
@@ -401,7 +407,7 @@ function build_with_make {
 
 
 function is_in {
-	local key="$1"; shift
+	local -r key="$1"; shift
 	local item
 	for item in "$@"; do
 		if [ "${key}" == "${item}" ]; then
@@ -431,14 +437,15 @@ function decorate_lines {
 
 
 function check_any_type_file_exists {
-	local test_flag="$1"; shift
-	local the_problem="$1"; shift
-	local file_title="$1"; shift
-	local file_path="$1"; shift
+	local -r test_flag="$1"; shift
+	local -r the_problem="$1"; shift
+	local -r file_title="$1"; shift
+	local -r file_path="$1"; shift
 	local error_prefix=""
 	if [[ "$#" > 0 ]] ; then
 		error_prefix="$1"; shift
 	fi
+	readonly error_prefix
 
 	if [ ! -e "${file_path}" ]; then
 		errcho -ne "${error_prefix}"
