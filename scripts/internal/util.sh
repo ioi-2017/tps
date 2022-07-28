@@ -139,7 +139,7 @@ function is_windows {
 	if variable_not_exists "OS" ; then
 		return 1
 	fi
-	echo "${OS}" | grep -iq "windows"
+	grep -iq "windows" <<< "${OS}"
 }
 
 function is_web {
@@ -248,7 +248,8 @@ function has_sensitive_warnings {
 function warning_aware_job_ret {
 	local -r job="$1"; shift
 
-	local ret="$(job_ret "${job}")"
+	local ret
+	ret="$(job_ret "${job}")"
 	readonly ret
 	if [ "${ret}" -ne "0" ]; then
 		echo "${ret}"
@@ -261,7 +262,7 @@ function warning_aware_job_ret {
 
 
 function check_float {
-	echo "$1" | grep -Eq '^[0-9]+\.?[0-9]*$'
+	grep -Eq '^[0-9]+\.?[0-9]*$' <<< "$1"
 }
 
 
@@ -274,17 +275,19 @@ function job_tlog {
 	local -r job="$1"; shift
 	local -r key="$1"; shift
 
-	local tlog_file="$(job_tlog_file "${job}")"
+	local tlog_file
+	tlog_file="$(job_tlog_file "${job}")"
 	readonly tlog_file
 	if [ -f "${tlog_file}" ]; then
+		local line
 		local ret=0
-		local line="$(grep "^${key} " "${tlog_file}")" || ret=$?
+		line="$(grep "^${key} " "${tlog_file}")" || ret=$?
 		readonly line
 		if [ ${ret} -ne 0 ]; then
 			errcho "tlog file '${tlog_file}' does not contain key '${key}'"
 			exit 1
 		fi
-		echo "${line}" | cut -d' ' -f2-
+		cut -d' ' -f2- <<< "${line}"
 	else
 		errcho "tlog file '${tlog_file}' is not created"
 		exit 1
@@ -294,7 +297,8 @@ function job_tlog {
 function job_status {
 	local -r job="$1"; shift
 
-	local ret="$(job_ret "${job}")"
+	local ret
+	ret="$(job_ret "${job}")"
 	readonly ret
 
 	if [ "${ret}" -eq "0" ]; then
@@ -358,7 +362,8 @@ function reporting_guard {
 
 	boxed_guard "${job}" "$@"
 
-	local ret="$(warning_aware_job_ret "${job}")"
+	local ret
+	ret="$(warning_aware_job_ret "${job}")"
 	readonly ret
 
 	if [ "${ret}" -ne "0" ]; then
