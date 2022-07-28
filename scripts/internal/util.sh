@@ -226,6 +226,7 @@ readonly warn_status=250
 
 function job_ret {
 	local -r job="$1"; shift
+
 	local ret_file="${LOGS_DIR}/${job}.ret"
 	if [ -f "${ret_file}" ]; then
 		cat "${ret_file}"
@@ -244,6 +245,7 @@ function has_sensitive_warnings {
 
 function warning_aware_job_ret {
 	local -r job="$1"; shift
+
 	local ret="$(job_ret "${job}")"
 	readonly ret
 	if [ "${ret}" -ne "0" ]; then
@@ -260,6 +262,7 @@ function check_float {
 	echo "$1" | grep -Eq '^[0-9]+\.?[0-9]*$'
 }
 
+
 function job_tlog_file {
 	local -r job="$1"; shift
 	echo "${LOGS_DIR}/${job}.tlog"
@@ -268,6 +271,7 @@ function job_tlog_file {
 function job_tlog {
 	local -r job="$1"; shift
 	local -r key="$1"; shift
+
 	local tlog_file="$(job_tlog_file "${job}")"
 	readonly tlog_file
 	if [ -f "${tlog_file}" ]; then
@@ -287,6 +291,7 @@ function job_tlog {
 
 function job_status {
 	local -r job="$1"; shift
+
 	local ret="$(job_ret "${job}")"
 	readonly ret
 
@@ -305,6 +310,7 @@ function job_status {
 
 function guard {
 	local -r job="$1"; shift
+
 	local -r outlog="${LOGS_DIR}/${job}.out"
 	local -r errlog="${LOGS_DIR}/${job}.err"
 	local -r retlog="${LOGS_DIR}/${job}.ret"
@@ -376,7 +382,9 @@ function makefile_compile_outputs_list {
 
 function build_with_make {
 	local -r make_dir="$1"; shift
+
 	make -j4 -C "${make_dir}" || return $?
+
 	if variable_exists "WARN_FILE"; then
 		local compile_outputs_list
 		if compile_outputs_list="$(makefile_compile_outputs_list "${make_dir}")"; then
@@ -402,7 +410,6 @@ function build_with_make {
 			echo "Makefile in '${make_dir}' does not have target '${MAKEFILE_COMPILE_OUTPUTS_LIST_TARGET}'." >> "${WARN_FILE}"
 		fi
 	fi	
-
 }
 
 
@@ -416,6 +423,7 @@ function is_in {
 	done
 	return 1
 }
+
 
 function hspace {
 	printf "%$1s" ""
