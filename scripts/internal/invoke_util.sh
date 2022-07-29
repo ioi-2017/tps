@@ -65,3 +65,25 @@ function compile_checker_if_needed {
 		echo
 	fi
 }
+
+
+function print_score {
+	local -r score="$1"; shift
+	local -r text_width="$1"; shift
+
+	local score_str
+	score_str="$(printf "%${text_width}s" "${score}")"
+	readonly score_str
+	local score_color
+	if [ "${score}" == "?" ]; then
+		score_color="skipped"
+	elif py_test "${score} <= 0"; then
+		score_color="red"
+	elif py_test "${score} >= 1"; then
+		score_color="green"
+	else
+		score_color="yellow"
+	fi
+	readonly score_color
+	cecho "${score_color}" -n "${score_str}"
+}

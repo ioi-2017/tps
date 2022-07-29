@@ -3,6 +3,8 @@
 set -euo pipefail
 
 source "${INTERNALS}/util.sh"
+source "${INTERNALS}/problem_util.sh"
+source "${INTERNALS}/invoke_util.sh"
 
 tests_dir="$1"; shift
 test_name="$1"; shift
@@ -112,19 +114,7 @@ fi
 check_status=$(job_status "${check_job}")
 echo_status "${check_status}"
 
-
-score_str="$(printf "%6s" "${score}")"
-if [ "${score}" == "?" ]; then
-	score_color="skipped"
-elif py_test "${score} <= 0"; then
-	score_color="red"
-elif py_test "${score} >= 1"; then
-	score_color="green"
-else
-	score_color="yellow"
-fi
-cecho "${score_color}" -n "${score_str}"
-
+print_score "${score}" "6"
 hspace 2
 export BOX_PADDING=20
 echo_verdict "${verdict}"
