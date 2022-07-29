@@ -53,7 +53,7 @@ echo_status "${gen_status}"
 
 function validate {
 	if [ ! -f "${input_file_path}" ]; then
-		errcho "input file ${input_file_name} is not available"
+		errcho "input file '${input_file_name}' is not available"
 		return 4
 	fi
 
@@ -77,7 +77,7 @@ echo_status "${val_status}"
 
 function gen_output {
 	if [ ! -f "${input_file_path}" ]; then
-		errcho "input file ${input_file_name} is not available"
+		errcho "input file '${input_file_name}' is not available"
 		return 4
 	fi
 	local -r temp_output="${output_file_path}.tmp"
