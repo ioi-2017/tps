@@ -5,6 +5,7 @@ set -euo pipefail
 source "${INTERNALS}/util.sh"
 source "${INTERNALS}/problem_util.sh"
 source "${INTERNALS}/gen_util.sh"
+source "${INTERNALS}/invoke_util.sh"
 
 
 function usage {
@@ -167,13 +168,7 @@ compile_generators_if_needed
 compile_validators_if_needed
 
 skipping_compile_sol="$(str_or "${SKIP_SOL}" "${skip_compile_sol}")"
-printf "%-${STATUS_PAD}scompile" "solution"
-if "${skipping_compile_sol}"; then
-	echo_status "SKIP"
-else
-	sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${model_solution}"
-fi
-echo
+compile_solution_if_needed "${skipping_compile_sol}" "solution.compile" "solution" "${model_solution}"
 
 if "${UPDATE_MODE}" || "${SKIP_GEN}"; then
 	cecho yellow "Warning: tests directory is not cleared."

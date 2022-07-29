@@ -38,6 +38,22 @@ function check_and_init_limit_variables {
 }
 
 
+function compile_solution_if_needed {
+	local -r skip="$1"; shift
+	local -r job_name="$1"; shift
+	local -r solution_label="$1"; shift
+	local -r solution_path="$1"; shift
+
+	printf "%-${STATUS_PAD}scompile" "${solution_label}"
+	if "${skip}"; then
+		echo_status "SKIP"
+	else
+		sensitive reporting_guard "${job_name}" bash "${INTERNALS}/compile_solution.sh" "${solution_path}"
+	fi
+	echo
+}
+
+
 function compile_checker_if_needed {
 	if "${HAS_CHECKER}"; then
 		printf "%-${STATUS_PAD}scompile" "checker"

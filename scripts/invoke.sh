@@ -145,13 +145,7 @@ recreate_dir "${LOGS_DIR}"
 
 export STATUS_PAD=20
 
-printf "%-${STATUS_PAD}scompile" "solution"
-if "${skip_compile_sol}"; then
-	echo_status "SKIP"
-else
-	sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${solution}"
-fi
-echo
+compile_solution_if_needed "${skip_compile_sol}" "solution.compile" "solution" "${solution}"
 
 compile_checker_if_needed
 
