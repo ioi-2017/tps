@@ -8,21 +8,24 @@ source "${INTERNALS}/run_util.sh"
 
 tests_dir="$1"; shift
 test_name="$1"; shift
-command="$1"; shift
-args=("$@")
+gen_command_line=("$@")
 
 input="${tests_dir}/${test_name}.in"
 output="${tests_dir}/${test_name}.out"
 
 function gen_input {
-	temp_input=${input}.tmp
+	local -r input="$1"; shift
+	local -r command="$1"; shift
+	local -r args=("$@")
+
+	local -r temp_input="${input}.tmp"
 	pushdq "${GEN_DIR}"
 	if is_in "${command}" "manual" "copy"; then
 		if [ ${#args[@]} -ne 1 ] ; then
 			errcho "There must be exactly one argument for test generation command '${command}', but found ${#args[@]} arguments."
 			return 1
 		fi
-		source_file="${args[0]}"
+		local source_file="${args[0]}"
 		if [ "${command}" == "manual" ] ; then
 			source_file="./manual/${source_file}"
 		fi
@@ -30,6 +33,7 @@ function gen_input {
 		check_file_exists "Source file" "${source_file}" || return $?
 		cp "${source_file}" "${temp_input}" || return $?
 	else
+		local gen_file_name
 		gen_file_name="$(find_runnable_file "${command}" ".")"
 		readonly gen_file_name
 		if [ -z "${gen_file_name}" ]; then
@@ -37,17 +41,15 @@ function gen_input {
 Searched for $(searched_runnable_files_str "${command}" ".")."
 			return 4
 		fi
-		readonly gen_file="./${gen_file_name}"
-		# Using ${args[@]+"${args[@]}"} instead of "${args[@]}" because
-		#   simple usage of empty arrays causes unbound variable error in old versions of bash with 'set -u'.
+		local -r gen_file="./${gen_file_name}"
 		run_file "${gen_file}" ${args[@]+"${args[@]}"} > "${temp_input}" || return $?
 	fi
 	popdq
-	
-	header_file=${GEN_DIR}/input.header
-	footer_file=${GEN_DIR}/input.footer
+
+	local -r header_file="${GEN_DIR}/input.header"
+	local -r footer_file="${GEN_DIR}/input.footer"
 	if [ -f "${header_file}" -o -f "${footer_file}" ]; then
-		temp_input2=${input}.tmp2
+		local -r temp_input2="${input}.tmp2"
 		if [ -f "${header_file}" -a -f "${footer_file}" ]; then
 			cat "${header_file}" "${temp_input}" "${footer_file}" > "${temp_input2}"
 		elif [ -f "${header_file}" ]; then
@@ -57,8 +59,8 @@ Searched for $(searched_runnable_files_str "${command}" ".")."
 		fi
 		mv "${temp_input2}" "${temp_input}"
 	fi
-	
-	if command_exists dos2unix ; then
+
+	if command_exists "dos2unix" ; then
 		dos2unix "${temp_input}" &> "/dev/null"
 	fi
 	mv "${temp_input}" "${input}"
@@ -110,7 +112,7 @@ echo -n "gen"
 gen_job="${test_name}.gen"
 
 if ! "${SKIP_GEN}"; then
-	insensitive guard "${gen_job}" gen_input
+	insensitive guard "${gen_job}" gen_input "${input}" "${gen_command_line[@]}"
 	verify_job_failure "${gen_job}"
 fi
 
