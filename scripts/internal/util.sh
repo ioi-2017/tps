@@ -432,6 +432,20 @@ function is_in {
 }
 
 
+# This function gets a series of true/false arguments and prints a true/false string as their OR.
+# Natural usage: cond="$(str_or "${a}" "${b}")"
+function str_or {
+	local item
+	for item in "$@"; do
+		if [ "${item}" == "true" ]; then
+			echo "true"
+			return
+		fi
+	done
+	echo "false"
+}
+
+
 function hspace {
 	local -r width="$1"; shift
 	printf "%${width}s" ""

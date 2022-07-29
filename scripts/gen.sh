@@ -166,8 +166,9 @@ compile_generators_if_needed
 
 compile_validators_if_needed
 
+skipping_compile_sol="$(str_or "${SKIP_SOL}" "${skip_compile_sol}")"
 printf "%-${STATUS_PAD}scompile" "solution"
-if "${SKIP_SOL}" || "${skip_compile_sol}"; then
+if "${skipping_compile_sol}"; then
 	echo_status "SKIP"
 else
 	sensitive reporting_guard "solution.compile" bash "${INTERNALS}/compile_solution.sh" "${model_solution}"
