@@ -56,13 +56,9 @@ function validate {
 		errcho "input file '${input_file_name}' is not available"
 		return 4
 	fi
-
-	get_test_validator_commands "${tests_dir}" "${test_name}" | while read validator_command; do
-		[ -z "${validator_command}" ] && continue
-		errcho "starting validator command: ${validator_command}"
-		eval "${validator_command}" < "${input_file_path}" || return $?
-		errcho "OK"
-	done || return $?
+	local validator_commands
+	validator_commands="$(get_test_validator_commands "${tests_dir}" "${test_name}")" || return $?
+	run_validator_commands_on_input "${input_file_path}" <<< "${validator_commands}" || return $?
 }
 
 echo -n "val"

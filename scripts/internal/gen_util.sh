@@ -77,3 +77,14 @@ Searched for $(searched_runnable_files_str "${command}" ".")."
 	fi
 	mv "${temp_input}" "${input}"
 }
+
+
+function run_validator_commands_on_input {
+	local -r input="$1"; shift
+	while read validator_command; do
+		[ -z "${validator_command}" ] && continue
+		errcho "starting validator command: ${validator_command}"
+		eval "${validator_command}" < "${input}" || return $?
+		errcho "OK"
+	done || return $?
+}
