@@ -83,8 +83,14 @@ function run_validator_commands_on_input {
 	local -r input="$1"; shift
 	while read validator_command; do
 		[ -z "${validator_command}" ] && continue
-		errcho "starting validator command: ${validator_command}"
-		eval "${validator_command}" < "${input}" || return $?
-		errcho "OK"
+		errcho "Starting validator command: ${validator_command}"
+		local validator_exit_code=0
+		eval "${validator_command}" < "${input}" || validator_exit_code=$?
+		if [ "${validator_exit_code}" -eq "0" ]; then
+			errcho "OK"
+		else
+			errcho "Validator command exited with code ${validator_exit_code}"
+			return "${validator_exit_code}"
+		fi
 	done || return $?
 }
