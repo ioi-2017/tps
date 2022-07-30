@@ -91,13 +91,16 @@ function invoke_solution {
 
 	if [ ! -f "${sol_stdin}" ]; then
 		function input_not_found {
+			errcho "input file '${sol_stdin}' is not available"
 			return 4
 		}
 		insensitive guard "${job_name}" input_not_found
 		execution_time=""
 		score="0"
 		verdict="${VERDICT__JUDGE_FAILURE}"
-		reason="input file ${test_name}.in is not available"
+		local stdin_file_name
+		stdin_file_name="$(basename "${sol_stdin}")"
+		reason="input file '${stdin_file_name}' is not available"
 		return
 	fi
 
