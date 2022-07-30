@@ -77,7 +77,7 @@ export BOX_PADDING=5
 
 echo -n "check"
 check_job="${test_name}.check"
-if ! is_in "${sol_status}" "FAIL" "SKIP"; then
+function run_checker_if_needed {
 	if "${SKIP_CHECK}"; then
 		score="?"
 		verdict="Unknown"
@@ -106,6 +106,9 @@ if ! is_in "${sol_status}" "FAIL" "SKIP"; then
 			fi
 		fi
 	fi
+}
+if ! is_in "${sol_status}" "FAIL" "SKIP"; then
+	run_checker_if_needed
 fi
 check_status=$(job_status "${check_job}")
 echo_status "${check_status}"
