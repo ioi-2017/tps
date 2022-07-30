@@ -42,7 +42,7 @@ function get_test_validator_commands {
 		*.py )
 				#echo "It is Python."
 				validator_target="${VALIDATOR_DIR}/${validator_name}"
-				validator_command="${PYTHON} '${validator_target}' ${validator_args}"
+				validator_command="'${PYTHON}' '${validator_target}' ${validator_args}"
 				check_existance=true
 				;;
 		*.sh )
