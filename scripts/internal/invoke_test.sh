@@ -118,14 +118,10 @@ function run_checker_if_needed {
 		}
 		insensitive guard "${check_job}" run_checker
 		local ret
-		ret="$(job_ret "${check_job}")"
+		ret="$(warning_aware_job_ret "${check_job}")"
 
 		if [ "${ret}" -ne 0 ]; then
 			add_failed_job "${check_job}" "${ret}"
-		else
-			if has_sensitive_warnings "${check_job}"; then
-				add_failed_job "${check_job}" "${warn_status}"
-			fi
 		fi
 	fi
 }
