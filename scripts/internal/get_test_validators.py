@@ -1,7 +1,7 @@
 import sys
 import os
 
-from util import simple_usage_message, load_json, log_warning
+from util import simple_usage_message, load_json, log_warning, unify_list
 from json_extract import navigate_json
 import tests_util as tu
 
@@ -47,13 +47,6 @@ def get_test_validators(test_name, tests_dir):
 
     if len(test_validators) == 0:
         log_warning("There is no validator for test {}.".format(test_name))
-
-    def unify_list(l):
-        seen = []
-        for e in l:
-            if e not in seen:
-                seen.append(e)
-        return seen
 
     return unify_list(test_validators)
 
