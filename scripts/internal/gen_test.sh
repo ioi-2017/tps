@@ -31,9 +31,8 @@ function verify_job_failure {
 	local -r job_name="$1"; shift
 	local ret
 	ret="$(warning_aware_job_ret "${job_name}")"
-	if [ "${ret}" -ne "0" ]; then
+	is_in "${ret}" "0" "${skip_status}" ||
 		add_failed_job "${job_name}" "${ret}"
-	fi
 }
 
 
@@ -45,8 +44,8 @@ echo -n "gen"
 gen_job="${test_name}.gen"
 if ! "${SKIP_GEN}"; then
 	insensitive guard "${gen_job}" gen_input "${input_file_path}" "${gen_command_line[@]}"
-	verify_job_failure "${gen_job}"
 fi
+verify_job_failure "${gen_job}"
 gen_status="$(job_status "${gen_job}")"
 echo_status "${gen_status}"
 
@@ -65,8 +64,8 @@ echo -n "val"
 val_job="${test_name}.val"
 if ! "${SKIP_VAL}" && ! is_in "${gen_status}" "FAIL"; then
 	insensitive guard "${val_job}" validate
-	verify_job_failure "${val_job}"
 fi
+verify_job_failure "${val_job}"
 val_status="$(job_status "${val_job}")"
 echo_status "${val_status}"
 
@@ -85,8 +84,8 @@ echo -n "sol"
 sol_job="${test_name}.sol"
 if ! "${SKIP_SOL}" && ! is_in "${gen_status}" "FAIL"; then
 	insensitive guard "${sol_job}" gen_output
-	verify_job_failure "${sol_job}"
 fi
+verify_job_failure "${sol_job}"
 sol_status="$(job_status "${sol_job}")"
 echo_status "${sol_status}"
 
