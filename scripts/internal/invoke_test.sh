@@ -18,6 +18,13 @@ sol_stderr="${SANDBOX}/${test_name}.err"
 final_ret=0
 failed_jobs=""
 
+function add_failed_job {
+	local -r job_name="$1"; shift
+	local -r ret="$1"; shift
+	final_ret="${ret}"
+	failed_jobs="${failed_jobs} ${job_name}"
+}
+
 
 printf "%-${STATUS_PAD}s" "${test_name}"
 
@@ -30,8 +37,7 @@ sol_job="${test_name}.sol"
 
 function invoke_solution {
 	if [ ! -f "${input_file_path}" ]; then
-		final_ret=4
-		failed_jobs="${failed_jobs} ${sol_job}"
+		add_failed_job "${sol_job}" "4"
 
 		execution_time=""
 		score="0"
@@ -97,8 +103,7 @@ function run_checker_if_needed {
 		ret="$(job_ret "${check_job}")"
 
 		if [ "${ret}" -ne 0 ]; then
-			final_ret="${ret}"
-			failed_jobs="${failed_jobs} ${check_job}"
+			add_failed_job "${check_job}" "${ret}"
 
 			score="0"
 			verdict="Judge Failure"
@@ -108,8 +113,7 @@ function run_checker_if_needed {
 			checker_stderr="${LOGS_DIR}/${check_job}.err"
 			source "${TEMPLATES}/checker_result.sh"
 			if has_sensitive_warnings "${check_job}"; then
-				final_ret="${warn_status}"
-				failed_jobs="${failed_jobs} ${check_job}"
+				add_failed_job "${check_job}" "${warn_status}"
 			fi
 		fi
 	fi
