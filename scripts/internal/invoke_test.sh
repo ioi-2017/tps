@@ -25,6 +25,14 @@ function add_failed_job {
 	failed_jobs="${failed_jobs} ${job_name}"
 }
 
+function verify_job_failure {
+	local -r job_name="$1"; shift
+	local ret
+	ret="$(warning_aware_job_ret "${job_name}")"
+	is_in "${ret}" "0" "${skip_status}" ||
+		add_failed_job "${job_name}" "${ret}"
+}
+
 
 printf "%-${STATUS_PAD}s" "${test_name}"
 
@@ -82,9 +90,7 @@ function invoke_solution {
 }
 invoke_solution
 if variable_exists "verdict" && is_verdict_judge_failure "${verdict}"; then
-	sol_job_ret="$(warning_aware_job_ret "${sol_job}")"
-	is_in "${sol_job_ret}" "0" ||
-		add_failed_job "${sol_job}" "${sol_job_ret}"
+	verify_job_failure "${sol_job}"
 fi
 sol_status="$(job_status "${sol_job}")"
 echo_status "${sol_status}"
@@ -129,9 +135,7 @@ function run_checker_if_needed {
 if ! is_in "${sol_status}" "FAIL" "SKIP"; then
 	run_checker_if_needed
 fi
-check_job_ret="$(warning_aware_job_ret "${check_job}")"
-is_in "${check_job_ret}" "0" "${skip_status}" ||
-	add_failed_job "${check_job}" "${check_job_ret}"
+verify_job_failure "${check_job}"
 check_status="$(job_status "${check_job}")"
 echo_status "${check_status}"
 
