@@ -110,7 +110,17 @@ export BOX_PADDING=5
 
 echo -n "check"
 check_job="${test_name}.check"
+
+# Inputs: job_name test_name sol_stdin judge_answer sol_stdout sol_stderr
+# This function may set the variables score, verdict, and reason
 function run_checker_if_needed {
+	local -r job_name="$1"; shift
+	local -r test_name="$1"; shift
+	local -r sol_stdin="$1"; shift
+	local -r judge_answer="$1"; shift
+	local -r sol_stdout="$1"; shift
+	local -r sol_stderr="$1"; shift
+
 	if "${SKIP_CHECK}"; then
 		score="?"
 		verdict="${VERDICT__UNKNOWN}"
@@ -124,24 +134,24 @@ function run_checker_if_needed {
 				reason="${_local_reason}"
 			}
 			local ret=0
-			bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input_file_path}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}" || ret=$?
+			bash "${TEMPLATES}/check_test.sh" "${test_name}" "${sol_stdin}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}" || ret=$?
 			if [ "${ret}" -ne "0" ]; then
 				issue_judge_failure_verdict "checker exited with code ${ret}"
 				return "${ret}"
 			fi
-			local -r checker_stdout="${LOGS_DIR}/${check_job}.out"
-			local -r checker_stderr="${LOGS_DIR}/${check_job}.err"
+			local -r checker_stdout="${LOGS_DIR}/${job_name}.out"
+			local -r checker_stderr="${LOGS_DIR}/${job_name}.err"
 			function source_checker_result {
 				source "${TEMPLATES}/checker_result.sh"
 			}
 			source_checker_result
 			return 0
 		}
-		insensitive guard "${check_job}" run_checker
+		insensitive guard "${job_name}" run_checker
 	fi
 }
 if ! is_in "${sol_status}" "FAIL" "SKIP"; then
-	run_checker_if_needed
+	run_checker_if_needed "${check_job}" "${test_name}" "${input_file_path}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}"
 fi
 verify_job_failure "${check_job}"
 check_status="$(job_status "${check_job}")"
