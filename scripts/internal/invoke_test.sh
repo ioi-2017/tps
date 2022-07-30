@@ -9,7 +9,7 @@ source "${INTERNALS}/invoke_util.sh"
 tests_dir="$1"; shift
 test_name="$1"; shift
 
-input="${tests_dir}/${test_name}.in"
+input_file_path="${tests_dir}/${test_name}.in"
 judge_answer="${tests_dir}/${test_name}.out"
 sol_stdout="${SANDBOX}/${test_name}.out"
 sol_stderr="${SANDBOX}/${test_name}.err"
@@ -28,7 +28,7 @@ unset execution_time score verdict reason
 echo -n "sol"
 sol_job="${test_name}.sol"
 
-if [ -f "${input}" ]; then
+if [ -f "${input_file_path}" ]; then
 	input_status="OK"
 else
 	input_status="FAIL"
@@ -39,10 +39,10 @@ else
 	verdict="Judge Failure"
 	reason="input file ${test_name}.in is not available"
 fi
-if ! is_in "${input_status}" "FAIL" "SKIP"; then
+if ! is_in "${input_status}" "FAIL"; then
 	function run_solution {
 		tlog_file="$(job_tlog_file "${sol_job}")"
-		"${PYTHON}" "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input}" "${sol_stdout}" "${sol_stderr}"
+		"${PYTHON}" "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input_file_path}" "${sol_stdout}" "${sol_stderr}"
 	}
 	insensitive guard "${sol_job}" run_solution
 	ret=$(job_ret "${sol_job}")
@@ -84,7 +84,7 @@ if ! is_in "${sol_status}" "FAIL" "SKIP"; then
 		reason="Checker skipped"
 	else
 		function run_checker {
-			bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}"
+			bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input_file_path}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}"
 		}
 		insensitive guard "${check_job}" run_checker
 		ret=$(job_ret "${check_job}")
@@ -127,14 +127,11 @@ echo "${verdict}" > "${LOGS_DIR}/${test_name}.verdict"
 echo
 
 
-if "${SENSITIVE_RUN}"; then
-	if [ ${final_ret} -ne 0 ]; then
-		for job in ${failed_jobs}; do
-			echo
-			echo "failed job: ${job}"
-			execution_report "${job}"
-		done
-
-		exit ${final_ret}
-	fi
+if "${SENSITIVE_RUN}" && [ "${final_ret}" -ne "0" ]; then
+	for job in ${failed_jobs}; do
+		echo
+		echo "failed job: ${job}"
+		execution_report "${job}"
+	done
+	exit "${final_ret}"
 fi
