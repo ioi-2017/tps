@@ -403,7 +403,8 @@ function stop_for_failed_jobs {
 	local job
 	for job in ${failed_jobs}; do
 		echo
-		echo "failed job: ${job}"
+		cecho "fail" -n "failed job:"
+		echo " ${job}"
 		execution_report "${job}"
 	done
 	exit "${final_ret}"
