@@ -81,9 +81,8 @@ function handle_positional_arg {
 
 argument_parser "handle_positional_arg" "handle_option" "invalid_arg_with_usage" ${compile_args[@]+"${compile_args[@]}"}
 
-if variable_not_exists "solution" ; then
+variable_exists "solution" ||
 	error_usage_exit 2 "Solution is not specified."
-fi
 
 sensitive check_file_exists "Solution file" "${solution}"
 

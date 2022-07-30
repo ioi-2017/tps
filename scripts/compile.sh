@@ -73,9 +73,8 @@ function handle_positional_arg {
 
 argument_parser "handle_positional_arg" "handle_option" "invalid_arg_with_usage" "$@"
 
-if variable_not_exists "SOLUTION" ; then
+variable_exists "SOLUTION" ||
 	error_usage_exit 2 "Solution is not specified."
-fi
 
 WARN_FILE="${SANDBOX}/compile.warn"
 

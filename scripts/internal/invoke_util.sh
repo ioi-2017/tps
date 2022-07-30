@@ -16,25 +16,20 @@ function check_invoke_prerequisites {
 
 
 function check_and_init_limit_variables {
-	if variable_not_exists "SOFT_TL" ; then
+	variable_exists "SOFT_TL" ||
 		SOFT_TL="$(get_time_limit)"
-	fi
 
-	if ! check_float "${SOFT_TL}"; then
+	check_float "${SOFT_TL}" ||
 		error_usage_exit 2 "Provided time limit '${SOFT_TL}' is not a positive real number."
-	fi
 
-	if variable_not_exists "HARD_TL" ; then
+	variable_exists "HARD_TL" ||
 		HARD_TL="$("${PYTHON}" -c "print(${SOFT_TL} + 2)")"
-	fi
 
-	if ! check_float "${HARD_TL}"; then
+	check_float "${HARD_TL}" ||
 		error_usage_exit 2 "Provided hard time limit '${HARD_TL}' is not a positive real number."
-	fi
 
-	if py_test "${HARD_TL} <= ${SOFT_TL}"; then
+	py_test "${HARD_TL} > ${SOFT_TL}" ||
 		error_usage_exit 2 "Provided hard time limit (${HARD_TL}) is not greater than the soft time limit (${SOFT_TL})."
-	fi
 }
 
 
