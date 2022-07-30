@@ -37,8 +37,10 @@ sol_job="${test_name}.sol"
 
 function invoke_solution {
 	if [ ! -f "${input_file_path}" ]; then
-		add_failed_job "${sol_job}" "4"
-
+		function input_not_found {
+			return 4
+		}
+		insensitive guard "${sol_job}" input_not_found
 		execution_time=""
 		score="0"
 		verdict="${VERDICT__JUDGE_FAILURE}"
@@ -79,6 +81,11 @@ function invoke_solution {
 	fi
 }
 invoke_solution
+if variable_exists "verdict" && is_verdict_judge_failure "${verdict}"; then
+	sol_job_ret="$(warning_aware_job_ret "${sol_job}")"
+	is_in "${sol_job_ret}" "0" ||
+		add_failed_job "${sol_job}" "${sol_job_ret}"
+fi
 sol_status="$(job_status "${sol_job}")"
 echo_status "${sol_status}"
 printf "%7s" "${execution_time}"
