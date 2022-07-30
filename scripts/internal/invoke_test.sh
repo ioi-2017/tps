@@ -14,21 +14,19 @@ judge_answer="${tests_dir}/${test_name}.out"
 sol_stdout="${SANDBOX}/${test_name}.out"
 sol_stderr="${SANDBOX}/${test_name}.err"
 
-function run_solution {
-	tlog_file="$(job_tlog_file "${sol_job}")"
-	"${PYTHON}" "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input}" "${sol_stdout}" "${sol_stderr}"
-}
 
-function run_checker {
-	bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}"
-}
+final_ret=0
+failed_jobs=""
 
 
 printf "%-${STATUS_PAD}s" "${test_name}"
 
-failed_jobs=""
-final_ret=0
+export BOX_PADDING=4
 
+unset execution_time score verdict reason
+
+echo -n "sol"
+sol_job="${test_name}.sol"
 
 if [ -f "${input}" ]; then
 	input_status="OK"
@@ -36,19 +34,16 @@ else
 	input_status="FAIL"
 	final_ret=4
 
+	execution_time=""
 	score="0"
 	verdict="Judge Failure"
 	reason="input file ${test_name}.in is not available"
 fi
-
-
-export BOX_PADDING=4
-
-echo -n "sol"
-sol_job="${test_name}.sol"
-execution_time=""
-
 if ! is_in "${input_status}" "FAIL" "SKIP"; then
+	function run_solution {
+		tlog_file="$(job_tlog_file "${sol_job}")"
+		"${PYTHON}" "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input}" "${sol_stdout}" "${sol_stderr}"
+	}
 	insensitive guard "${sol_job}" run_solution
 	ret=$(job_ret "${sol_job}")
 	execution_time="$(job_tlog "${sol_job}" "duration")"
@@ -82,13 +77,15 @@ export BOX_PADDING=5
 
 echo -n "check"
 check_job="${test_name}.check"
-
 if ! is_in "${sol_status}" "FAIL" "SKIP"; then
 	if "${SKIP_CHECK}"; then
 		score="?"
 		verdict="Unknown"
 		reason="Checker skipped"
 	else
+		function run_checker {
+			bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}"
+		}
 		insensitive guard "${check_job}" run_checker
 		ret=$(job_ret "${check_job}")
 
@@ -110,12 +107,12 @@ if ! is_in "${sol_status}" "FAIL" "SKIP"; then
 		fi
 	fi
 fi
-
 check_status=$(job_status "${check_job}")
 echo_status "${check_status}"
 
 print_score "${score}" "6"
 hspace 2
+
 export BOX_PADDING=20
 echo_verdict "${verdict}"
 
