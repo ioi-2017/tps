@@ -124,17 +124,14 @@ function run_checker_if_needed {
 			return 0
 		}
 		insensitive guard "${check_job}" run_checker
-		local ret
-		ret="$(warning_aware_job_ret "${check_job}")"
-
-		if [ "${ret}" -ne 0 ]; then
-			add_failed_job "${check_job}" "${ret}"
-		fi
 	fi
 }
 if ! is_in "${sol_status}" "FAIL" "SKIP"; then
 	run_checker_if_needed
 fi
+check_job_ret="$(warning_aware_job_ret "${check_job}")"
+is_in "${check_job_ret}" "0" "${skip_status}" ||
+	add_failed_job "${check_job}" "${check_job_ret}"
 check_status="$(job_status "${check_job}")"
 echo_status "${check_status}"
 
