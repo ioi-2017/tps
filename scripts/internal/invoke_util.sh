@@ -178,7 +178,12 @@ function run_checker_if_needed {
 		function source_checker_result {
 			source "${TEMPLATES}/checker_result.sh"
 		}
-		source_checker_result
+		ret=0
+		source_checker_result || ret=$?
+		if [ "${ret}" -ne "0" ]; then
+			issue_judge_failure_verdict "checker_result.sh exited with code ${ret}"
+			return "${ret}"
+		fi
 		return 0
 	}
 	insensitive guard "${job_name}" run_checker
