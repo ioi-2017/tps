@@ -28,18 +28,18 @@ unset execution_time score verdict reason
 echo -n "sol"
 sol_job="${test_name}.sol"
 
-if [ -f "${input_file_path}" ]; then
-	input_status="OK"
-else
-	input_status="FAIL"
-	final_ret=4
+function invoke_solution {
+	if [ ! -f "${input_file_path}" ]; then
+		final_ret=4
+		failed_jobs="${failed_jobs} ${sol_job}"
 
-	execution_time=""
-	score="0"
-	verdict="Judge Failure"
-	reason="input file ${test_name}.in is not available"
-fi
-if ! is_in "${input_status}" "FAIL"; then
+		execution_time=""
+		score="0"
+		verdict="Judge Failure"
+		reason="input file ${test_name}.in is not available"
+		return
+	fi
+
 	function run_solution {
 		tlog_file="$(job_tlog_file "${sol_job}")"
 		"${PYTHON}" "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input_file_path}" "${sol_stdout}" "${sol_stderr}"
@@ -65,8 +65,8 @@ if ! is_in "${input_status}" "FAIL"; then
 		verdict="Runtime Error"
 		reason="solution finished with exit code ${ret}"
 	fi
-fi
-
+}
+invoke_solution
 sol_status="$(job_status ${sol_job})"
 echo_status "${sol_status}"
 printf "%7s" "${execution_time}"
