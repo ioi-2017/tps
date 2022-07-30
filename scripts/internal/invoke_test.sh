@@ -108,6 +108,12 @@ function run_checker_if_needed {
 				issue_judge_failure_verdict "checker exited with code ${ret}"
 				return "${ret}"
 			fi
+			local -r checker_stdout="${LOGS_DIR}/${check_job}.out"
+			local -r checker_stderr="${LOGS_DIR}/${check_job}.err"
+			function source_checker_result {
+				source "${TEMPLATES}/checker_result.sh"
+			}
+			source_checker_result
 			return 0
 		}
 		insensitive guard "${check_job}" run_checker
@@ -117,9 +123,6 @@ function run_checker_if_needed {
 		if [ "${ret}" -ne 0 ]; then
 			add_failed_job "${check_job}" "${ret}"
 		else
-			checker_stdout="${LOGS_DIR}/${check_job}.out"
-			checker_stderr="${LOGS_DIR}/${check_job}.err"
-			source "${TEMPLATES}/checker_result.sh"
 			if has_sensitive_warnings "${check_job}"; then
 				add_failed_job "${check_job}" "${warn_status}"
 			fi
