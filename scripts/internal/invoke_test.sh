@@ -79,12 +79,6 @@ echo "${reason}" > "${LOGS_DIR}/${test_name}.reason"
 
 echo
 
-
-if "${SENSITIVE_RUN}" && [ "${final_ret}" -ne "0" ]; then
-	for job in ${failed_jobs}; do
-		echo
-		echo "failed job: ${job}"
-		execution_report "${job}"
-	done
-	exit "${final_ret}"
+if should_stop_for_failed_jobs; then
+	stop_for_failed_jobs
 fi

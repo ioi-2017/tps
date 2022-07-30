@@ -380,6 +380,20 @@ function initialize_failed_job_list {
 	failed_jobs=""
 }
 
+function should_stop_for_failed_jobs {
+	"${SENSITIVE_RUN}" && [ "${final_ret}" -ne "0" ]
+}
+
+function stop_for_failed_jobs {
+	local job
+	for job in ${failed_jobs}; do
+		echo
+		echo "failed job: ${job}"
+		execution_report "${job}"
+	done
+	exit "${final_ret}"
+}
+
 
 readonly WARNING_TEXT_PATTERN_FOR_CPP="warning:"
 readonly WARNING_TEXT_PATTERN_FOR_PAS="Warning:"
