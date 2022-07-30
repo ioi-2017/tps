@@ -160,6 +160,7 @@ function run_checker_if_needed {
 		return 0
 	fi
 
+	local -r judge_failure_exit_code="105"
 	function run_checker {
 		function issue_judge_failure_verdict {
 			local -r _local_reason="$1"; shift
@@ -175,6 +176,9 @@ function run_checker_if_needed {
 		fi
 		local -r checker_stdout="${LOGS_DIR}/${job_name}.out"
 		local -r checker_stderr="${LOGS_DIR}/${job_name}.err"
+		score=""
+		verdict=""
+		reason=""
 		function source_checker_result {
 			source "${TEMPLATES}/checker_result.sh"
 		}
@@ -183,6 +187,17 @@ function run_checker_if_needed {
 		if [ "${ret}" -ne "0" ]; then
 			issue_judge_failure_verdict "checker_result.sh exited with code ${ret}"
 			return "${ret}"
+		fi
+		if variable_not_exists "score" || [ -z "${score}" ]; then
+			issue_judge_failure_verdict "checker_result.sh did not set the score"
+			return "${judge_failure_exit_code}"
+		fi
+		if variable_not_exists "verdict" || [ -z "${verdict}" ]; then
+			issue_judge_failure_verdict "checker_result.sh did not set the verdict"
+			return "${judge_failure_exit_code}"
+		fi
+		if variable_not_exists "reason"; then
+			reason=""
 		fi
 		return 0
 	}
