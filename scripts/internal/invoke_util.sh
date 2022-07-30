@@ -67,6 +67,8 @@ function compile_checker_if_needed {
 }
 
 
+readonly TIME_LIMIT_EXIT_CODE="124"
+
 readonly VERDICT__UNKNOWN="Unknown"
 readonly VERDICT__JUDGE_FAILURE="Judge Failure"
 readonly VERDICT__TIME_LIMIT_EXCEEDED="Time Limit Exceeded"

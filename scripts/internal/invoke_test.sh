@@ -58,7 +58,7 @@ function invoke_solution {
 	readonly ret
 	execution_time="$(job_tlog "${sol_job}" "duration")"
 
-	if [ "${ret}" -eq 124 ]; then
+	if [ "${ret}" -eq "${TIME_LIMIT_EXIT_CODE}" ]; then
 		score="0"
 		verdict="${VERDICT__TIME_LIMIT_EXCEEDED}"
 		local terminated
