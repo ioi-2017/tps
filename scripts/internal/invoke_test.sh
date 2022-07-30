@@ -43,12 +43,20 @@ unset execution_time score verdict reason
 echo -n "sol"
 sol_job="${test_name}.sol"
 
+# Inputs: job_name, test_name, sol_stdin, sol_stdout, sol_stderr
+# This function may set the variables execution_time, score, verdict, and reason
 function invoke_solution {
-	if [ ! -f "${input_file_path}" ]; then
+	local -r job_name="$1"; shift
+	local -r test_name="$1"; shift
+	local -r sol_stdin="$1"; shift
+	local -r sol_stdout="$1"; shift
+	local -r sol_stderr="$1"; shift
+
+	if [ ! -f "${sol_stdin}" ]; then
 		function input_not_found {
 			return 4
 		}
-		insensitive guard "${sol_job}" input_not_found
+		insensitive guard "${job_name}" input_not_found
 		execution_time=""
 		score="0"
 		verdict="${VERDICT__JUDGE_FAILURE}"
@@ -58,27 +66,27 @@ function invoke_solution {
 
 	function run_solution {
 		local tlog_file
-		tlog_file="$(job_tlog_file "${sol_job}")"
+		tlog_file="$(job_tlog_file "${job_name}")"
 		readonly tlog_file
-		"${PYTHON}" "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${input_file_path}" "${sol_stdout}" "${sol_stderr}"
+		"${PYTHON}" "${INTERNALS}/timer.py" "${SOFT_TL}" "${HARD_TL}" "${tlog_file}" bash "${TEMPLATES}/run_test.sh" "${test_name}" "${sol_stdin}" "${sol_stdout}" "${sol_stderr}"
 	}
-	insensitive guard "${sol_job}" run_solution
+	insensitive guard "${job_name}" run_solution
 	local ret
-	ret="$(job_ret "${sol_job}")"
+	ret="$(job_ret "${job_name}")"
 	readonly ret
-	execution_time="$(job_tlog "${sol_job}" "duration")"
+	execution_time="$(job_tlog "${job_name}" "duration")"
 
 	if [ "${ret}" -eq "${TIME_LIMIT_EXIT_CODE}" ]; then
 		score="0"
 		verdict="${VERDICT__TIME_LIMIT_EXCEEDED}"
 		local terminated
-		terminated="$(job_tlog "${sol_job}" "terminated")"
+		terminated="$(job_tlog "${job_name}" "terminated")"
 		readonly terminated
 		if "${terminated}"; then
 			reason="solution terminated after hard time limit '${HARD_TL}'"
 		else
 			local solution_exit_code
-			solution_exit_code="$(job_tlog "${sol_job}" "ret")"
+			solution_exit_code="$(job_tlog "${job_name}" "ret")"
 			readonly solution_exit_code
 			reason="solution finished after time limit '${SOFT_TL}', with exit code '${solution_exit_code}'"
 		fi
@@ -88,7 +96,7 @@ function invoke_solution {
 		reason="solution finished with exit code ${ret}"
 	fi
 }
-invoke_solution
+invoke_solution "${sol_job}" "${test_name}" "${input_file_path}" "${sol_stdout}" "${sol_stderr}"
 if variable_exists "verdict" && is_verdict_judge_failure "${verdict}"; then
 	verify_job_failure "${sol_job}"
 fi
