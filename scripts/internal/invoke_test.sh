@@ -41,7 +41,7 @@ function invoke_solution {
 
 		execution_time=""
 		score="0"
-		verdict="Judge Failure"
+		verdict="${VERDICT__JUDGE_FAILURE}"
 		reason="input file ${test_name}.in is not available"
 		return
 	fi
@@ -60,7 +60,7 @@ function invoke_solution {
 
 	if [ "${ret}" -eq 124 ]; then
 		score="0"
-		verdict="Time Limit Exceeded"
+		verdict="${VERDICT__TIME_LIMIT_EXCEEDED}"
 		local terminated
 		terminated="$(job_tlog "${sol_job}" "terminated")"
 		readonly terminated
@@ -74,7 +74,7 @@ function invoke_solution {
 		fi
 	elif [ "${ret}" -ne "0" ]; then
 		score="0"
-		verdict="Runtime Error"
+		verdict="${VERDICT__RUNTIME_ERROR}"
 		reason="solution finished with exit code ${ret}"
 	fi
 }
@@ -92,14 +92,14 @@ check_job="${test_name}.check"
 function run_checker_if_needed {
 	if "${SKIP_CHECK}"; then
 		score="?"
-		verdict="Unknown"
+		verdict="${VERDICT__UNKNOWN}"
 		reason="Checker skipped"
 	else
 		function run_checker {
 			function issue_judge_failure_verdict {
 				local -r _local_reason="$1"; shift
 				score="0"
-				verdict="Judge Failure"
+				verdict="${VERDICT__JUDGE_FAILURE}"
 				reason="${_local_reason}"
 			}
 			local ret=0

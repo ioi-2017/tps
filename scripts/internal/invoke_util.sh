@@ -67,6 +67,14 @@ function compile_checker_if_needed {
 }
 
 
+readonly VERDICT__UNKNOWN="Unknown"
+readonly VERDICT__JUDGE_FAILURE="Judge Failure"
+readonly VERDICT__TIME_LIMIT_EXCEEDED="Time Limit Exceeded"
+readonly VERDICT__RUNTIME_ERROR="Runtime Error"
+#readonly VERDICT__WRONG_ANSWER=""
+#readonly VERDICT__CORRECT=""
+
+
 function print_score {
 	local -r score="$1"; shift
 	local -r text_width="$1"; shift
