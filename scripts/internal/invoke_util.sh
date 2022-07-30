@@ -167,6 +167,7 @@ function run_checker_if_needed {
 			score="0"
 			verdict="${VERDICT__JUDGE_FAILURE}"
 			reason="${_local_reason}"
+			errcho "Judge failure reason: ${_local_reason}"
 		}
 		local ret=0
 		bash "${TEMPLATES}/check_test.sh" "${test_name}" "${sol_stdin}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}" || ret=$?
