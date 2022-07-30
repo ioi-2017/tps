@@ -4,7 +4,7 @@ source "${INTERNALS}/run_util.sh"
 
 
 function compile_generators_if_needed {
-	printf "%-${STATUS_PAD}scompile" "generator"
+	printf "%-${STATUS_PAD}s%s" "generator" "compile"
 	if "${SKIP_GEN}"; then
 		echo_status "SKIP"
 	else
@@ -15,7 +15,7 @@ function compile_generators_if_needed {
 
 
 function compile_validators_if_needed {
-	printf "%-${STATUS_PAD}scompile" "validator"
+	printf "%-${STATUS_PAD}s%s" "validator" "compile"
 	if "${SKIP_VAL}"; then
 		echo_status "SKIP"
 	else

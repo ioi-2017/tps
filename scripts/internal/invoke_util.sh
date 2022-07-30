@@ -44,7 +44,7 @@ function compile_solution_if_needed {
 	local -r solution_label="$1"; shift
 	local -r solution_path="$1"; shift
 
-	printf "%-${STATUS_PAD}scompile" "${solution_label}"
+	printf "%-${STATUS_PAD}s%s" "${solution_label}" "compile"
 	if "${skip}"; then
 		echo_status "SKIP"
 	else
@@ -56,7 +56,7 @@ function compile_solution_if_needed {
 
 function compile_checker_if_needed {
 	if "${HAS_CHECKER}"; then
-		printf "%-${STATUS_PAD}scompile" "checker"
+		printf "%-${STATUS_PAD}s%s" "checker" "compile"
 		if "${SKIP_CHECK}"; then
 			echo_status "SKIP"
 		else
