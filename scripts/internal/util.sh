@@ -380,6 +380,21 @@ function initialize_failed_job_list {
 	failed_jobs=""
 }
 
+function add_failed_job {
+	local -r job_name="$1"; shift
+	local -r ret="$1"; shift
+	final_ret="${ret}"
+	failed_jobs="${failed_jobs} ${job_name}"
+}
+
+function verify_job_failure {
+	local -r job_name="$1"; shift
+	local ret
+	ret="$(warning_aware_job_ret "${job_name}")"
+	is_in "${ret}" "0" "${skip_status}" ||
+		add_failed_job "${job_name}" "${ret}"
+}
+
 function should_stop_for_failed_jobs {
 	"${SENSITIVE_RUN}" && [ "${final_ret}" -ne "0" ]
 }
