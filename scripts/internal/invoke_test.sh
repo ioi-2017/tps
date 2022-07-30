@@ -67,8 +67,6 @@ function invoke_solution {
 			reason="solution finished after time limit '${SOFT_TL}', with exit code '${solution_exit_code}'"
 		fi
 	elif [ "${ret}" -ne "0" ]; then
-		failed_jobs="${failed_jobs} ${sol_job}"
-
 		score="0"
 		verdict="Runtime Error"
 		reason="solution finished with exit code ${ret}"
