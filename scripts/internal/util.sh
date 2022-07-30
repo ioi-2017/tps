@@ -375,6 +375,12 @@ function reporting_guard {
 }
 
 
+function initialize_failed_job_list {
+	final_ret=0
+	failed_jobs=""
+}
+
+
 readonly WARNING_TEXT_PATTERN_FOR_CPP="warning:"
 readonly WARNING_TEXT_PATTERN_FOR_PAS="Warning:"
 readonly WARNING_TEXT_PATTERN_FOR_JAVA="warning:"

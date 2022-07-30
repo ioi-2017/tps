@@ -15,8 +15,7 @@ sol_stdout="${SANDBOX}/${test_name}.out"
 sol_stderr="${SANDBOX}/${test_name}.err"
 
 
-final_ret=0
-failed_jobs=""
+initialize_failed_job_list
 
 function add_failed_job {
 	local -r job_name="$1"; shift

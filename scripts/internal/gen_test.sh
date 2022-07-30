@@ -17,8 +17,7 @@ input_file_path="${tests_dir}/${input_file_name}"
 output_file_path="${tests_dir}/${output_file_name}"
 
 
-final_ret=0
-failed_jobs=""
+initialize_failed_job_list
 
 function add_failed_job {
 	local -r job_name="$1"; shift
