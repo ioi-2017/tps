@@ -77,6 +77,14 @@ readonly VERDICT__RUNTIME_ERROR="Runtime Error"
 #readonly VERDICT__CORRECT=""
 
 
+function is_verdict_judge_failure {
+	local -r verdict="$1"; shift
+	local verdict_low
+	verdict_low="$(tr '[:upper:]' '[:lower:]' <<< "${verdict}")"
+	grep -Eq 'judge.*fail' <<< "${verdict_low}"
+}
+
+
 function print_score {
 	local -r score="$1"; shift
 	local -r text_width="$1"; shift
