@@ -96,7 +96,19 @@ function run_checker_if_needed {
 		reason="Checker skipped"
 	else
 		function run_checker {
-			bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input_file_path}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}"
+			function issue_judge_failure_verdict {
+				local -r _local_reason="$1"; shift
+				score="0"
+				verdict="Judge Failure"
+				reason="${_local_reason}"
+			}
+			local ret=0
+			bash "${TEMPLATES}/check_test.sh" "${test_name}" "${input_file_path}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}" || ret=$?
+			if [ "${ret}" -ne "0" ]; then
+				issue_judge_failure_verdict "checker exited with code ${ret}"
+				return "${ret}"
+			fi
+			return 0
 		}
 		insensitive guard "${check_job}" run_checker
 		local ret
@@ -104,10 +116,6 @@ function run_checker_if_needed {
 
 		if [ "${ret}" -ne 0 ]; then
 			add_failed_job "${check_job}" "${ret}"
-
-			score="0"
-			verdict="Judge Failure"
-			reason="checker exited with code ${ret}"
 		else
 			checker_stdout="${LOGS_DIR}/${check_job}.out"
 			checker_stderr="${LOGS_DIR}/${check_job}.err"
