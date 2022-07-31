@@ -55,6 +55,10 @@ else
 	DIFF_FLAGS="-bq"
 	command -v "${DIFF}" &> "/dev/null" ||
 		raise_failure 4 "Command '${DIFF}' not found."
+	[ -f "${judge_answer}" ] ||
+		raise_failure 4 "Judge answer file '${judge_answer}' not found."
+	[ -f "${sol_stdout}" ] ||
+		raise_failure 4 "Solution output file '${sol_stdout}' not found."
 	if "${DIFF}" "${DIFF_FLAGS}" "${judge_answer}" "${sol_stdout}" > "/dev/null"; then
 		issue_score_verdict_reason "1" "Correct" ""
 	else
