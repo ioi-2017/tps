@@ -53,9 +53,8 @@ else
 	# Not using test_name & input & sol_stderr
 	DIFF="diff"
 	DIFF_FLAGS="-bq"
-	if ! command -v "${DIFF}" &> "/dev/null"; then
+	command -v "${DIFF}" &> "/dev/null" ||
 		raise_failure 4 "Command '${DIFF}' not found."
-	fi
 	if "${DIFF}" "${DIFF_FLAGS}" "${judge_answer}" "${sol_stdout}" > "/dev/null"; then
 		issue_score_verdict_reason "1" "Correct" ""
 	else
