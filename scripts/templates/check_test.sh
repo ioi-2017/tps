@@ -32,6 +32,13 @@ function issue_score_verdict_reason {
 	exit 0
 }
 
+function raise_failure {
+	local -r exit_code="$1"; shift
+	local -r failure_reason="$1"; shift
+	>&2 echo "${failure_reason}"
+	exit "${exit_code}"
+}
+
 
 if "${HAS_CHECKER}"; then
 	"${CHECKER_DIR}/checker.exe" "${input}" "${judge_answer}" "${sol_stdout}"
@@ -47,8 +54,7 @@ else
 	DIFF="diff"
 	DIFF_FLAGS="-bq"
 	if ! command -v "${DIFF}" &> "/dev/null"; then
-		>&2 echo "Command '${DIFF}' not found."
-		exit 4
+		raise_failure 4 "Command '${DIFF}' not found."
 	fi
 	if "${DIFF}" "${DIFF_FLAGS}" "${judge_answer}" "${sol_stdout}" > "/dev/null"; then
 		issue_score_verdict_reason "1" "Correct" ""
