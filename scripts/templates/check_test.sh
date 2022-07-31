@@ -29,6 +29,7 @@ function issue_score_verdict_reason {
 	echo "${_local_score}"
 	>&2 echo "${_local_verdict}"
 	>&2 echo "${_local_reason}"
+	exit 0
 }
 
 
@@ -47,7 +48,8 @@ else
 	DIFF_FLAGS="-bq"
 	if ! command -v "${DIFF}" &> "/dev/null"; then
 		issue_score_verdict_reason "0" "Judge Failure; Contact staff!" "Command '${DIFF}' not found."
-	elif "${DIFF}" "${DIFF_FLAGS}" "${judge_answer}" "${sol_stdout}" > "/dev/null"; then
+	fi
+	if "${DIFF}" "${DIFF_FLAGS}" "${judge_answer}" "${sol_stdout}" > "/dev/null"; then
 		issue_score_verdict_reason "1" "Correct" ""
 	else
 		issue_score_verdict_reason "0" "Wrong Answer" "The output differs from the correct answer."
