@@ -47,7 +47,8 @@ else
 	DIFF="diff"
 	DIFF_FLAGS="-bq"
 	if ! command -v "${DIFF}" &> "/dev/null"; then
-		issue_score_verdict_reason "0" "Judge Failure; Contact staff!" "Command '${DIFF}' not found."
+		>&2 echo "Command '${DIFF}' not found."
+		exit 4
 	fi
 	if "${DIFF}" "${DIFF_FLAGS}" "${judge_answer}" "${sol_stdout}" > "/dev/null"; then
 		issue_score_verdict_reason "1" "Correct" ""
