@@ -2,8 +2,6 @@ set -euo pipefail
 
 function arg_parse1 {
 
-	source "${PROJECT_SCRIPTS_DIR}/internal/util.sh"
-
 	function usage {
 		errcho "This is the usage."
 	}

@@ -4,6 +4,7 @@ set -euo pipefail
 pushd_test_context_here
 begin_capturing
 
+capture_run source "../../definition_source_util_sh.sh"
 capture_run source "definitions.sh"
 
 capture_exec_key_counter=0
