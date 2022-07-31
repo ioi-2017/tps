@@ -19,6 +19,8 @@ sol_stdout="$4"
 # Location of solution standard error file
 sol_stderr="$5"
 
+# Designed for CMS checker protocol
+
 if "${HAS_CHECKER}"; then
 	"${CHECKER_DIR}/checker.exe" "${input}" "${judge_answer}" "${sol_stdout}"
 	# Not using test_name & sol_stderr
@@ -45,4 +47,3 @@ else
 		>&2 echo "The output differs from the correct answer."
 	fi
 fi
-
