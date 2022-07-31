@@ -21,6 +21,17 @@ sol_stderr="$5"
 
 # Designed for CMS checker protocol
 
+function issue_score_verdict_reason {
+	local -r _local_score="$1"; shift
+	local -r _local_verdict="$1"; shift
+	local -r _local_reason="$1"; shift
+	# The behavior shall be consistent with the checker behavior.
+	echo "${_local_score}"
+	>&2 echo "${_local_verdict}"
+	>&2 echo "${_local_reason}"
+}
+
+
 if "${HAS_CHECKER}"; then
 	"${CHECKER_DIR}/checker.exe" "${input}" "${judge_answer}" "${sol_stdout}"
 	# Not using test_name & sol_stderr
@@ -35,15 +46,10 @@ else
 	DIFF="diff"
 	DIFF_FLAGS="-bq"
 	if ! command -v "${DIFF}" &> "/dev/null"; then
-		echo "0"
-		>&2 echo "Judge Failure; Contact staff!"
-		>&2 echo "Command '${DIFF}' not found."
+		issue_score_verdict_reason "0" "Judge Failure; Contact staff!" "Command '${DIFF}' not found."
 	elif "${DIFF}" "${DIFF_FLAGS}" "${judge_answer}" "${sol_stdout}" > "/dev/null"; then
-		echo "1"
-		>&2 echo "Correct"
+		issue_score_verdict_reason "1" "Correct" ""
 	else
-		echo "0"
-		>&2 echo "Wrong Answer"
-		>&2 echo "The output differs from the correct answer."
+		issue_score_verdict_reason "0" "Wrong Answer" "The output differs from the correct answer."
 	fi
 fi
