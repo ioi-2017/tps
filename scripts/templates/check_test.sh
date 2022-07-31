@@ -41,7 +41,12 @@ function raise_failure {
 
 
 if "${HAS_CHECKER}"; then
-	"${CHECKER_DIR}/checker.exe" "${input}" "${judge_answer}" "${sol_stdout}"
+	checker_file="${CHECKER_DIR}/checker.exe"
+	[ -f "${checker_file}" ] ||
+		raise_failure 4 "Checker file '${checker_file}' not found."
+	[ -x "${checker_file}" ] ||
+		raise_failure 3 "Checker file '${checker_file}' not executable."
+	"${checker_file}" "${input}" "${judge_answer}" "${sol_stdout}"
 	# Not using test_name & sol_stderr
 elif "${HAS_MANAGER}"; then
 	# If there is no checker, then the manager outputs should be in the format of checker outputs.
