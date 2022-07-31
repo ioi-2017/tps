@@ -177,8 +177,8 @@ echo
 capture_run_in_stage cp "extra/checker-fail.cpp" "checker/checker.cpp"
 capture_invoke "solution/correct1.cpp"
 capture_invoke "solution/correct1.cpp" -r
-capture_invoke "solution/correct1.cpp" -s
-capture_invoke "solution/correct1.cpp" -sr
+capture_invoke_head 7 "solution/correct1.cpp" -s
+capture_invoke_head 7 "solution/correct1.cpp" -sr
 
 echo
 capture_run_in_stage rm -rf "checker"

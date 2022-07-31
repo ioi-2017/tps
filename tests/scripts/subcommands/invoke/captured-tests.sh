@@ -114,8 +114,8 @@ expect_exec -o "captured-data/k-70/stdout" -eempty -rnz get_head 7 7 tinvoke sol
 run_in_stage cp extra/checker-fail.cpp checker/checker.cpp
 expect_exec -o "captured-data/k-71/stdout" -eempty tinvoke solution/correct1.cpp
 expect_exec -o "captured-data/k-72/stdout" -eempty tinvoke solution/correct1.cpp -r
-expect_exec -o "captured-data/k-73/stdout" -eempty tinvoke solution/correct1.cpp -s
-expect_exec -o "captured-data/k-74/stdout" -eempty tinvoke solution/correct1.cpp -sr
+expect_exec -o "captured-data/k-73/stdout" -eempty -rnz get_head 7 7 tinvoke solution/correct1.cpp -s
+expect_exec -o "captured-data/k-74/stdout" -eempty -rnz get_head 7 7 tinvoke solution/correct1.cpp -sr
 
 run_in_stage rm -rf checker
 expect_exec -oh2 "solution            compile[OK]" "checker             compile[FAIL]" -eempty -rnz get_head 2 2 tinvoke solution/correct1.cpp

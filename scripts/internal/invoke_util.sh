@@ -200,6 +200,9 @@ function run_checker_if_needed {
 		if variable_not_exists "reason"; then
 			reason=""
 		fi
+		if is_verdict_judge_failure "${verdict}"; then
+			return "${judge_failure_exit_code}"
+		fi
 		return 0
 	}
 	insensitive guard "${job_name}" run_checker
