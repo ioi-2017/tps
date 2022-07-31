@@ -85,6 +85,37 @@ function popdq {
 }
 
 
+function is_identifier_format {
+	local -r text="$1"; shift
+	local -r pattern='^[a-zA-Z_][a-zA-Z0-9_]*$'
+	[[ "${text}" =~ ${pattern} ]]
+}
+
+function is_unsigned_integer_format {
+	local -r text="$1"; shift
+	local -r pattern='^[0-9]+$'
+	[[ "${text}" =~ ${pattern} ]]
+}
+
+function is_signed_integer_format {
+	local -r text="$1"; shift
+	local -r pattern='^[+-]?[0-9]+$'
+	[[ "${text}" =~ ${pattern} ]]
+}
+
+function is_unsigned_decimal_format {
+	local -r text="$1"; shift
+	local -r pattern='^([0-9]+\.?[0-9]*|\.[0-9]+)$'
+	[[ "${text}" =~ ${pattern} ]]
+}
+
+function is_signed_decimal_format {
+	local -r text="$1"; shift
+	local -r pattern='^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)$'
+	[[ "${text}" =~ ${pattern} ]]
+}
+
+
 function are_same {
 	diff "$1" "$2" &> "/dev/null"
 }
@@ -261,8 +292,11 @@ function warning_aware_job_ret {
 }
 
 
+# Deprecation warning:
+# Use function 'is_unsigned_decimal_format' instead.
+# Keeping this function for backward compatibility.
 function check_float {
-	grep -Eq '^[0-9]+\.?[0-9]*$' <<< "$1"
+	is_unsigned_decimal_format "$1"
 }
 
 

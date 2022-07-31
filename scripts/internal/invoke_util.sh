@@ -19,13 +19,13 @@ function check_and_init_limit_variables {
 	variable_exists "SOFT_TL" ||
 		SOFT_TL="$(get_time_limit)"
 
-	check_float "${SOFT_TL}" ||
+	is_unsigned_decimal_format "${SOFT_TL}" ||
 		error_usage_exit 2 "Provided time limit '${SOFT_TL}' is not a positive real number."
 
 	variable_exists "HARD_TL" ||
 		HARD_TL="$("${PYTHON}" -c "print(${SOFT_TL} + 2)")"
 
-	check_float "${HARD_TL}" ||
+	is_unsigned_decimal_format "${HARD_TL}" ||
 		error_usage_exit 2 "Provided hard time limit '${HARD_TL}' is not a positive real number."
 
 	py_test "${HARD_TL} > ${SOFT_TL}" ||
