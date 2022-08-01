@@ -127,11 +127,16 @@ function invoke_solution {
 			readonly solution_exit_code
 			reason="solution finished after time limit '${SOFT_TL}', with exit code '${solution_exit_code}'"
 		fi
-	elif [ "${ret}" -ne "0" ]; then
+		return 0
+	fi
+	if [ "${ret}" -ne "0" ]; then
 		score="0"
 		verdict="${VERDICT__RUNTIME_ERROR}"
 		reason="solution finished with exit code ${ret}"
+		return 0
 	fi
+	# Solution finished normally
+	return 0
 }
 
 
@@ -149,30 +154,31 @@ function run_checker_if_needed {
 		score="?"
 		verdict="${VERDICT__UNKNOWN}"
 		reason="Checker skipped"
-	else
-		function run_checker {
-			function issue_judge_failure_verdict {
-				local -r _local_reason="$1"; shift
-				score="0"
-				verdict="${VERDICT__JUDGE_FAILURE}"
-				reason="${_local_reason}"
-			}
-			local ret=0
-			bash "${TEMPLATES}/check_test.sh" "${test_name}" "${sol_stdin}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}" || ret=$?
-			if [ "${ret}" -ne "0" ]; then
-				issue_judge_failure_verdict "checker exited with code ${ret}"
-				return "${ret}"
-			fi
-			local -r checker_stdout="${LOGS_DIR}/${job_name}.out"
-			local -r checker_stderr="${LOGS_DIR}/${job_name}.err"
-			function source_checker_result {
-				source "${TEMPLATES}/checker_result.sh"
-			}
-			source_checker_result
-			return 0
-		}
-		insensitive guard "${job_name}" run_checker
+		return 0
 	fi
+
+	function run_checker {
+		function issue_judge_failure_verdict {
+			local -r _local_reason="$1"; shift
+			score="0"
+			verdict="${VERDICT__JUDGE_FAILURE}"
+			reason="${_local_reason}"
+		}
+		local ret=0
+		bash "${TEMPLATES}/check_test.sh" "${test_name}" "${sol_stdin}" "${judge_answer}" "${sol_stdout}" "${sol_stderr}" || ret=$?
+		if [ "${ret}" -ne "0" ]; then
+			issue_judge_failure_verdict "checker exited with code ${ret}"
+			return "${ret}"
+		fi
+		local -r checker_stdout="${LOGS_DIR}/${job_name}.out"
+		local -r checker_stderr="${LOGS_DIR}/${job_name}.err"
+		function source_checker_result {
+			source "${TEMPLATES}/checker_result.sh"
+		}
+		source_checker_result
+		return 0
+	}
+	insensitive guard "${job_name}" run_checker
 }
 
 
