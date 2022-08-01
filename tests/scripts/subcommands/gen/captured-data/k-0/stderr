@@ -1,4 +1,9 @@
-Usage: <gen> [options]
+Usage:
+  tps gen [options]
+
+Description:
+  Generates the test data.
+
 Options:
   -h, --help
 	Shows this help.

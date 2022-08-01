@@ -8,8 +8,12 @@ source "${INTERNALS}/problem_util.sh"
 
 function usage {
 	errcho -ne "\
-Usage: <gen> [options]
-\
+Usage:
+  tps gen [options]
+
+Description:
+  Generates the test data.
+
 Options:
 \
   -h, --help
