@@ -17,7 +17,7 @@ expect_exec -oempty -e "captured-data/k-2/stderr" -rnz tcompile solution/correct
 
 expect_exec -oempty -e "captured-data/k-3/stderr" -rnz tcompile solution/correct1.cpp --unknown-flag
 
-expect_exec -oempty -eh "Invalid option: There is no grader in this task." -rnz tcompile -p solution/correct1.cpp
+expect_exec -oempty -e "captured-data/k-4/stderr" -rnz tcompile -p solution/correct1.cpp
 
 expect_exec -oh "OK" -eempty tcompile solution/correct1.cpp
 

@@ -1,4 +1,4 @@
-Error at argument 'another-arg': meaningless argument
+Invalid option '-p': There is no grader in this task.
 Usage:
   tps compile [options] <solution-path>
 

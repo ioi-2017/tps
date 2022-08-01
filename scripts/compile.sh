@@ -7,8 +7,12 @@ source "${INTERNALS}/util.sh"
 
 function usage {
 	errcho -ne "\
-Usage: <compile> [options] <solution-path>
-\
+Usage:
+  tps compile [options] <solution-path>
+
+Description:
+  Compiles a solution in the sandbox.
+
 Options:
 \
   -h, --help
@@ -22,6 +26,7 @@ Options:
 \
   -p, --public
 \tUses the public graders for compiling the solution.
+\tThis option is available only if the task has grader.
 "
 }
 
@@ -49,7 +54,8 @@ function handle_option {
 			if "${HAS_GRADER}"; then
 				GRADER_TYPE="public"
 			else
-				errcho "Invalid option: There is no grader in this task."
+				errcho "Invalid option '${curr_arg}': There is no grader in this task."
+				usage
 				exit 2
 			fi
 			;;
