@@ -7,53 +7,56 @@ source "${INTERNALS}/problem_util.sh"
 
 
 function usage {
-	errcho "Usage: <gen> [options]"
-	errcho "Options:"
-
-	errcho -e "  -h, --help"
-	errcho -e "\tShows this help."
-
-	errcho -e "  -s, --sensitive"
-	errcho -e "\tTerminates on the first error and shows the error details."
-
-	errcho -e "  -w, --warning-sensitive"
-	errcho -e "\tTerminates on the first warning or error and shows the details."
-
-	errcho -e "  -u, --update"
-	errcho -e "\tUpdates the existing set of tests."
-	errcho -e "\tPrevents the initial cleanup of the tests directory."
-	errcho -e "\tUsed when a subset of test data needs to be generated again."
-	errcho -e "\tWarning: Use this feature only when the other tests are not needed or already generated correctly."
-
-	errcho -e "  -t, --test=<test-name-pattern>"
-	errcho -e "\tGenerates only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
-	errcho -e "\tMultiple patterns can be given using commas or pipes. Examples: '1-01, 2-*', '?-01|*2|0-*'"
-	errcho -e "\tNote: Use quotation marks or escaping (with '\\') when using wildcards in the pattern to prevent shell expansion."
-	errcho -e "\t      Also, use escaping (with '\\') when separating multiple patterns using pipes."
-
-	errcho -e "  -m, --model-solution=<model-solution-path>"
-	errcho -e "\tGenerates test outputs using the given solution."
-
-	errcho -e "  -d, --gen-data=<gen-data-file>"
-	errcho -e "\tOverrides the location of meta-data file used for test generation."
-
-	errcho -e "      --tests-dir=<tests-directory-path>"
-	errcho -e "\tOverrides the location of the tests directory."
-
-	errcho -e "      --no-gen"
-	errcho -e "\tSkips running the generators for generating test inputs."
-	errcho -e "\tPrevents the initial cleanup of the tests directory."
-	errcho -e "\tUsed when test inputs are already thoroughly generated and only test outputs need to be generated."
-
-	errcho -e "      --no-sol"
-	errcho -e "\tSkips running the model solution for generating test outputs."
-
-	errcho -e "      --no-val"
-	errcho -e "\tSkips validating test inputs."
-
-	errcho -e "      --no-sol-compile"
-	errcho -e "\tSkips compiling the model solution."
-	errcho -e "\tUses the solution already compiled and available in the sandbox."
+	errcho -ne "\
+Usage: <gen> [options]
+\
+Options:
+\
+  -h, --help
+\tShows this help.
+\
+  -s, --sensitive
+\tTerminates on the first error and shows the error details.
+\
+  -w, --warning-sensitive
+\tTerminates on the first warning or error and shows the details.
+\
+  -u, --update
+\tUpdates the existing set of tests.
+\tPrevents the initial cleanup of the tests directory.
+\tUsed when a subset of test data needs to be generated again.
+\tWarning: Use this feature only when the other tests are not needed or already generated correctly.
+\
+  -t, --test=<test-name-pattern>
+\tGenerates only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'
+\tMultiple patterns can be given using commas or pipes. Examples: '1-01, 2-*', '?-01|*2|0-*'
+\tNote: Use quotation marks or escaping (with '\\') when using wildcards in the pattern to prevent shell expansion.
+\t      Also, use escaping (with '\\') when separating multiple patterns using pipes.
+\
+  -m, --model-solution=<model-solution-path>
+\tGenerates test outputs using the given solution.
+\
+  -d, --gen-data=<gen-data-file>
+\tOverrides the location of meta-data file used for test generation.
+\
+      --tests-dir=<tests-directory-path>
+\tOverrides the location of the tests directory.
+\
+      --no-gen
+\tSkips running the generators for generating test inputs.
+\tPrevents the initial cleanup of the tests directory.
+\tUsed when test inputs are already thoroughly generated and only test outputs need to be generated.
+\
+      --no-sol
+\tSkips running the model solution for generating test outputs.
+\
+      --no-val
+\tSkips validating test inputs.
+\
+      --no-sol-compile
+\tSkips compiling the model solution.
+\tUses the solution already compiled and available in the sandbox.
+"
 }
 
 
