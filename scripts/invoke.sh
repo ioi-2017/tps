@@ -7,50 +7,53 @@ source "${INTERNALS}/problem_util.sh"
 
 
 function usage {
-	errcho "Usage: <invoke> [options] <solution-path>"
-	errcho "Options:"
-
-	errcho -e "  -h, --help"
-	errcho -e "\tShows this help."
-
-	errcho -e "  -s, --sensitive"
-	errcho -e "\tTerminates on the first error and shows the error details."
-
-	errcho -e "  -w, --warning-sensitive"
-	errcho -e "\tTerminates on the first warning or error and shows the details."
-
-	errcho -e "  -r, --show-reason"
-	errcho -e "\tDisplays the reason for not being correct."
-	errcho -e "\tThe checker message is written in the case of wrong answer."
-
-	errcho -e "  -t, --test=<test-name-pattern>"
-	errcho -e "\tInvokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'"
-	errcho -e "\tMultiple patterns can be given using commas or pipes. Examples: '1-01, 2-*', '?-01|*2|0-*'"
-	errcho -e "\tNote: Use quotation marks or escaping (with '\\') when using wildcards in the pattern to prevent shell expansion."
-	errcho -e "\t      Also, use escaping (with '\\') when separating multiple patterns using pipes."
-
-	errcho -e "      --tests-dir=<tests-directory-path>"
-	errcho -e "\tOverrides the location of the tests directory"
-
-	errcho -e "      --no-check"
-	errcho -e "\tSkips running the checker on solution outputs."
-
-	errcho -e "      --no-sol-compile"
-	errcho -e "\tSkips compiling the solution."
-	errcho -e "\tUses the solution already compiled and available in the sandbox."
-
-	errcho -e "      --no-tle"
-	errcho -e "\tRemoves the default time limit on the execution of the solution."
-	errcho -e "\tActually, a limit of 24 hours is applied."
-
-	errcho -e "      --time-limit=<time-limit>"
-	errcho -e "\tOverrides the (soft) time limit on the solution execution."
-	errcho -e "\tGiven in seconds, e.g. --time-limit=1.2 means 1.2 seconds"
-
-	errcho -e "      --hard-time-limit=<hard-time-limit>"
-	errcho -e "\tSolution process will be killed after <hard-time-limit> seconds."
-	errcho -e "\tDefaults to <time-limit> + 2."
-	errcho -e "\tNote: The hard time limit must be greater than the (soft) time limit."
+	errcho -ne "\
+Usage: <invoke> [options] <solution-path>
+\
+Options:
+\
+  -h, --help
+\tShows this help.
+\
+  -s, --sensitive
+\tTerminates on the first error and shows the error details.
+\
+  -w, --warning-sensitive
+\tTerminates on the first warning or error and shows the details.
+\
+  -r, --show-reason
+\tDisplays the reason for not being correct.
+\tThe checker message is written in the case of wrong answer.
+\
+  -t, --test=<test-name-pattern>
+\tInvokes only tests matching the given pattern. Examples: 1-01, '1-*', '1-0?'
+\tMultiple patterns can be given using commas or pipes. Examples: '1-01, 2-*', '?-01|*2|0-*'
+\tNote: Use quotation marks or escaping (with '\\') when using wildcards in the pattern to prevent shell expansion.
+\t      Also, use escaping (with '\\') when separating multiple patterns using pipes.
+\
+      --tests-dir=<tests-directory-path>
+\tOverrides the location of the tests directory
+\
+      --no-check
+\tSkips running the checker on solution outputs.
+\
+      --no-sol-compile
+\tSkips compiling the solution.
+\tUses the solution already compiled and available in the sandbox.
+\
+      --no-tle
+\tRemoves the default time limit on the execution of the solution.
+\tActually, a limit of 24 hours is applied.
+\
+      --time-limit=<time-limit>
+\tOverrides the (soft) time limit on the solution execution.
+\tGiven in seconds, e.g. --time-limit=1.2 means 1.2 seconds
+\
+      --hard-time-limit=<hard-time-limit>
+\tSolution process will be killed after <hard-time-limit> seconds.
+\tDefaults to <time-limit> + 2.
+\tNote: The hard time limit must be greater than the (soft) time limit.
+"
 }
 
 
