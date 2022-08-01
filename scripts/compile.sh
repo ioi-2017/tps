@@ -6,20 +6,23 @@ source "${INTERNALS}/util.sh"
 
 
 function usage {
-	errcho "Usage: <compile> [options] <solution-path>"
-	errcho "Options:"
-
-	errcho -e "  -h, --help"
-	errcho -e "\tShows this help."
-
-	errcho -e "  -v, --verbose"
-	errcho -e "\tPrints verbose details on values, decisions, and commands being executed."
-
-	errcho -e "  -w, --warning-sensitive"
-	errcho -e "\tFails when there are warnings."
-
-	errcho -e "  -p, --public"
-	errcho -e "\tUses the public graders for compiling the solution."
+	errcho -ne "\
+Usage: <compile> [options] <solution-path>
+\
+Options:
+\
+  -h, --help
+\tShows this help.
+\
+  -v, --verbose
+\tPrints verbose details on values, decisions, and commands being executed.
+\
+  -w, --warning-sensitive
+\tFails when there are warnings.
+\
+  -p, --public
+\tUses the public graders for compiling the solution.
+"
 }
 
 if "${HAS_GRADER}"; then
