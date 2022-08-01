@@ -921,6 +921,22 @@ function capture_run_in_stage {
 }
 
 
+# This variable is used during capturing.
+# If true, nonzero return codes will be caputred as "-rnz" instead of "-r <exit-code>".
+# Do not set this variable directly.
+# Call 'set_mask_capturing_nonzero_return_codes' instead.
+export _TT_MASK_CAPTURING_NONZERO_RETURN_CODES="false"
+
+function set_mask_capturing_nonzero_return_codes {
+	[ $# -eq 1 ] ||
+		_TT_test_error_exit 1 "Invalid number of parameters ($#). Exactly one parameter is accepted."
+	local -r param_val="$1"; shift
+	_TT_is_in "${param_val}" "false" "true" ||
+		_TT_test_error_exit 2 "Invalid parameter value '${param_val}'. Only 'false' and 'true' are accepted."
+	export _TT_MASK_CAPTURING_NONZERO_RETURN_CODES="${param_val}"
+}
+
+
 function capture_exec {
 	(
 	push_test_context "capture_exec $(_TT_array_to_str_args "$@")"
@@ -1198,8 +1214,13 @@ function capture_exec {
 
 	# Add return code expectation if needed
 	if [ "${return_code_status}" == "${RETURN_STATUS_UNSPECIFIED}" ]; then
-		[ "${exec_return_code}" -eq 0 ] ||
+		if [ "${exec_return_code}" -eq "0" ]; then
+			: Omitting the '-r' means the expectation of exit code zero.
+		elif "${_TT_MASK_CAPTURING_NONZERO_RETURN_CODES}"; then
+			exec_args+=("-rnz")
+		else
 			exec_args+=("-r" "${exec_return_code}")
+		fi
 	fi
 
 	local temp_arg
