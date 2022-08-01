@@ -1,0 +1,15 @@
+Error at argument '--unknown-flag': undefined option
+Usage:
+  tps crun [options] <solution-path> [ -- solution-run-arguments... ]
+
+Description:
+  Compiles and runs a solution.
+
+Options:
+  -h, --help
+	Shows this help.
+  -w, --warning-sensitive
+	Fails when there are warnings.
+  -p, --public
+	Uses the public graders for compiling the solution.
+	This option is available only if the task has grader.

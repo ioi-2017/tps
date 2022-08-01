@@ -39,6 +39,23 @@ function capture_compile_head {
     capture_exec_k get_head "${n1}" "${n2}" tcompile "$@"
 }
 
+
+function capture_crun {
+    capture_exec_k tcrun "$@"
+}
+
+function capture_crun_i {
+    local -r input="$1"; shift
+    capture_exec_k -ih "${input}" tcrun "$@"
+}
+
+function capture_crun_head {
+    local -r n1="$1"; shift
+    local -r n2="$1"; shift
+    capture_exec_k get_head "${n1}" "${n2}" tcrun "$@"
+}
+
+
 stage_dir="stage-without-grader"
 
 restage
@@ -135,6 +152,47 @@ test_problematic_py_solutions
 
 
 
+clear_sandbox
+capture_crun --help
+capture_crun
+capture_crun "solution/correct1.cpp" "another-arg"
+capture_crun "solution/correct1.cpp" --unknown-flag
+
+capture_crun -p "solution/correct1.cpp"
+
+clear_sandbox
+capture_crun_i "2 3" "solution/correct1.cpp"
+capture_crun_i "2 3" -w "solution/correct1.cpp"
+capture_crun_i "2 3" "solution/wrong1.cpp"
+
+clear_sandbox
+capture_crun_i "2 3" "solution/correct-args1.cpp"
+capture_crun_i "2 3" "solution/correct-args1.cpp" --
+capture_crun_i "2 3" "solution/correct-args1.cpp" -- "a"
+capture_crun_i "2 3" "solution/correct-args1.cpp" -- "a" "b"
+
+echo
+capture_crun_i "2 3" "solution/rte1.cpp"
+capture_crun_i "2 3" "solution/correct1-warn.cpp"
+capture_crun_head -1 5 -w "solution/correct1-warn.cpp"
+capture_crun_head -1 1 "solution/compile_error1.cpp"
+capture_crun_head -1 1 -w "solution/compile_error1.cpp"
+
+clear_sandbox
+capture_crun_i "2 3" "solution/correct1.py"
+capture_crun_i "2 3" -w "solution/correct1.py"
+capture_crun_i "2 3" "solution/wrong1.py"
+
+clear_sandbox
+capture_crun_i "2 3" "solution/correct-args1.py"
+capture_crun_i "2 3" "solution/correct-args1.py" --
+capture_crun_i "2 3" "solution/correct-args1.py" -- "a"
+capture_crun_i "2 3" "solution/correct-args1.py" -- "a" "b"
+
+echo
+capture_crun_i "2 3" "solution/rte1.py"
+
+
 
 stage_dir="stage-with-grader"
 
@@ -171,6 +229,24 @@ capture_exec_k -ih "2 3" trun
 capture_compile_head -1 0 -p "solution/correct1.py"
 capture_compile_head -1 0 -pw "solution/correct1.py"
 capture_exec_k -ih "2 3" trun
+
+
+
+clear_sandbox
+capture_crun_i "2 3" "solution/correct1.cpp"
+capture_crun_i "2 3" -w "solution/correct1.cpp"
+
+capture_crun_i "2 3" -p "solution/correct1.cpp"
+capture_crun_i "2 3" -pw "solution/correct1.cpp"
+
+
+clear_sandbox
+capture_crun_i "2 3" "solution/correct1.py"
+capture_crun_i "2 3" -w "solution/correct1.py"
+
+capture_crun_i "2 3" -p "solution/correct1.py"
+capture_crun_i "2 3" -pw "solution/correct1.py"
+
 
 set_mask_capturing_nonzero_return_codes "false"
 

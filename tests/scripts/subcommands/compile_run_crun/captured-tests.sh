@@ -66,6 +66,43 @@ expect_exec -ih "2 3" -oh4 "#args=2" "arg[1]='a'" "arg[2]='b'" "5" -eempty trun 
 expect_exec -oh "OK" -eempty get_head -1 0 tcompile solution/rte1.py
 expect_exec -ih "2 3" -oempty -eempty -rnz trun
 
+run_in_stage rm -rf sandbox
+expect_exec -oempty -e "captured-data/k-32/stderr" tcrun --help
+expect_exec -oempty -e "captured-data/k-33/stderr" -rnz tcrun
+expect_exec -oempty -e "captured-data/k-34/stderr" -rnz tcrun solution/correct1.cpp another-arg
+expect_exec -oempty -e "captured-data/k-35/stderr" -rnz tcrun solution/correct1.cpp --unknown-flag
+expect_exec -oempty -e "captured-data/k-36/stderr" -rnz tcrun -p solution/correct1.cpp
+
+run_in_stage rm -rf sandbox
+expect_exec -ih "2 3" -oh "5" -eh "compile[OK]" tcrun solution/correct1.cpp
+expect_exec -ih "2 3" -oh "5" -eh "compile[OK]" tcrun -w solution/correct1.cpp
+expect_exec -ih "2 3" -oh "6" -eh "compile[OK]" tcrun solution/wrong1.cpp
+
+run_in_stage rm -rf sandbox
+expect_exec -ih "2 3" -oh2 "#args=0" "5" -eh "compile[OK]" tcrun solution/correct-args1.cpp
+expect_exec -ih "2 3" -oh2 "#args=0" "5" -eh "compile[OK]" tcrun solution/correct-args1.cpp --
+expect_exec -ih "2 3" -oh3 "#args=1" "arg[1]='a'" "5" -eh "compile[OK]" tcrun solution/correct-args1.cpp -- a
+expect_exec -ih "2 3" -oh4 "#args=2" "arg[1]='a'" "arg[2]='b'" "5" -eh "compile[OK]" tcrun solution/correct-args1.cpp -- a b
+
+expect_exec -ih "2 3" -oempty -eh "compile[OK]" -rnz tcrun solution/rte1.cpp
+expect_exec -ih "2 3" -oh "5" -eh "compile[WARN]" tcrun solution/correct1-warn.cpp
+expect_exec -oempty -eh5 "compile[WARN]" "exit-code: 0" "warnings:" "Text pattern 'warning:' found in compiler outputs." "stdout:" -rnz get_head -1 5 tcrun -w solution/correct1-warn.cpp
+expect_exec -oempty -eh "compile[FAIL]" -rnz get_head -1 1 tcrun solution/compile_error1.cpp
+expect_exec -oempty -eh "compile[FAIL]" -rnz get_head -1 1 tcrun -w solution/compile_error1.cpp
+
+run_in_stage rm -rf sandbox
+expect_exec -ih "2 3" -oh "5" -eh "compile[OK]" tcrun solution/correct1.py
+expect_exec -ih "2 3" -oh "5" -eh "compile[OK]" tcrun -w solution/correct1.py
+expect_exec -ih "2 3" -oh "6" -eh "compile[OK]" tcrun solution/wrong1.py
+
+run_in_stage rm -rf sandbox
+expect_exec -ih "2 3" -oh2 "#args=0" "5" -eh "compile[OK]" tcrun solution/correct-args1.py
+expect_exec -ih "2 3" -oh2 "#args=0" "5" -eh "compile[OK]" tcrun solution/correct-args1.py --
+expect_exec -ih "2 3" -oh3 "#args=1" "arg[1]='a'" "5" -eh "compile[OK]" tcrun solution/correct-args1.py -- a
+expect_exec -ih "2 3" -oh4 "#args=2" "arg[1]='a'" "arg[2]='b'" "5" -eh "compile[OK]" tcrun solution/correct-args1.py -- a b
+
+expect_exec -ih "2 3" -oempty -eh "compile[OK]" -rnz tcrun solution/rte1.py
+
 
 stage_dir_with_scripts stage-with-grader
 
@@ -91,3 +128,15 @@ expect_exec -oh "OK" -eempty get_head -1 0 tcompile -p solution/correct1.py
 
 expect_exec -oh "OK" -eempty get_head -1 0 tcompile -pw solution/correct1.py
 expect_exec -ih "2 3" -oh "5" -eempty trun
+
+run_in_stage rm -rf sandbox
+expect_exec -ih "2 3" -oh2 "OK" "5" -eh "compile[OK]" tcrun solution/correct1.cpp
+expect_exec -ih "2 3" -oh2 "OK" "5" -eh "compile[OK]" tcrun -w solution/correct1.cpp
+expect_exec -ih "2 3" -oh "5" -eh "compile[OK]" tcrun -p solution/correct1.cpp
+expect_exec -ih "2 3" -oh "5" -eh "compile[OK]" tcrun -pw solution/correct1.cpp
+
+run_in_stage rm -rf sandbox
+expect_exec -ih "2 3" -oh2 "OK" "5" -eh "compile[OK]" tcrun solution/correct1.py
+expect_exec -ih "2 3" -oh2 "OK" "5" -eh "compile[OK]" tcrun -w solution/correct1.py
+expect_exec -ih "2 3" -oh "5" -eh "compile[OK]" tcrun -p solution/correct1.py
+expect_exec -ih "2 3" -oh "5" -eh "compile[OK]" tcrun -pw solution/correct1.py
