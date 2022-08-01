@@ -8,8 +8,12 @@ source "${INTERNALS}/problem_util.sh"
 
 function usage {
 	errcho -ne "\
-Usage: <invoke> [options] <solution-path>
-\
+Usage:
+  tps invoke [options] <solution-path>
+
+Description:
+  Invokes a solution against the (already generated) test cases.
+
 Options:
 \
   -h, --help
