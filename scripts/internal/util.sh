@@ -376,15 +376,15 @@ function reporting_guard {
 
 
 function initialize_failed_job_list {
-	final_ret=0
-	failed_jobs=""
+	failed_jobs_final_ret=0
+	failed_jobs_list=""
 }
 
 function add_failed_job {
 	local -r job_name="$1"; shift
 	local -r ret="$1"; shift
-	final_ret="${ret}"
-	failed_jobs="${failed_jobs} ${job_name}"
+	failed_jobs_final_ret="${ret}"
+	failed_jobs_list="${failed_jobs_list} ${job_name}"
 }
 
 function verify_job_failure {
@@ -396,18 +396,18 @@ function verify_job_failure {
 }
 
 function should_stop_for_failed_jobs {
-	"${SENSITIVE_RUN}" && [ "${final_ret}" -ne "0" ]
+	"${SENSITIVE_RUN}" && [ "${failed_jobs_final_ret}" -ne "0" ]
 }
 
 function stop_for_failed_jobs {
 	local job
-	for job in ${failed_jobs}; do
+	for job in ${failed_jobs_list}; do
 		echo
 		cecho "fail" -n "failed job:"
 		echo " ${job}"
 		execution_report "${job}"
 	done
-	exit "${final_ret}"
+	exit "${failed_jobs_final_ret}"
 }
 
 
