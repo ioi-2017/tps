@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8"/>
 	<title>Markdown Viewer</title>
-	<meta name="version" content="9.0">
+	<meta name="version" content="9.1">
 	<link rel="stylesheet" href="assets/style.css">
 	<link rel="stylesheet" href="style.css">
 	<script type="text/javascript" src="assets/libs.js"></script>
@@ -110,7 +110,8 @@ This method makes you vulnerable to attacks from downloaded HTML documents.
 
 ** Firefox: **
 Open "`about:config`" and accept the risk to edit the configurations.
-Search for "`privacy.file_unique_origin`" and set its value to `false`.
+Search for "`security.fileuri.strict_origin_policy`" and set its value to `false`
+ (the setting name was "`privacy.file_unique_origin`" in older versions of Firefox).
 
 Other work-around ideas are welcome.
 
