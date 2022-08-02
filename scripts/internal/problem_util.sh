@@ -83,3 +83,12 @@ function get_test_validator_commands {
 	test_name="$1"; shift
 	get_test_validators "${test_name}" "${tests_dir}" | convert_validator_names_to_commands || return $?
 }
+
+
+function get_global_validators {
+	"${PYTHON}" "${INTERNALS}/get_global_validators.py"
+}
+
+function get_global_validator_commands {
+	get_global_validators | convert_validator_names_to_commands || return $?
+}
