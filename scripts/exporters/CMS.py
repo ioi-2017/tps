@@ -98,22 +98,24 @@ class JSONExporter:
 
 
     def _get_task_type_parameters(self, task_data, task_type):
-        task_type_params = task_data.get("type_params", {})
+        if self.protocol_version == 1:
+            task_type_params = task_data.get("type_params", {})
 
-        if task_type == "Communication":
-            num_processes = task_data.get("num_processes")
-            if num_processes is not None:
-                task_type_params["task_type_parameters_Communication_num_processes"] = num_processes
+            if task_type == "Communication":
+                num_processes = task_data.get("num_processes")
+                if num_processes is not None:
+                    task_type_params["task_type_parameters_Communication_num_processes"] = num_processes
 
-        if task_type == "Batch":
-            HAS_GRADER = get_bool_environ("HAS_GRADER")
-            if HAS_GRADER:
-                compilation_type = "grader"
-            else:
-                compilation_type = "alone"
-            task_type_params["task_type_parameters_Batch_compilation"] = compilation_type
+            if task_type == "Batch":
+                HAS_GRADER = get_bool_environ("HAS_GRADER")
+                if HAS_GRADER:
+                    compilation_type = "grader"
+                else:
+                    compilation_type = "alone"
+                task_type_params["task_type_parameters_Batch_compilation"] = compilation_type
 
-        return json.dumps(task_type_params)
+            return json.dumps(task_type_params)
+        return None
 
 
     def export_problem_global_data(self):
