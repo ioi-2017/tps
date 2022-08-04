@@ -97,15 +97,7 @@ class JSONExporter:
     SOLUTION_DIR_NAME = "solutions"
 
 
-    def export_problem_global_data(self):
-        json_file = "problem.json"
-        vp.print("Writing '{}'...".format(json_file))
-        PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
-        task_data = load_json(PROBLEM_JSON)
-
-        task_type = task_data["type"]
-        vp.print_var("task_type", task_type)
-
+    def _get_task_type_parameters(self, task_data, task_type):
         task_type_params = task_data.get("type_params", {})
 
         if task_type == "Communication":
@@ -121,6 +113,18 @@ class JSONExporter:
                 compilation_type = "alone"
             task_type_params["task_type_parameters_Batch_compilation"] = compilation_type
 
+        return json.dumps(task_type_params)
+
+
+    def export_problem_global_data(self):
+        json_file = "problem.json"
+        vp.print("Writing '{}'...".format(json_file))
+        PROBLEM_JSON = os.environ.get('PROBLEM_JSON')
+        task_data = load_json(PROBLEM_JSON)
+
+        task_type = task_data["type"]
+        vp.print_var("task_type", task_type)
+
         problem_data_dict = {
             "protocol_version": self.protocol_version,
             "code": task_data["name"],
@@ -129,7 +133,7 @@ class JSONExporter:
             "memory_limit": task_data["memory_limit"]*1024*1024,
             "score_precision": task_data.get("score_precision", 2),
             "task_type": task_type,
-            "task_type_params": json.dumps(task_type_params),
+            "task_type_params": self._get_task_type_parameters(task_data, task_type),
         }
 
         problem_data_str = json.dumps(problem_data_dict)
