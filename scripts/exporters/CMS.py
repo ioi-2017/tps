@@ -115,7 +115,41 @@ class JSONExporter:
                 task_type_params["task_type_parameters_Batch_compilation"] = compilation_type
 
             return json.dumps(task_type_params)
-        return None
+
+        # self.protocol_version > 1
+
+        if "task_type_parameters" in task_data:
+            # Task type parameters list is manually set in PROBLEM_JSON.
+            return task_data["task_type_parameters"]
+
+        HAS_GRADER = get_bool_environ("HAS_GRADER")
+        HAS_CHECKER = get_bool_environ('HAS_CHECKER')
+        evaluation_type = "comparator" if HAS_CHECKER else "diff"
+
+        if task_type == 'Batch':
+            compilation = "grader" if HAS_GRADER else "alone"
+            input_filename = ""
+            output_filename = ""
+            return [
+                compilation,
+                [input_filename, output_filename,],
+                evaluation_type,
+            ]
+
+        if task_type == 'Communication':
+            num_processes = task_data.get("num_processes", 1)
+            compilation = "stub" if HAS_GRADER else "alone"
+            user_io = task_data.get("user_io", "fifo_io")
+            return [
+                num_processes,
+                compilation,
+                user_io,
+            ]
+
+        if task_type == 'TwoSteps' or task_type == 'OutputOnly':
+            return [evaluation_type]
+
+        return []
 
 
     def export_problem_global_data(self):
@@ -411,11 +445,13 @@ def main():
         'protocol_version',
         metavar='<protocol-version>',
         type=int,
-        choices=[1],
+        choices=[1, 2],
         help="""\
 The protocol version of the exported package
 Currently available versions:
-1  The primarily-used protocol.
+1  The traditionally-used protocol (used up to 2022).
+2  Supports more flexible setting of task type parameters (defined in 2022).
+Make sure the target CMS server supports the specified protocol version.
 """
     )
     parser.add_argument(
