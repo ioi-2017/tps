@@ -172,6 +172,9 @@ class JSONExporter:
             "task_type_params": self._get_task_type_parameters(task_data, task_type),
         }
 
+        if "score_mode" in task_data:
+            problem_data_dict["score_mode"] = task_data["score_mode"]
+
         problem_data_str = json.dumps(problem_data_dict)
         vp.print_var(json_file, problem_data_str)
         self.write_to_file(json_file, problem_data_str)
