@@ -64,8 +64,9 @@ make_archive = wrapped_run("make_archive", shutil.make_archive)
 
 class JSONExporter:
 
-    def __init__(self, temp_prob_dir):
+    def __init__(self, temp_prob_dir, protocol_version):
         self.temp_prob_dir = temp_prob_dir
+        self.protocol_version = protocol_version
 
     def get_absolute_path(self, path):
         return os.path.join(self.temp_prob_dir, path)
@@ -121,7 +122,7 @@ class JSONExporter:
             task_type_params["task_type_parameters_Batch_compilation"] = compilation_type
 
         problem_data_dict = {
-            "protocol_version": 1,
+            "protocol_version": self.protocol_version,
             "code": task_data["name"],
             "name": task_data["title"],
             "time_limit": task_data["time_limit"],
@@ -338,18 +339,19 @@ def get_archive_format_names():
     return [f[0] for f in get_archive_formats()]
 
 
-def export(file_name, archive_format):
+def export(file_name, archive_format, protocol_version):
     """
     returns the export file name
     """
     vp.print("Exporting '{}' with archive format '{}'...".format(file_name, archive_format))
+    vp.print_var("protocol_version", protocol_version)
     with tempfile.TemporaryDirectory(prefix=file_name) as temp_root:
         vp.print_var("temp_root", temp_root)
         temp_prob_dir_name = PROBLEM_NAME
         temp_prob_dir = os.path.join(temp_root, temp_prob_dir_name)
         mkdir(temp_prob_dir)
 
-        JSONExporter(temp_prob_dir).export()
+        JSONExporter(temp_prob_dir, protocol_version).export()
 
         if archive_format == NO_ARCHIVE_FORMAT:
             final_export_file = move(
@@ -400,6 +402,17 @@ def main():
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
+        'protocol_version',
+        metavar='<protocol-version>',
+        type=int,
+        choices=[1],
+        help="""\
+The protocol version of the exported package
+Currently available versions:
+1  The primarily-used protocol.
+"""
+    )
+    parser.add_argument(
         "-v", "--verbose",
         action="store_true",
         help="Prints verbose details on values, decisions, and commands being executed.",
@@ -427,7 +440,7 @@ Default archive format is '%(default)s'.
     file_name = args.output_name if args.output_name else create_export_file_name()
 
     try:
-        export_file = export(file_name, args.archive_format)
+        export_file = export(file_name, args.archive_format, args.protocol_version)
         if warnings:
             cprint(colors.WARN, "Successfully exported to '{}', but with warnings.".format(export_file))
         else:
