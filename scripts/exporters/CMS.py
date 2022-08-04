@@ -121,6 +121,7 @@ class JSONExporter:
             task_type_params["task_type_parameters_Batch_compilation"] = compilation_type
 
         problem_data_dict = {
+            "protocol_version": 1,
             "code": task_data["name"],
             "name": task_data["title"],
             "time_limit": task_data["time_limit"],
