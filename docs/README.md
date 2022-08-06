@@ -725,6 +725,51 @@ You should use the `invoke` command (discussed in the next sections)
  to consider those limits and run against the test cases.
 
 
+## crun
+
+This command is a shortcut for `compile` and `run` commands.
+It gets a single solution, then will compile and run it.
+This simplifies the testing of
+ the solutions that could be
+ tested using standard input and standard output.
+
+Here is the usage:
+
+```
+tps crun [options] &lt;solution-path&gt;  [ -- &lt;solution-run-arguments&gt... ]
+```
+
+In addition to the solution path,
+ the command can get some options
+ that are similar to the options from the `compile` command above.
+* `-h, --help`:
+  Shows the help.
+* `-w, --warning-sensitive`:
+  Fails (exits with a nonzero code)
+  when warnings were detected during the compilation process.
+* `-p, --public`:
+  Uses the public graders (in directory `public`)
+  for compiling and linking with the solution,
+  instead of the judge graders (in directory `grader`).
+
+If the compilation fails,
+ the process is terminated
+ after printing the error details.
+Otherwise,
+ a single line about the compilation result
+ is printed to the standard error
+ and then the compiled solution is executed.
+
+Just in case,
+ if it is needed to pass arguments to the solution program,
+ you should place the arguments after a "`--`" argument.
+Example:
+```
+tps crun "path/to/sol.cpp" -w -- "arg-being-passed-to-sol"
+```
+
+
+
 ## gen
 
 Compiles generator, model-solution, and validator,
