@@ -500,11 +500,16 @@ The following commands can be used to add a file:
   and available in the `tests` directory
   (naturally, using `tps gen`).
 
-Note that the keyword `PROBLEM_NAME_PLACE_HOLDER` in file names
- is representing the task name (specified in `problem.json`)
- and is automatically replaced during the execution.
+Note that the keywords
+ `PROBLEM_NAME_PLACE_HOLDER`
+ and
+ `GRADER_NAME_PLACE_HOLDER`
+ in file names
+ are representing the task name and the grader name respectively
+ (specified in `problem.json`)
+ and are automatically replaced during the execution.
 So, it is not needed
- to replace it with the task name in the file.
+ to replace them with their real values in the file.
 
 
 
@@ -514,16 +519,16 @@ Example:
 public cpp/compile_cpp.sh
 public cpp/PROBLEM_NAME_PLACE_HOLDER.cpp
 grader cpp/PROBLEM_NAME_PLACE_HOLDER.h
-grader cpp/grader.cpp
+grader cpp/GRADER_NAME_PLACE_HOLDER.cpp
 
 public py/compile_py.sh
 public py/PROBLEM_NAME_PLACE_HOLDER.py
-grader py/grader.py
+grader py/GRADER_NAME_PLACE_HOLDER.py
 
 public java/compile_java.sh
 public java/run_java.sh
 public java/PROBLEM_NAME_PLACE_HOLDER.java
-grader java/grader.java
+grader java/GRADER_NAME_PLACE_HOLDER.java
 
 #this is a comment
 
