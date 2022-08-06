@@ -9,7 +9,9 @@ IOI 2017, Tehran, Iran
 
 # TPS Interfaces
 
-The TPS has two interfaces: a command-line interface that is ideal for those who love terminal, and a web interface with a GUI. Currently the web interface is read-only, hence any changes to the task statement or test material should be done through the git interface. The main functionality of the web interface is to invoke solutions over the whole set of tests to see how they perform on the real contest machines, in parallel.
+The TPS has two interfaces: a command-line interface that is ideal for those who love terminal, and a web interface with a GUI.
+Currently the web interface is read-only, hence any changes to the task statement or test material should be done through the git interface.
+The main functionality of the web interface is to invoke solutions over the whole set of tests to see how they perform on the real contest machines, in parallel.
 
 The following sections describe these interfaces.
 
@@ -25,7 +27,8 @@ Run the following command to install TPS on Linux/MacOS/Windows (with WSL):
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ioi-2017/tps/master/online-installer/install.sh)"
 ```
 
-Online installer assumes you have `git` installed in your system. It clones the tps repo and installs it.
+Online installer assumes you have `git` installed in your system.
+It clones the tps repo and installs it.
 
 You can customize its installation by setting these enviornment variables before running the above command:
 
@@ -100,17 +103,20 @@ The system should have the GNU `make` command (for `Makefile`s).
 # Task Directory Structure
 
 Let's explain the current directory structure of tasks.
-Consider the task *mountains* for instance. It is available in the samples directory.
+Consider the task *mountains* for instance.
+It is available in the samples directory.
 It contains the statement, codes, and all test material for the task.
 Here is a brief description of files and subdirectories in each task directory:
 
 ## problem.json
 
-This file contains the general description of the task. It has several attributes:
+This file contains the general description of the task.
+It has several attributes:
 
 `name`: The short name of the task.
 
-`code`: A unique code assigned to each task in the TPS web-interface. Usually it is the same as the `name`, but the `code` is fixed even if the `name` is changed.
+`code`: A unique code assigned to each task in the TPS web-interface.
+Usually it is the same as the `name`, but the `code` is fixed even if the `name` is changed.
 
 `title`: Task title, as appears in the task statement.
 
@@ -147,7 +153,11 @@ It can contain a directory `manual` that contains manually created test data, so
 
 ## gen/data
 
-This file contains the arguments used to generate test data, and their mapping to the subtasks. It is separated into several test-sets. Each test-set can include other test-sets by a line starting with `@include`. A test-set can be an actual subtask (`@subtask`), or just a test-set (`@testset`) that can be included in the other subtasks. Below is an example:
+This file contains the arguments used to generate test data, and their mapping to the subtasks.
+It is separated into several test-sets.
+Each test-set can include other test-sets by a line starting with `@include`.
+A test-set can be an actual subtask (`@subtask`), or just a test-set (`@testset`) that can be included in the other subtasks.
+Below is an example:
 
 ```
 @subtask samples
@@ -190,7 +200,9 @@ gencode magic 2000
 
 This directory contains the program that have the main routine, which will be compiled with a solution or contestant's source code and call its functions.
 It contains one directory for each programming language (cpp/pas/java), which contains a specific grader for that language.
-The `cpp` directory usually contains a `.h` interface file that is included in grader (and possibly in contestant's program). It contains the graders that are used by the judging system. The public grader, which is given to the contestants during the contest, can be the same as this graders, or can be automatically created from the grader by removing the secret parts, which are bounded between `// BEGIN SECRET` and `// END SECRET` lines, or can be prepared separately.
+The `cpp` directory usually contains a `.h` interface file that is included in grader (and possibly in contestant's program).
+It contains the graders that are used by the judging system.
+The public grader, which is given to the contestants during the contest, can be the same as this graders, or can be automatically created from the grader by removing the secret parts, which are bounded between `// BEGIN SECRET` and `// END SECRET` lines, or can be prepared separately.
 
 ## checker/
 
@@ -207,11 +219,14 @@ Otherwise, the judgment behavior is undefined.
 
 ## solution/
 
-It contains all solutions that are prepared and used in development of the task, for different programming languages (all in the same directory). Each solution has a verdict that are listed in `solutions.json` file.
+It contains all solutions that are prepared and used in development of the task, for different programming languages (all in the same directory).
+Each solution has a verdict that are listed in `solutions.json` file.
 
 ## solutions.json
 
-This file specifies the verdict of each solution. It is used by the web-interface to check if the behavior of each solution is expected on the test data. The verdicts can be `correct`, `time_limit`, `memory_limit`, `incorrect`, `runtime_error`, `failed`, `time_limit_and_runtime_error`, `partially_correct`.
+This file specifies the verdict of each solution.
+It is used by the web-interface to check if the behavior of each solution is expected on the test data.
+The verdicts can be `correct`, `time_limit`, `memory_limit`, `incorrect`, `runtime_error`, `failed`, `time_limit_and_runtime_error`, `partially_correct`.
 There is also a special verdict `model_solution` which should be used exactly once.
 The model solution is used to generate the correct outputs for test data.
 Below is an example:
@@ -230,7 +245,8 @@ Below is an example:
 
 ## validator/
 
-This directory contains validators for the whole set of test data (global validators), or for each/multiple subtask(s), and a Makefile for compiling validators. It also contains `testlib.h` that the validators usually use.
+This directory contains validators for the whole set of test data (global validators), or for each/multiple subtask(s), and a Makefile for compiling validators.
+It also contains `testlib.h` that the validators usually use.
 
 ## subtasks.json
 
@@ -632,7 +648,8 @@ Here are some notes/features on this command:
 * This script runs based on the assumption that
    the test data is already generated and placed in the `tests` directory (or the directory specified with `--tests-dir`).
 * The script needs the file `gen_summary` in the tests directory (generated by the `gen` command)
-  in order to detect the test cases. Make sure the file is not removed or modified manually.
+  in order to detect the test cases.
+Make sure the file is not removed or modified manually.
 * The script reports the test cases
   which are (for any reason) not available in the tests directory
   but the invocation should have been run on them.
@@ -666,5 +683,10 @@ This command is not usable if TPS web interface is not setup for the task.
 # TPS Web interface
 
 To use the TPS web interface, clone `tps-web` repository from [here](https://github.com/ioi-2017/tps-web).
-Using the web interface, you can go to any task, and see the task statement and all of test materials. The test cases are only available after they are generated. For generating the test cases you should go to the analysis page and click on the generate button. During the generation you can also see the generation state by reloading the page. You may then analyze the test data using the test cases section. You may also use invocations to evaluate solutions.
+Using the web interface, you can go to any task, and see the task statement and all of test materials.
+The test cases are only available after they are generated.
+For generating the test cases you should go to the analysis page and click on the generate button.
+During the generation you can also see the generation state by reloading the page.
+You may then analyze the test data using the test cases section.
+You may also use invocations to evaluate solutions.
 Currently, exporting packages for CMS are also available only in the web interface.
