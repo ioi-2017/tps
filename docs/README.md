@@ -611,11 +611,13 @@ This command gets a single solution and does the following:
   when something special should be done
   in addition to the normal compile process.
   For example,
-  in `Communication` tasks,
-  a manager file should also be compiled
+  in compiling `Communication` tasks,
+  a "manager" file should also be compiled
   and put beside the grader.
-  This is achieved using `post_compile.sh` in the current implementation,
-  without the need for modifying the compile script itself.
+  In older implementations
+  (where the compilation process was not specialized for `Communication` tasks),
+  this was achieved using `post_compile.sh`,
+  without the need for modifying the main compile script itself.
 
 In addition to the solution path,
  the command can get some options:
