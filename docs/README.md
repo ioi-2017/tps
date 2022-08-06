@@ -25,7 +25,7 @@ The following sections describe these interfaces.
 
 It is possible to install the TPS command-line interface
  using an online installer,
- or install it manually.
+ or through a manual installation process.
 
 ## Online installation
 
@@ -39,7 +39,7 @@ Online installer assumes you have `git` installed in your system.
 It clones the tps repo and installs it.
 
 You can customize its installation
- by setting these enviornment variables before running the above command:
+ by setting these environment variables before running the above command:
 
 | Variable                  | Description                               | Default                               |
 | ------------------------- | ----------------------------------------- | ------------------------------------- |
