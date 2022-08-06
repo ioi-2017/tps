@@ -74,7 +74,7 @@ The `gcc` compiler is mandatory,
  and `fpc` (Free Pascal) and java compilers are required
  if there are invocations of those languages.
 
-Python (2 or 3) is an essential dependency for executing the TPS scripts.
+Python is an essential dependency for executing the TPS scripts.
 It is also needed for invocations of Python solutions.
 You can set the environment variable `PYTHON` to `python3`, `python2`, `python`,
  or any other Python interpreter with which you want to run the solution.
@@ -242,7 +242,7 @@ gencode magic 2000
 This directory contains the program that have the main routine,
  which will be compiled with a solution or contestant's source code
  and call its functions.
-It contains one directory for each programming language (cpp/pas/java),
+It contains one directory for each programming language (cpp/pas/java/py),
  which contains a specific grader for that language.
 The `cpp` directory usually contains a `.h` interface file
  that is included in grader
@@ -252,7 +252,8 @@ The public grader,
  which is given to the contestants during the contest,
  can be the same as this graders,
  or can be automatically created from the grader by removing the secret parts,
- which are bounded between `// BEGIN SECRET` and `// END SECRET` lines,
+ which are bounded between `// BEGIN SECRET` and `// END SECRET` lines
+ (`# BEGIN SECRET` and `# END SECRET` in case of python language),
  or can be prepared separately.
 
 ## checker/
@@ -473,9 +474,9 @@ public cpp/PROBLEM_NAME_PLACE_HOLDER.cpp
 grader cpp/PROBLEM_NAME_PLACE_HOLDER.h
 grader cpp/grader.cpp
 
-public pas/compile_pas.sh
-public pas/PROBLEM_NAME_PLACE_HOLDER.pas
-grader pas/grader.pas
+public py/compile_py.sh
+public py/PROBLEM_NAME_PLACE_HOLDER.py
+grader py/grader.py
 
 public java/compile_java.sh
 public java/run_java.sh
