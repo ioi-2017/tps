@@ -32,7 +32,7 @@ You can customize its installation by setting these enviornment variables before
 | Variable                  | Description                               | Default                               |
 | ------------------------- | ----------------------------------------- | ------------------------------------- |
 | `TPS_LOCAL_REPO`          | Directory to store TPS code repository in | `$HOME/.local/share/tps`              |
-| `TPS_REMOTE_REPO_GIT_URL` | Git URL of the remote repo                | `https://github.com/ioi-2017/tps.git` | 
+| `TPS_REMOTE_REPO_GIT_URL` | Git URL of the remote repo                | `https://github.com/ioi-2017/tps.git` |
 | `TPS_REMOTE_BRANCH`       | Branch to install from                    | `master`                              |
 
 ### Manual installation
@@ -45,9 +45,9 @@ sudo ./install-tps.sh
 ```
 
 Windows users can run `install-tps.bat`.
-The Windows installer assumes you have `MinGW`/`MSYS` installed and 
+The Windows installer assumes you have `MinGW`/`MSYS` installed and
   the directory `C:\msys\scripts` is in your PATH.
-Command completion is not supported in windows `CMD`. 
+Command completion is not supported in windows `CMD`.
 
 
 # Prerequisites for the command-line interface
@@ -55,7 +55,7 @@ Command completion is not supported in windows `CMD`.
 It is recommended to install bash completion if it is not already installed (there is a manual for OS/X [here](http://davidalger.com/development/bash-completion-on-os-x-with-brew/)).
 
 TPS currently supports C++, Pascal, Java, and Python for solutions.
-The `gcc` compiler is mandatory, 
+The `gcc` compiler is mandatory,
  and `fpc` (Free Pascal) and java compilers are required if there are invocations of those languages.
 
 Python (2 or 3) is an essential dependency for executing the TPS scripts.
@@ -79,7 +79,7 @@ sudo python -m pip install package-name
 ```
 
 The `dos2unix` command is required for making public directories and task attachments (using `tps make-public`).
-It is also suggested to be available when generating tests (using `tps gen`). 
+It is also suggested to be available when generating tests (using `tps gen`).
 You may install it in linux using:
 
 ```
@@ -240,7 +240,7 @@ It contains the information of all subtasks, including:
   In output-only tasks which usually do not have the sample tests as subtask,
   the subtasks indices should start with $1$.
 * `score`: the score of the subtask.
-  The total scores over all subtasks should be $100$. 
+  The total scores over all subtasks should be $100$.
 * `validators`: the list of validators specific to the subtask.
 
 In addition, it contains the list of global validators (`global_validators`).
@@ -296,7 +296,7 @@ The pictures can be placed here as well.
 ## scripts/
 
 All the scripts used by the TPS command for this task are stored here.
-If you invoke 
+If you invoke
 ```
 tps mycommand ...
 ```
@@ -326,19 +326,19 @@ The public package of task files is created using `tps make-public` according to
 This file defines how the public package of task files given to the contestants is prepared.
 Every file that is going to be put in the archive should be explicitly mentioned in this file.
 The following commands can be used to add a file:
- 
+
 * `public <public-file-path>`:
 The same file in the `public` directory is used after some fixing (dos2unix).
 
 * `grader <grader-file-path>`:
 The file is going to be generated from the equivalent file in the `grader` directory,
- using the `pgg` (Public Grader Generator) script. 
+ using the `pgg` (Public Grader Generator) script.
  This script removes the secret parts of the judge grader that are specified through `BEGIN SECRET`/`END SECRET` markers.
 
 * `copy_test_inputs <gen/data file> <public tests dir> <generated tests dir>`:
 This command is mainly used in output-only tasks.
 It copies all test inputs based on file `gen/data` from directory `tests` to directory `public/tests`.
-**Important**: 
+**Important**:
 It assumes that the test data is already generated and available in the `tests` directory (naturally, using `tps gen`).
 
 Note that the keyword `PROBLEM_NAME_PLACE_HOLDER` in file names is representing the task name (specified in `problem.json`)
@@ -372,7 +372,7 @@ public examples/02.in
 public examples/02.out
 ```
 
- 
+
 
 ## tests/
 
@@ -380,10 +380,10 @@ After running the generators (using `tps gen`), it will contain the following ma
 * The generated test data (both input and output files).
 * A file named `mapping` that specifies the mapping of test cases to subtasks.
 For each test case $c$ and subtask $s$ containing $c$, there is a line containing $s$ and $c$.
-The same test can be mapped to multiple subtasks. 
+The same test can be mapped to multiple subtasks.
 This mapping is used during the validation of test cases, and also in exporting to CMS.
 * A file named `gen_summary` which contains a summary of data generation process.
-For each line of test generation in file `gen/data`, 
+For each line of test generation in file `gen/data`,
  its line number, its contents, and name of the corresponding generated test is written to `gen_summary`.
 
 ## sandbox/
@@ -418,7 +418,7 @@ A `Makefile` should also have a special target named `compile_outputs_list`
 
 One may ask
  why the output of the `make` command itself is not processed to detect the warnings.
-That's because the `make` command does not perform the compilation again 
+That's because the `make` command does not perform the compilation again
  if the executables are already built and up-to-date.
 So, if it was implemented that way, no warning could be detected in such cases.
 
@@ -427,7 +427,7 @@ So, if it was implemented that way, no warning could be detected in such cases.
 
 # TPS commands
 
-TPS provides a `tps` command with bash auto-completion functionality. 
+TPS provides a `tps` command with bash auto-completion functionality.
 Here is the usage:
 
 ```
@@ -450,13 +450,13 @@ This command gets a single solution and does the following:
 * Detects the programming language.
 * Puts the solution in the `sandbox` directory with the appropriate name (naturally, renamed to the task name).
 * Puts the necessary grader files in the sandbox.
-* Compiles and links the solution with the grader. 
+* Compiles and links the solution with the grader.
 * Creates `exec.sh` in the sandbox.
   This script runs the program based on the detected programming language.
   The complexities due to the different programming languages are wrapped by this script.
   So, one would rather use this script instead of directly running the compiled binary.
 * Creates `run.sh` in the sandbox.
-  This script uses `exec.sh` 
+  This script uses `exec.sh`
    and implements the logic of running the program based on the task type.
   For example, it handles the pipes and interactions with the manager in tasks of type `Communication`,
   or it runs both two phases of execution in tasks of type `TwoSteps`.
@@ -482,8 +482,8 @@ In addition to the solution path, the command can get some options:
   Uses the public graders (in directory `public`) for compiling and linking with the solution,
    instead of the judge graders (in directory `grader`).
   This is mainly useful for verifying and testing the public graders and example tests.
- 
- 
+
+
 ## run
 
 In short, it runs the compiled solution in the sandbox.
@@ -493,7 +493,7 @@ As mentioned in the description of the `compile` command,
   it also creates a script `run.sh` in `sandbox`
   which wraps both the complexities of having different programming languages
   and the complexities of having different task types.
-When being in different directories, 
+When being in different directories,
   directly executing `run.sh` needs annoying relative addressings like `../../sandbox/run.sh`.
 The `run` command in TPS handles this addressing issue.
 So, being in any location of the task directory structure, the same thing should be entered in the command-line:
@@ -510,14 +510,14 @@ You should use the `invoke` command (discussed in the next sections) to consider
 
 ## gen
 
-Compiles generator, model-solution, and validator, 
+Compiles generator, model-solution, and validator,
   and then generates and validates the test inputs and runs the model solution on them to generate the test outputs.
 The generated test cases are placed in the `tests` directory.
 
 Each test is assigned a test name by the TPS.
-Currently, the test names are in `X-YY` format, 
-  where `X` is the subtask name (or testset number, starting from `0`), 
-  and `YY` is the test number, 
+Currently, the test names are in `X-YY` format,
+  where `X` is the subtask name (or testset number, starting from `0`),
+  and `YY` is the test number,
   starting from `01`, in the same order of their presence in the `gen/data` file.
 This format is set in `scripts/templates/test_name.py` and can be changed per task, if required.
 Default naming of the tests is different in output-only tasks; it is just `YY` where `YY` is the test number.
@@ -530,13 +530,13 @@ The command options are:
   Terminates the generation process on the first error and shows the error details.
 * `-w, --warning-sensitive`:
   Terminates the generation process on the first warning or error and shows the details.
-  It also enables the `--sensitive` flag implicitly. 
+  It also enables the `--sensitive` flag implicitly.
 * `-u, --update`:
   Updates the currently existing set of tests.
-  This option prevents the initial cleanup of the `tests` directory 
+  This option prevents the initial cleanup of the `tests` directory
    and is used when a subset of test data needs to be generated again.
   *Warning:* Use this feature only when the other tests are not needed or already generated correctly.
-* `-t, --test=<test-name-pattern>`: 
+* `-t, --test=<test-name-pattern>`:
   Runs the process of test generation for a subset of tests.
   A test is generated if and only if its name matches the given pattern.
   Example patterns are `1-01`, `'1-*'`, and `'1-0?'`.
@@ -544,19 +544,19 @@ The command options are:
   Examples of multiple patterns are "`1-01, 2-*`", "`?-01|*2|0-*`".
   Note: When using wildcards, do not forget to use quotation marks or escaping (using `\`) in the pattern to prevent shell expansion.
   Also, use escaping (with `\`) when separating multiple patterns using pipes.
-* `-m, --model-solution=<model-solution-path>`: 
+* `-m, --model-solution=<model-solution-path>`:
   Overrides the model solution used for generating test outputs.
-* `-d, --gen-data=<gen-data-file>`: 
+* `-d, --gen-data=<gen-data-file>`:
   Overrides the location of meta-data file used for test generation (instead of `gen/data`).
 * `--tests-dir=<tests-directory-path>`:
   Overrides the location of the tests directory (instead of `tests`).
-* `--no-gen`: 
+* `--no-gen`:
  Skips running the generators for generating test inputs.
  This option prevents the initial cleanup of the tests directory
   and is used when test inputs are already thoroughly generated and only test outputs need to be generated.
-* `--no-sol`: 
+* `--no-sol`:
  Skips running the model solution for generating test outputs.
-* `--no-val`: 
+* `--no-val`:
  Skips validating test inputs.
 * `--no-sol-compile`:
  Skips compiling the model solution
@@ -566,7 +566,7 @@ Here are some notes/features on this command:
 * The contents of the `tests` directory (or the directory specified with `--tests-dir`)
   is completely cleared in the beginning of execution.
   The exception is when flags `-u`, `--update`, or `--no-gen` are set.
-* The script warns for each test if it has no validator.  
+* The script warns for each test if it has no validator.
 * Files `mapping` and `gen_summary` in the `tests` directory are also generated when this command is run.
 * If file `input.header` is available in the `gen` directory, its contents is inserted in the beginning of each input.
 * If file `output.header` is available in the `gen` directory, its contents is appended to the end of each input.
@@ -578,8 +578,8 @@ Here are some notes/features on this command:
 
 ## invoke
 
-This command is used to compile a solution and the checker, 
-  run the solution over the test data (with the problem constraints, e.g. time limit) and check its output. 
+This command is used to compile a solution and the checker,
+  run the solution over the test data (with the problem constraints, e.g. time limit) and check its output.
 Here is the usage:
 
 ```
@@ -594,7 +594,7 @@ Below are the command options:
  Note that solution failures such as `Wrong Answer` or `Runtime Error` are not considered an error here.
 * `-w, --warning-sensitive`:
  Terminates the invocation process on the first warning or error and shows the details.
- It also enables the `--sensitive` flag implicitly. 
+ It also enables the `--sensitive` flag implicitly.
 * `-r, --show-reason`:
  Displays the failure reason for each test case.
  The checker message is written in the case of `Wrong Answer`.
@@ -647,7 +647,7 @@ Here are some notes/features on this command:
 
 This command updates the `public` directory and provides the package that is given to the contestants.
 It contains the public graders for each language, example test data, sample solution, the compile/run scripts, and test inputs for the output-only tasks.
-The script finally generates a ZIP file (in the root of task directory structure) 
+The script finally generates a ZIP file (in the root of task directory structure)
   which can be shared with the contestants during the contest (directly put in CMS, etc).
 The behavior of the script for each public file is explicitly specified in `public/files`.
 
@@ -655,9 +655,9 @@ The behavior of the script for each public file is explicitly specified in `publ
 ## analyze
 
 This command will open the TPS web interface on the same current commit,
- to verify the directory structure, 
- to generate the test data, 
- and to use the other functionalities of the web interface from the left menu (e.g. invocations). 
+ to verify the directory structure,
+ to generate the test data,
+ and to use the other functionalities of the web interface from the left menu (e.g. invocations).
 It will not change from this commit, even if other people push changes.
 Make sure to push your commits before executing this command.
 This command is not usable if TPS web interface is not setup for the task.
