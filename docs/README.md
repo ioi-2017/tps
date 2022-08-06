@@ -151,8 +151,6 @@ Usually it is the same as the `name`,
 
 `description`: An optional description of the task.
 
-`tps_web_url`: Optional URL as a base for TPS web URL of the same task.
-
 Below is a sample `problem.json`:
 
 ```
@@ -163,10 +161,54 @@ Below is a sample `problem.json`:
     "memory_limit": 256,
     "time_limit": 1.0,
     "type": "Batch",
-    "description": "Find maximum number of Deevs",
-    "tps_web_url": "https://tps.ioi2017.org/tps"
+    "description": "Find maximum number of Deevs"
 }
 ```
+
+Other attributes may appear in `problem.json` occasionally:
+
+* `tps_web_url`:
+  URL as a base for TPS web URL of the same task.
+  It has no use if TPS web interface is not used.
+
+* `has_grader`:
+  It specifies
+  if the solution files are standalone programs
+  or compiled against a provided grader.
+  Default value: `false` in OutputOnly tasks, `true` in other task types.
+
+* `grader_name`:
+  The name of grader file against which the solution files are compiled.
+  You may need to set `grader_name` to `stub` in Communication tasks.
+  Default value: `grader`
+
+* `has_checker`:
+  It specifies
+  if the solution outputs are compared using `diff`
+  or judged with a checker.
+  Default value: `false` in Communication tasks, `true` in other task types.
+
+* `has_manager`:
+  It specifies
+  if the solution files are interacting with a manager program
+  during a test case scenario.
+  Default value: `true` in Communication tasks, `false` in other task types.
+
+* `num_processes`:
+  It specifies
+  the number of times
+  the contestant solution must be executed
+  during a test case scenario
+  in Communication tasks.
+  Default value: $1$.
+
+
+Attributes for enabling/disabling programming languages in `problem.json`:
+* `cpp_enabled`: Default: true
+* `java_enabled`: Default: true
+* `pascal_enabled`: Default: false
+* `python_enabled`: Default: false
+
 
 ## gen/
 
