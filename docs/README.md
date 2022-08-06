@@ -880,6 +880,10 @@ Here are some notes/features on this command:
 * The script reports the test cases
   which are (for any reason) not available in the tests directory
   but the invocation should have been run on them.
+* The script prints a summary for each subtask
+  that includes the score,
+  the number of invoked test cases,
+  and the comparison with the expected verdict.
 * The `logs` directory is completely cleared
   in the beginning of this script.
   All the steps are logged in separate files in this directory.
