@@ -186,18 +186,29 @@ Each test-set can include other test-sets by a line starting with `@include`.
 A test-set can be an actual subtask (`@subtask`),
  or just a test-set (`@testset`)
  that can be included in the other subtasks.
+
+There are two special test generation commands,
+ available to be used in `gen/data`:
+* `copy`: Gets a single argument;
+  a file path
+  that is copied as a test case input.
+* `manual`: Gets a single argument;
+  a file name which shall be available in directory `gen/manual`
+  and is copied as a test case input.
+
+
 Below is an example:
 
 ```
 @subtask samples
-manual sample-01.in
-manual sample-02.in
-#uses a manually generated test from manual directory
+copy ../public/examples/01.in
+copy ../public/examples/02.in
+# Copies the sample test case inputs from directory "public/examples".
 
-# a comment is here
+# A comment is here
 @testset ABC
 gencode random 2
-#another comment
+# Another comment
 gencode slow_up 19 asdgs
 
 @subtask 2^n
@@ -207,6 +218,7 @@ gencode wall-envlope 19
 gencode semi-manual 19
 gencode magic 19
 manual man-01.in
+# Uses the manually created test from directory "manual".
 
 @testset apple
 gencode random 40 qwetf
@@ -215,7 +227,7 @@ gencode random 40 sadfa
 
 @subtask bt
 @include 2^n apple
-#inclusion is transitive, so it also includes ABC
+# Inclusion is transitive, so it also includes ABC
 gencode magic 40
 
 @subtask full
