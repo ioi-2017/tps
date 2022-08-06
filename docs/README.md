@@ -281,7 +281,10 @@ gencode magic 2000
 
 ## grader/
 
-This directory contains the program that have the main routine,
+This directory is used
+ only if the task has graders
+ (e.g. `has_grader` is not `false` in `problem.json`).
+It contains the program that have the main routine,
  which will be compiled with a solution or contestant's source code
  and call its functions.
 It contains one directory for each programming language (cpp/pas/java/py),
@@ -300,6 +303,9 @@ The public grader,
 
 ## checker/
 
+This directory is used
+ only if the task has checker
+ (e.g. `has_checker` is not `false` in `problem.json`).
 It contains a program, `checker.cpp`,
  that takes the input, output and answer of a test
  and checks if the output is correct or wrong,
