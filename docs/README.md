@@ -632,6 +632,83 @@ Below are the list of commands
 The exact list of commands depends on
  the contents of the `scripts` directory in the task package.
 
+## init
+
+This command initiates a new task
+ in the current directory
+ based on a given template.
+The command is independent of the `scripts` directory
+ and can be run anywhere outside of existing task directories.
+Here is the usage format:
+```
+tps init &lt;output-directory&gt; [options]
+```
+
+In addition to the name of the output directory
+ (as a positional argument),
+ the command can get some options:
+* `-h, --help`:
+  Shows the help.
+* `-t, --template=<task-template-name>`:
+  Specifies the task template name.
+
+  Note:
+  Value `'default'` is considered for `<task-template-name>`
+  if this option is not specified.
+
+* `-T, --templates-dir=<task-templates-dir>`:
+  Specifies the directory where the task templates are stored.
+
+  If this argument is provided,
+  the template is searched only in the given directory.
+  Otherwise, the template is searched in the directories
+  specified in the environment variable `TPS_TASK_TEMPLATES_PATH`.
+  This variable should be
+  a colon-delimited list of paths containing task templates.
+  Example: `/etc/tps/task-templates:/home/user/tps/task-templates`
+
+  Note:
+  In some cases,
+  using tilde (`~`) for the directory path
+  does not work.
+
+* `-D, --define <param-name>=<param-value>`:
+  Each template has some customization parameters.
+  They are prompted when running this command.
+  This argument predefines the value of a task template parameter
+  and bypasses the prompt for setting the given parameter.
+
+  Note:
+  This argument can be used multiple times.
+
+
+Here is an example of running the init command:
+```
+tps init "example-problem" \
+    -T "$HOME/.local/share/tps/task-templates" \
+    -t "default" \
+    -D has_grader=false
+```
+
+It initializes a task in directory "`example-problem`"
+ using the template "`default`"
+ located at "`$HOME/.local/share/tps/task-templates`".
+If TPS is installed using the online installer,
+ "`$HOME/.local/share/tps`" is the default path of TPS git repository
+ and contains the directory "`task-templates`".
+Additionally, `-D has_grader=false`
+ predefines the variable `has_grader`
+ and makes prompting for this variable bypassed during the execution.
+
+Currently,
+ the `task-templates` directory in TPS git repository
+ contains a ready task template named `default`
+ which is appropriate for IOI batch tasks.
+You can create and use your own custom task templates.
+A detailed documentation on task templates is available
+ [here](task_templates.md).
+
+
 
 ## verify
 

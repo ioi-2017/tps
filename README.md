@@ -36,6 +36,7 @@ The contents of `scripts` directory in `${BASE_DIR}` of a problem are originated
 Anyway, they can be updated using command `upgrade-scripts.sh`.
 It helps a lot in detecting changes and conflicts.
 
+TPS also provides `tps init`, a command to bootstrap a new task based on a given template.
 
 Documentation
 -------------
