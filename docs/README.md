@@ -673,6 +673,13 @@ This command gets a single solution and does the following:
   this was achieved using `post_compile.sh`,
   without the need for modifying the main compile script itself.
 
+Here is the usage format:
+
+```
+tps compile [options] &lt;solution-path&gt;
+```
+
+
 In addition to the solution path,
  the command can get some options:
 * `-h, --help`:
