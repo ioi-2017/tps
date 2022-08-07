@@ -755,7 +755,8 @@ Below are the command options:
   Terminates the invocation process on the first error.
   Note that
   solution failures such as `Wrong Answer` or `Runtime Error`
-  are not considered an error here.
+  are not considered an error here,
+  but the verdict `Judge Failure` is considered as an error.
 * `-w, --warning-sensitive`:
   Terminates the invocation process on the first warning or error
   and shows the details.
