@@ -945,6 +945,172 @@ Here are some notes/features on this command:
   unless the verdict is `Partially Correct`.
 
 
+## stress
+
+This command puts a solution under stress testing.
+More specifically,
+ it runs the solution against a series of (randomly) generated test cases
+ in order to find a test case for
+ which the solution fails,
+ or so called, is "hacked".
+This process is done through a series of rounds.
+The following steps are performed in each round:
+1. A "test case generation string" is first produced
+  (we will later explain how this is done).
+  This string is a single-line text
+  similar to the test generation lines in file `gen/data`.
+1. The test case input is generated
+  from the test case generation string.
+1. The generated test case input
+  is validated by the global validators.
+1. The corresponding test case output
+  is produced by the model solution.
+1. The stressed solution is invoked
+  with the generated test case as input.
+  The score and verdict of the invocation
+  is specified similar to the command `tps invoke`.
+1. The stressed solution is considered
+  to be hacked by the generated test case
+  if it does not get the required score.
+
+
+In addition to the presentations in the standard output,
+ test case generation strings by which the solution is hacked
+ are written into `logs/hacked.txt` too.
+
+
+Here is the usage format:
+
+```
+tps stress [options] &lt;solution-file&gt; &lt;test-case-generation-arg&gt;
+```
+
+The first positional argument (`<solution-file>`)
+ specifies the path of the solution file to be stressed.
+The second positional argument (`<test-case-generation-arg>`)
+ is one of the following:
+* The path to a _test case generation file_;
+  a python file
+  which produces the test case generation strings.
+  The python file must implement a function "`gen_command()`"
+  that gets no arguments as input.
+  Upon each call, this function must return a test case generation string.
+  Here is an example of a test case generation file:
+
+  ```
+  from stress_test_gen_utils import *
+
+  def gen_command():
+      return "gen 100 {} {}".format(
+          random.randint(1, 100),
+          ustr(8, 10),
+      )
+  ```
+  As seen in the example,
+  the module `stress_test_gen_utils`
+  (located at `scripts/templates/stress_test_gen_utils.py`)
+  is available for the test case generation file for importing
+  and provides utilities such as the function "`ustr`"
+  (which generates a uniformly random string with length in the specified range).
+  It also imports the module `random`.
+
+* A _test case generation format string_;
+  a general string used for producing test case generation strings.
+  The string must be in the shape of a format string in python.
+  Upon each evaluation,
+  the format string must produce a test case generation string.
+  Here is the test case generation format string
+  equivalent to the test case generation file
+  in the example above.
+
+  ```
+  "gen 100 {random.randint(1, 100)} {ustr(8, 10)}"
+  ```
+  The elements of the module `stress_test_gen_utils`
+   (and thus also the module `random`)
+   are automatically imported when evaluating the format string.
+  For using other modules in the format string,
+   the option `-i`/`--import` can be used
+   (for multiple times).
+  Here is an example:
+
+   ```
+   tps stress "solution/x.cpp" -i math --import string \
+              "gen 100 {math.factorial(random.randint(1, 5))} \
+                       {ustr(7, 13, string.ascii_uppercase)}"
+   ```
+  Limitations:
+  * This feature requires python `3.6+`,
+  * Triple-apostrophes (`'''`) are not allowed in the format string
+   (due to the issues in the current version of implementation).
+
+The second positional argument (`<test-case-generation-arg>`)
+ will be interpreted as a test case generation file path
+ if an ordinary file exists with the same path as that argument.
+Otherwise, it will be interpreted as a test case generation format string.
+In a rare case that a test case generation format string
+ happens to be also the path to an existing ordinary file,
+ a simple work around can be changing the format string "`the-path-to-some-file`"
+ to something like "`{ 'the-path-to-some-file' }`".
+
+Below are the command options:
+* `-h, --help`:
+  Shows the help.
+* `-s`, `--sensitive`:
+  Terminates on the first unexpected error and shows the error details.
+* `-w`, `--warning-sensitive`:
+  Terminates on the first warning or error and shows the details.
+* `-k`, `--hack-sensitive`:
+  Terminates on the first hacking test case.
+* `-m`, `--model-solution=<model-solution-path>`:
+  Generates test outputs using the given solution.
+* `-r`, `--rounds=<number-of-rounds>`:
+  The number of tests to generate to stress the solution.
+  If not specified, the stress process continues infinitely.
+* `-i`, `--import <python-module-name>`:
+  Imports the given module and makes it available
+  to be used during the evaluation of test case generation format string.
+  This option can be used for multiple times.
+  This option has no effect if a test case generation file path
+  is given instead of a test case generation format string.
+* `--seed=<random-seed>`:
+  The random seed given to the python module `random`
+  for producing the test case generation strings.
+  If the seed option is not given,
+  no seed will be set and the module `random` will have its default behavior.
+  The seed can be any string.
+  This seed does not have any effect on the generation of the test case input files
+  (when the test case generation string is fixed).
+* `--no-val`:
+  Skips validating test inputs.
+* `--no-sol-compile`:
+  Skips compiling the model and stressed solutions.
+  It assumes that they are already compiled
+  and still available in the sandbox.
+* `--no-model`:
+  Skips running the model on the test.
+  The checker should be able to work without having the correct answer.
+* `--no-check`:
+  Skips running the checker on the outputs of the stressed solution.
+  Generally used to only verify if the solution finishes successfully
+  (within the time limits and with no runtime errors).
+* `--no-tle`:
+  Removes the default time limit on the execution of the solution.
+  Actually, a limit of $24$ hours is applied.
+* `--time-limit=<time-limit>`:
+  Overrides the (soft) time limit on the solution execution.
+  Given in seconds, e.g. `--time-limit=1.2` means $1.2$ seconds
+* `--hard-time-limit=<hard-time-limit>`:
+  Solution process will be killed after `<hard-time-limit>` seconds.
+  Defaults to `<time-limit>` $+ 2$.
+  Note: The hard time limit must be greater than the (soft) time limit.
+* `--min-score=<min-score>`:
+  Minimum value as a valid score.
+  Given as a decimal value, typically in the range $[0, 1]$.
+  This option is generally used in tasks with partial scoring.
+  Default value is $1$.
+
+
 ## make-public
 
 This command updates the `public` directory
