@@ -7,6 +7,15 @@ Host Technical Committee, Host Scientific Committee
 IOI 2017, Tehran, Iran
 
 
+# Audience
+
+The audience of this document are TPS users,
+ those in charge of preparing tasks for programming contests.
+
+[A technical documentation](technical.md)
+ is also available for developers and maintainers of TPS codes.
+
+
 # TPS Interfaces
 
 The TPS has two interfaces:
