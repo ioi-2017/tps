@@ -459,6 +459,10 @@ These fragments are extracted from the scripts
  and kept in this directory,
  so that they can be found and modified more easily.
 
+* `exporters`:
+This directory contains the task exporter scripts.
+Read  [the export section](#export) for details.
+
 
 ## public/
 
@@ -1130,6 +1134,119 @@ The behavior of the script for each public file
  is explicitly specified in `public/files`.
 
 
+
+## export
+
+This command is used for exporting the task data
+ into external systems,
+ especially contest systems and online judges.
+The general format of its usage is in this form:
+```
+tps export &lt;exporter-name&gt; &lt;exporter-parameters...&gt;
+```
+The specified exporter
+ then generates an artifact (usually a zip archive)
+ that can be used in the target system
+ for adding the task data.
+
+Generally, the exporters assume that
+ the task structure is complete.
+For example,
+ they usually assume that
+ test data is already generated (using `tps gen`).
+
+Currently, these exporters are implemented and available:
+* CMS
+* DOMjudge
+
+Each exporter is explained
+ in the following subsections.
+In order to add more exporters,
+ you have to add its corresponding Bash/Python script
+ in directory `scripts/exporters`.
+
+
+### Exporting for CMS
+
+In order to export for CMS,
+ contest management system
+ generally used for contests like IOI,
+we use the following command:
+```
+tps export CMS [options] &lt;protocol-version&gt;
+```
+
+This command gets the protocol version of the exported package
+ as a positional argument.
+Currently, the available protocol versions are:
+* $1$: The traditionally-used protocol (used up to $2022$).
+* $2$: Supports more flexible setting of task type parameters (defined in $2022$).
+
+You need to make sure that
+ the target CMS server supports the specified protocol version.
+
+In addition to the protocol version,
+ the command can get some options:
+
+* `-h, --help`:
+  Shows the help.
+* `-v, --verbose`:
+  Prints verbose details during the execution.
+  It prints the value of important variables,
+  the decisions made based on the state,
+  and commands being executed.
+* `-o <export-output-name>, --output-name <export-output-name>`:
+  Creates the export output with the given name.
+* `-a <archive-format>`, `--archive-format <archive-format>`:
+  Creates the export archive with the given format.
+  Available archive formats are
+  (the exact list depends on the environment
+  on which the export command is run):
+  * `none`: No archiving; exporting as a directory
+  * `bztar`: bzip2'ed tar-file
+  * `gztar`: gzip'ed tar-file
+  * `tar`: uncompressed tar file
+  * `xztar`: xz'ed tar-file
+  * `zip`: ZIP file
+  Default archive format is `zip`.
+
+For using the exported package of a task, named "`book`" as an example,
+ you should copy (`scp`) the task export archive to the CMS server.
+Then, you should connect to that server (e.g. using `ssh`),
+ extract the package archive (which creates a directory "`book`"),
+ and run:
+```
+cmsImportTask -L tps_task "book"
+```
+You can read the help of `cmsImportTask` for more options.
+
+
+### Exporting for DOMjudge
+
+In order to export for DOMjudge,
+ contest management system
+ generally used for ICPC contests,
+we use the following command:
+```
+tps export DOMjudge [options]
+```
+
+This command can get some options:
+* `-h, --help`:
+  Shows the help.
+* `-v, --verbose`:
+  Prints verbose details during the execution.
+  It prints the value of important variables,
+  the decisions made based on the state,
+  and commands being executed.
+* `--with-statement-pdf`:
+  Adds the statement pdf file to the export archive.
+  It does so, only if exactly one pdf file exists in the `statement` directory.
+* `-o <export-output-name>, --output-name <export-output-name>`:
+  Creates the export output with the given name.
+
+
+
 ## analyze
 
 This command will open the TPS web interface on the same current commit,
@@ -1160,5 +1277,3 @@ During the generation
 You may then analyze the test data
  using the test cases section.
 You may also use invocations to evaluate solutions.
-Currently, exporting packages for CMS are also available
- only in the web interface.
