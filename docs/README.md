@@ -745,7 +745,7 @@ This command is used to compile a solution and the checker,
 Here is the usage:
 
 ```
-tps invoke [options] <solution-path>
+tps invoke [options] &lt;solution-path&gt;
 ```
 
 Below are the command options:
