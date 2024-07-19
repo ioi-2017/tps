@@ -4941,7 +4941,7 @@ NORETURN void skip_ok()
 std::string englishTh(int x)
 {
     char c[100];
-    sprintf(c, "%d%s", x, englishEnding(x).c_str());
+    snprintf(c, sizeof(c), "%d%s", x, englishEnding(x).c_str());
     return c;
 }
 
