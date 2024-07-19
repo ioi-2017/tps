@@ -58,6 +58,9 @@ Options:
 \tSolution process will be killed after <hard-time-limit> seconds.
 \tDefaults to <time-limit> + 2.
 \tNote: The hard time limit must be greater than the (soft) time limit.
+\
+      --fast-run
+\tSkips the remaining tests in a subtask if any test in that subtask fails.
 "
 }
 
@@ -70,6 +73,7 @@ SPECIFIC_TESTS="false"
 SPECIFIED_TESTS_PATTERN=""
 SKIP_CHECK="false"
 skip_compile_sol="false"
+FAST_RUN="false"
 
 
 function handle_option {
@@ -110,6 +114,9 @@ function handle_option {
 		--hard-time-limit=*)
 			fetch_nonempty_arg_value "HARD_TL" "-@" "--hard-time-limit" "hard time limit"
 			;;
+		--fast-run)
+			FAST_RUN="true"
+			;;
 		*)
 			invalid_arg_with_usage "${curr_arg}" "undefined option"
 			;;
@@ -149,7 +156,7 @@ compile_solution_if_needed "${skip_compile_sol}" "solution.compile" "solution" "
 compile_checker_if_needed
 
 ret=0
-"${PYTHON}" "${INTERNALS}/invoke.py" "${tests_dir}" "${solution}" || ret=$?
+"${PYTHON}" "${INTERNALS}/invoke.py" "${tests_dir}" "${solution}" "${FAST_RUN}" || ret=$?
 
 
 echo

@@ -37,10 +37,11 @@ def is_verdict_expected(score, verdict, expected_verdict):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        simple_usage_message("<tests-dir> <solution-path>")
+    if len(sys.argv) != 4:
+        simple_usage_message("<tests-dir> <solution-path> <fast-run>")
     tests_dir = sys.argv[1]
     solution_filename = os.path.basename(sys.argv[2])
+    fast_run = sys.argv[3] == "true"
 
     solutions_data = dict(load_json(SOLUTIONS_JSON))
     solution_data = solutions_data.get(solution_filename, None)
@@ -60,7 +61,13 @@ if __name__ == '__main__':
     if missing_tests:
         cprinterr(colors.WARN, "Missing tests: "+(", ".join(missing_tests)))
 
+    skip_subtasks = set()
     for test_name in available_tests:
+        if fast_run:
+            subtasks = tu.get_test_subtasks_from_tests_dir(test_name, tests_dir)
+            if not any(subtask not in skip_subtasks for subtask in subtasks):
+                continue
+
         command = [
             'bash',
             os.path.join(INTERNALS_DIR, 'invoke_test.sh'),
@@ -68,6 +75,13 @@ if __name__ == '__main__':
             test_name,
         ]
         wait_process_success(subprocess.Popen(command))
+
+        if fast_run:
+            with open(os.path.join(LOGS_DIR, "{}.score".format(test_name)), 'r') as sf:
+                score_str = sf.readlines()[0].strip('\n')
+                if score_str != "1":
+                    for subtask in subtasks:
+                        skip_subtasks.add(subtask)
 
     print("\nSubtask summary")
 
